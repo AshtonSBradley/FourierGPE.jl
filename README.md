@@ -24,16 +24,18 @@ V(x,y,t) = (x^2 + y^2))*pi+cos(0.1*t)
 The potential will be called as `V.(x,y',t)`, using the column vectors `x,y` and any other parameters you add to `sim`.
 
 ## Adding parameters
-You can add additional parameters (you should supply a default) to `Par` defined in 
+You can add additional parameters by editing the definition of `Par` in 
 
-`/src/helpers.jl`evolve.jl
+`/src/helpers.jl` 
 
-All modified parameters will be correctly saved using, e.g. 
+which will require you to supply a default, and optionally a type (if it differs from `Float64`).
+
+All modified parameters for a particular simulation will be correctly saved using, e.g. 
 
 ```julia
-sim = Par()
-a = 0.1
-initsim!(sim)
+sim = Par() # initialize default simulation
+a = 0.1 # modified value 
+initsim!(sim) # pack all params into `sim` 
 ```
 which should be called prior to evolving your specified initial condition `psi` in `kspace` using
 
