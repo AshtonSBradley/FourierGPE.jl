@@ -43,4 +43,4 @@ sol = runsim(sim,phi)
 ```
 
 ## Default solver
-Currently uses `alg=Tsit5()`, an adaptive RK routine. The default `reltol` is not quite small enough for some applications, so it is set to `reltol = 1e-7`.
+Currently uses `alg=Tsit5()`, an adaptive RK routine. The default `reltol` is not quite small enough for some applications, so it is set to `reltol = 1e-7`. See `src/evolve.jl` for details.
