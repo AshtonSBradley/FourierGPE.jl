@@ -1,9 +1,9 @@
 # FourierGPE.jl
 Simple GPE solver using FFTW
 
-- Intended for fast and flexible modelling of Bose-Einstein condensate experiments
+- Intended to provide simple, fast, and flexible modelling of Bose-Einstein condensate experiments
 - Allocation free adaptive evolution in kspace
-- Uses OrdinaryDiffEq.jl for time evolution
+- Establish some useful defaults for time evolution in `OrdinaryDiffEq.jl`
 - Not de-aliased (projective methods available elsewhere)
 - For more info see the runnable examples 
 
@@ -18,7 +18,7 @@ using FourierGPE
 Write your potential as a scalar function so that it can be broadcast via a dot-call, e.g.
 
 ```julia
-import FourierGPE.V
+import FourieforrGPE.V
 V(x,y,t) = (x^2 + y^2))*pi+cos(0.1*t)
 ```
 
