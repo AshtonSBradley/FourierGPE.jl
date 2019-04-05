@@ -99,4 +99,4 @@ anim = @animate for i=1:Nt-20
     showpsi(xspace(solv[i],sim),x,y)
 end
 
-gif(anim,"./vortex.gif",fps=30)
+gif(anim,"./examples/vortex.gif",fps=30)

@@ -104,7 +104,7 @@ anim = @animate for i=1:Nt
     showenergies(xspace(solv[i],sim),x,y,kx,ky,k2)
 end
 
-gif(anim,"./dipoleenergies.gif",fps=30)
+gif(anim,"./examples/dipoleenergies.gif",fps=30)
 
 # check energy conservation
 
@@ -148,8 +148,9 @@ relerror(x,x0) = (x - x0)/x0 |> abs
 plot(t,relerror.(H,H[1]),label = L"relerr(H)",legend=:topleft)
 plot!(t,relerror.(Natoms,Natoms[1]),label = L"relerr(N)")
 
+
 # if we need to save data:
 using JLD2, FileIO
-@save "dipoledecay.jld2" solv.u
+@save "./examples/dipoledecay.jld2" solv.u
 
 # another example for saving data as individual files
