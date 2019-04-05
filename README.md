@@ -26,7 +26,7 @@ The potential will be called as `V.(x,y',t)`, using the column vectors `x,y` and
 ## Adding parameters
 You can add additional parameters (you should supply a default) to `Par` defined in 
 
-`/src/helpers.jl`
+`/src/helpers.jl`evolve.jl
 
 All modified parameters will be correctly saved using, e.g. 
 
@@ -43,4 +43,4 @@ sol = runsim(sim,phi)
 ```
 
 ## Default solver
-Currently uses `alg=Tsit5()`, an adaptive RK routine. The default `reltol` is not quite small enough for some applications, so it is set to `reltol = 1e-7`. See `src/evolve.jl` for details.
+Currently uses `alg=Tsit5()`, an adaptive RK routine. The default `reltol` is not quite small enough for some applications, so it is set to `reltol = 1e-7`. See `src/evolution.jl` for details.
