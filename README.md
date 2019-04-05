@@ -9,9 +9,10 @@ Simple GPE solver using FFTW
 
 ## Installing
 
-`]add https://github.com/AshtonSBradley/FourierGPE.jl.git`
-
+```julia
+]add https://github.com/AshtonSBradley/FourierGPE.jl.git
 using FourierGPE
+```
 
 ## Modifying the potential
 Write your potential as a scalar function so that it can be broadcast via a dot-call, e.g.
