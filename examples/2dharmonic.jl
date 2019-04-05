@@ -1,7 +1,6 @@
 using Plots, LaTeXStrings, Pkg, Revise
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
-
-pkg"activate ."
+ 
 using FourierGPE
 FFTW.set_num_threads(Sys.CPU_THREADS)
 

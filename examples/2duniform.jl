@@ -1,8 +1,6 @@
-using Plots, LaTeXStrings, Pkg
+using Plots, LaTeXStrings, Pkg, Revise
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
-using Revise
-pkg"activate ."
 using FourierGPE
 FFTW.set_num_threads(Sys.CPU_THREADS)
 
@@ -12,6 +10,7 @@ FFTW.set_num_threads(Sys.CPU_THREADS)
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
+# uniform potential
 import FourierGPE.V
 V(x,y,t) = zero(x*y)
 
