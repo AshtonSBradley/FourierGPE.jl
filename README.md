@@ -2,6 +2,7 @@
 Simple GPE solver using FFTW
 
 - Intended to provide simple, fast, and flexible modelling of Bose-Einstein condensate experiments
+- Currently implements only 2D. Dims 1, 3 will come shortly.
 - Allocation free adaptive evolution in kspace
 - Establish some useful defaults for time evolution in `OrdinaryDiffEq.jl`
 - Not de-aliased (projective methods available elsewhere)
