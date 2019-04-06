@@ -1,5 +1,3 @@
-# import Base.randn
-# randn(a::Array{T,N}) where {T,N} = randn(T,size(a))
 
 @with_kw mutable struct Par @deftype Float64
     Lx = 200.0
@@ -13,7 +11,7 @@
     tf = 1/γ
     Nt::Int64 = 200
     t::LinRange{Float64} = LinRange(ti,tf,Nt)
-    T::Trans = Trans()
+    T::Transforms = Transforms()
     x::Array{Float64,1} = LinRange(0,10,100)
     y::Array{Float64,1} = LinRange(0,10,100)
     kx::Array{Float64,1} = LinRange(0,10,100)
@@ -25,7 +23,7 @@ function initsim!(sim)
 # initialize transforms and fields
 @unpack Lx,Nx,Ly,Ny = sim
 x,y,kx,ky,k2,dx,dy,dkx,dky,Dx,Dy,Dkx,Dky,Txk,Txk!,Tkx,Tkx! = maketransforms(Lx,Nx,Ly,Ny)
-T = Trans(Txk,Txk!,Tkx,Tkx!)
+T = Transforms(Txk,Txk!,Tkx,Tkx!)
 @pack! sim = T,x,y,kx,ky,k2
 return nothing
 end

@@ -53,7 +53,7 @@ function maketransforms(Lx,Nx,Ly,Ny)
 return x,y,kx,ky,k2,dx,dy,dkx,dky,Dx,Dy,Dkx,Dky,Txk,Txk!,Tkx,Tkx!
 end
 
-@with_kw mutable struct Trans
+@with_kw mutable struct Transforms
     Txk::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,false,2},Float64} = 0.1*plan_fft(randn(2,2) |> complex)
     Txk!::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,true,2},Float64} = 0.1*plan_fft!(randn(2,2) |> complex)
     Tkx::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,false,2},Float64} = 0.1*plan_ifft(randn(2,2) |> complex)
