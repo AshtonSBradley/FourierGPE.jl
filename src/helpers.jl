@@ -1,5 +1,5 @@
-import Base.randn
-randn(a::Array{T,N}) where {T,N} = randn(T,size(a))
+# import Base.randn
+# randn(a::Array{T,N}) where {T,N} = randn(T,size(a))
 
 @with_kw mutable struct Par @deftype Float64
     Lx = 200.0
@@ -8,7 +8,7 @@ randn(a::Array{T,N}) where {T,N} = randn(T,size(a))
     Ny::Int64 = 256
     μ = 15.0
     g = 0.1
-    γ = 0.5
+    γ = 0.5; @assert γ >= 0.0
     ti = 0.0
     tf = 1/γ
     Nt::Int64 = 200
@@ -17,7 +17,7 @@ randn(a::Array{T,N}) where {T,N} = randn(T,size(a))
     x::Array{Float64,1} = LinRange(0,10,100)
     y::Array{Float64,1} = LinRange(0,10,100)
     kx::Array{Float64,1} = LinRange(0,10,100)
-    ky::Array{Float64,1} = LinRange(0,10,100) 
+    ky::Array{Float64,1} = LinRange(0,10,100)
     k2::Array{Complex{Float64},2} = randn(2,2) + im*randn(2,2)
 end
 

@@ -37,18 +37,18 @@ function maketransforms(Lx,Nx,Ly,Ny)
     #measures for Parseval tests
     Dx,Dkx = dfft(x,kx)
     Dy,Dky = dfft(y,ky)
-    dx,dy = diff(x)[1],diff(y)[1]
+    dx,dy  = diff(x)[1],diff(y)[1]
     dkx,dky = diff(kx)[1],diff(ky)[1]
 
-    ψtest = randn(x*y' |> complex)
+    ψtest = one(x*y' |> complex)
     Txk = Dx*Dy*plan_fft(ψtest,flags=FFTW.MEASURE)
-    ψtest = randn(x*y' |> complex)
+    ψtest = one(x*y' |> complex)
     Txk! = Dx*Dy*plan_fft!(ψtest,flags=FFTW.MEASURE)
-    ψtest = randn(x*y' |> complex)
+    ψtest = one(x*y' |> complex)
     Tkx  = Dkx*Dky*plan_ifft(ψtest,flags=FFTW.MEASURE)
-    ψtest = randn(x*y' |> complex)
+    ψtest = one(x*y' |> complex)
     Tkx!  = Dkx*Dky*plan_ifft!(ψtest,flags=FFTW.MEASURE)
-    ψtest = randn(x*y' |> complex)
+    ψtest = one(x*y' |> complex)
 
 return x,y,kx,ky,k2,dx,dy,dkx,dky,Dx,Dy,Dkx,Dky,Txk,Txk!,Tkx,Tkx!
 end
