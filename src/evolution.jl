@@ -42,8 +42,7 @@ function runsim(ϕ,sim)
     prob = ODEProblem(Lgp!,ϕ,(sim.ti,sim.tf),sim)
     @info "𝒅𝜳 ⭆ Evolving in kspace"
     @info "damping γ = $(sim.γ)"
-    #@time sol = solve(prob,alg=Tsit5(),saveat=sim.t,reltol=1e-7)
-    @time sol = solve(prob,alg=Rodas5(autodiff=false),saveat=sim.t)
+    @time sol = solve(prob,alg=Tsit5(),saveat=sim.t,reltol=1e-7)
     @info "⭆ Finished."
 return sol
 end
