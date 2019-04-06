@@ -6,7 +6,6 @@ Simple GPE solver using FFTW
 - Allocation free adaptive evolution in kspace
 - Establish some useful defaults for time evolution in `OrdinaryDiffEq.jl`
 - Not de-aliased (projective methods available elsewhere)
-- For more info see the runnable examples 
 
 ## Installing
 
@@ -47,3 +46,5 @@ sol = runsim(sim,phi)
 
 ## Default solver
 Currently uses `alg=Tsit5()`, an adaptive RK routine. The default `reltol` is not quite small enough for some applications, so it is set to `reltol = 1e-7`. See `src/evolution.jl` for details.
+
+For more info see the runnable examples 
