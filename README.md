@@ -18,7 +18,7 @@ using FourierGPE
 Write your potential as a scalar function so that it can be broadcast via a dot-call, e.g.
 
 ```julia
-import FourieforrGPE.V
+import FourierGPE.V
 V(x,y,t) = (x^2 + y^2))*pi+cos(0.1*t)
 ```
 
