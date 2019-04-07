@@ -40,6 +40,8 @@ function maketransforms(Lx,Nx,Ly,Ny)
     dx,dy  = diff(x)[1],diff(y)[1]
     dkx,dky = diff(kx)[1],diff(ky)[1]
 
+    # plan transforms
+    FFTW.set_num_threads(Sys.CPU_THREADS)
     ψtest = one(x*y' |> complex)
     Txk = Dx*Dy*plan_fft(ψtest,flags=FFTW.MEASURE)
     ψtest = one(x*y' |> complex)

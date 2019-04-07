@@ -15,7 +15,7 @@ function nlin!(dϕ,ϕ,sim,t)
     @unpack g,x,y = sim
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    dϕ .*= @. g*abs2(dϕ) + V(x,y',t)
+    @. dϕ *= g*abs2(dϕ) + V(x,y',t)
     kspace!(dϕ,sim)
     return nothing
 end
@@ -23,8 +23,7 @@ end
 function Lgp!(dϕ,ϕ,sim,t)
     @unpack μ,γ,k2 = sim
     nlin!(dϕ,ϕ,sim,t)
-    dϕ .+= @. (0.5*k2 - μ)*ϕ
-    dϕ .*= @. -im*(1.0 - im*γ)
+    @. dϕ = -im*(1.0 - im*γ)*(dϕ + (0.5*k2 - μ)*ϕ)
     return nothing
 end
 
