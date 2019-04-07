@@ -2,7 +2,6 @@ using Plots, LaTeXStrings, Pkg, Revise
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 using FourierGPE
-FFTW.set_num_threads(Sys.CPU_THREADS)
 
 # ==== Units: ========================
 # Units of ξ for length, 1/μ for time
