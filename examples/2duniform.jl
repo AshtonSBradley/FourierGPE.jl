@@ -28,7 +28,7 @@ end
 sim = Par()
 γ = 0.5
 Nx = 512; Ny = 512
-@pack! sim = γ,Nx,Ny
+@pack! sim = γ,Nx,Ny,Lx,Ly
 initsim!(sim)
 @unpack_Par sim
 # ================================
@@ -75,7 +75,7 @@ initsim!(sim)
 
 ϕv = kspace(ψv,sim)
 solv = runsim(ϕv,sim)
-ψd = xspace(solv[200],sim)
+ψd = xspace(solv[end],sim)
 showpsi(ψd,x,y)
 
 # dipole decay
@@ -83,7 +83,7 @@ anim = @animate for i=1:Nt
     showpsi(xspace(solv[i],sim),x,y)
 end
 
-gif(anim,"./dipole.gif",fps=30)
+gif(anim,"./examples/dipole.gif",fps=30)
 
 # plot energies
 function showenergies(ψ,x,y,kx,ky,k2)
@@ -152,3 +152,4 @@ using JLD2, FileIO
 @save "./examples/dipoledecay.jld2" solv.u
 
 # another example for saving data as individual files
+# using a call back in OrdinaryDiffEq
