@@ -1,5 +1,5 @@
 using Plots, LaTeXStrings, Pkg, Revise
-gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+gr(titlefontsize=12,size=(500,300),colorbar=false)
 
 using FourierGPE
 
@@ -28,7 +28,7 @@ end
 sim = Par()
 γ = 0.5
 Nx = 512; Ny = 512
-@pack! sim = γ,Nx,Ny,Lx,Ly
+@pack! sim = γ,Nx,Ny
 initsim!(sim)
 @unpack_Par sim
 # ================================
@@ -87,7 +87,7 @@ gif(anim,"./examples/dipole.gif",fps=30)
 
 # plot energies
 function showenergies(ψ,x,y,kx,ky,k2)
-    et,ei,ec = energydecomp(ψ,kx,ky,k2)
+    et,ei,ec = energydecomp(ψ,kx,ky',k2)
     p1 = heatmap(x,y,log.(ei),aspectratio=1)
     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
     title!("Incompressible")
@@ -110,14 +110,14 @@ gif(anim,"./examples/dipoleenergies.gif",fps=30)
 function xenergy(ϕ,sim,t)
     @unpack g,x,y = sim
     ψ = xspace(ϕ,sim)
-    ψ .*= @. 0.5*g*abs2(ψ) + V(x,y',t)
+    @. ψ *= 0.5*g*abs2(ψ) + V(x,y',t)
     return kspace(ψ,sim)
 end
 
 function gpenergy(ϕ,sim,t)
     @unpack μ,γ,k2 = sim
     chi = xenergy(ϕ,sim,t)
-    Hloc = @. 0.5*k2*abs2.(ϕ) + conj(ϕ)*chi
+    Hloc = @. 0.5*k2*abs2(ϕ) + conj(ϕ)*chi
     return sum(Hloc)*dx*dy |> real
 end
 
@@ -129,7 +129,7 @@ Natoms = zero(t)
 for (i,t) in enumerate(t)
     ϕ = solv[i]
     ψ = xspace(ϕ,sim)
-    et,ei,ec = energydecomp(ψ,kx,ky,k2)
+    et,ei,ec = energydecomp(ψ,kx,ky',k2)
     Ei[i] = sum(ei)*dx*dy |> real
     Ec[i] = sum(ec)*dx*dy |> real
     Natoms[i] = sum(abs2.(ψ))*dx*dy
