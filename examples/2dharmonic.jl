@@ -19,12 +19,12 @@ function showpsi(ψ,x,y)
 end
 
 # ==== set simulation parameters ====
-sim = Par()
-Lx = 20.0; Nx = 128
-Ly = 20.0; Ny = 128
+sim = Sim()
+Lx = 20.0; Ly = 20.0
+Nx = 128;  Ny = 128
 @pack! sim = Lx,Ly,Nx,Ny
 initsim!(sim)
-@unpack_Par sim
+@unpack_Sim sim
 # ===================================
 
 # declare the potential function
@@ -33,18 +33,19 @@ V(x,y,t)::Float64 = 0.5*(x^2 + y^2)
 
 # useful TF state
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
-healing(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
 #make convenient arrays
-x,y,kx,ky,dx,dy,dkx,dky = makearrays(Lx,Nx,Ly,Ny)
+x,y,kx,ky,dx,dy,dkx,dky = makearrays(Lx,Ly,Nx,Ny)
 
 #make initial state
 ψi = ψ0.(x,y',μ,g)
 ψi .+= (randn(Nx,Ny) |> complex)
+ϕi = kspace(ψi,sim)
+@pack! sim = ϕi
+sim
 
 # ====== Evolve in k space ==========
-ϕi = kspace(ψi,sim)
-sol = runsim(ϕi,sim)
+sol = runsim(sim.ϕi,sim)
 # ===================================
 
 # pull out the ground state:
@@ -56,6 +57,7 @@ showpsi(ψg,x,y)
 using VortexDistributions
 
 # initial state: imprint a vortex inside Thomas-Fermi radius
+healing(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 Rtf = sqrt(2*μ)
 rv = 0.5*Rtf
 xv,yv,cv = rv, 0.0, 1
@@ -80,7 +82,7 @@ tf = Tv
 t = LinRange(ti,tf,Nt)
 @pack! sim = tf,t,γ
 initsim!(sim)
-@unpack_Par sim
+@unpack_Sim sim
 # ===================================
 
 # ====== Evolve in k space ==========

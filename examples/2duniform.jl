@@ -25,16 +25,16 @@ function showpsi(ψ,x,y)
 end
 
 # ==== set simulation parameters ====
-sim = Par()
+sim = Sim()
 γ = 0.5
 Nx = 512; Ny = 512
-@pack! sim = γ,Nx,Ny
+sim = Sim(γ=γ,Nx=Nx,Ny=Ny)
 initsim!(sim)
-@unpack_Par sim
+@unpack_Sim sim
 # ================================
 
 #make convenient arrays
-x,y,kx,ky,dx,dy,dkx,dky = makearrays(Lx,Nx,Ly,Ny)
+x,y,kx,ky,dx,dy,dkx,dky = makearrays(Lx,Ly,Nx,Ny)
 
 # useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g) |> complex
@@ -66,11 +66,10 @@ makeallvortices!(ψv,dipole,x,y,ξv)
 c = sqrt(μ)
 γ = 0.01
 tf = 6*Lx/c
-t = LinRange(ti,tf,Nt)
 
-@pack! sim = γ,tf,t
+sim = Sim(sim,γ=γ,tf=tf)
 initsim!(sim)
-@unpack_Par sim
+@unpack_Sim sim
 # ==================================
 
 ϕv = kspace(ψv,sim)
@@ -117,8 +116,8 @@ end
 function gpenergy(ϕ,sim,t)
     @unpack μ,γ,k2 = sim
     chi = xenergy(ϕ,sim,t)
-    Hloc = @. 0.5*k2*abs2(ϕ) + conj(ϕ)*chi
-    return sum(Hloc)*dx*dy |> real
+    H = @. 0.5*k2*abs2(ϕ) + conj(ϕ)*chi
+    return sum(H)*dx*dy |> real
 end
 
 H = zero(t)
@@ -148,8 +147,7 @@ plot!(t,relerror.(Natoms,Natoms[1]),label = L"relerr(N)")
 
 
 # if we need to save data:
-using JLD2, FileIO
-@save "./examples/dipoledecay.jld2" solv.u
+@save "./examples/dipoledecay.jld2" solv.u sim
 
 # another example for saving data as individual files
 # using a call back in OrdinaryDiffEq

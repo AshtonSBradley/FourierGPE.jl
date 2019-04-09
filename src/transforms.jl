@@ -30,9 +30,9 @@ end
         return nothing
     end
 
-function maketransforms(Lx,Nx,Ly,Ny)
-    x,y = xvecs(Lx,Nx,Ly,Ny)
-    kx,ky,k2 = kvecs(Lx,Nx,Ly,Ny)
+function maketransforms(Lx,Ly,Nx,Ny;flags=FFTW.MEASURE)
+    x,y = xvecs(Lx,Ly,Nx,Ny)
+    kx,ky,k2 = kvecs(Lx,Ly,Nx,Ny)
 
     #measures for Parseval tests
     Dx,Dkx = dfft(x,kx)
@@ -43,13 +43,13 @@ function maketransforms(Lx,Nx,Ly,Ny)
     # plan transforms
     FFTW.set_num_threads(Sys.CPU_THREADS)
     ψtest = one(x*y' |> complex)
-    Txk = Dx*Dy*plan_fft(ψtest,flags=FFTW.MEASURE)
+    Txk = Dx*Dy*plan_fft(ψtest,flags=flags)
     ψtest = one(x*y' |> complex)
-    Txk! = Dx*Dy*plan_fft!(ψtest,flags=FFTW.MEASURE)
+    Txk! = Dx*Dy*plan_fft!(ψtest,flags=flags)
     ψtest = one(x*y' |> complex)
-    Tkx  = Dkx*Dky*plan_ifft(ψtest,flags=FFTW.MEASURE)
+    Tkx  = Dkx*Dky*plan_ifft(ψtest,flags=flags)
     ψtest = one(x*y' |> complex)
-    Tkx!  = Dkx*Dky*plan_ifft!(ψtest,flags=FFTW.MEASURE)
+    Tkx!  = Dkx*Dky*plan_ifft!(ψtest,flags=flags)
     ψtest = one(x*y' |> complex)
 
 return x,y,kx,ky,k2,dx,dy,dkx,dky,Dx,Dy,Dkx,Dky,Txk,Txk!,Tkx,Tkx!

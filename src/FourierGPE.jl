@@ -15,7 +15,7 @@ include("helpers.jl")
 export linspace, xvecs, kvecs, dfft
 export maketransforms, makearrays, xspace, xspace!, kspace, kspace!
 export nlin, nlin!, Lgp, Lgp!, V, initsim!, runsim, internalnorm
-export Transforms, @pack!, @unpack, @pack_Transforms, @pack_Transforms!, @unpack_Transforms
-export Par, @pack_Par, @unpack_Par
+export Transforms, @pack!, @unpack, @pack_Transforms!, @unpack_Transforms
+export Sim, @pack_Sim!, @unpack_Sim, Params, @pack_Params!, @unpack_Params
 
 end # module
