@@ -1,6 +1,7 @@
 using Plots, LaTeXStrings, Pkg, Revise
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
+#pkg"activate ."
 using FourierGPE
 
 # ==== Units: ========================

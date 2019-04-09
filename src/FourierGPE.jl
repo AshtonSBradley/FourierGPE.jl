@@ -5,6 +5,7 @@ using Reexport
 @reexport using FFTW
 @reexport using Parameters
 @reexport using JLD2
+@reexport using FileIO
 
 include("arrays.jl")
 include("transforms.jl")
