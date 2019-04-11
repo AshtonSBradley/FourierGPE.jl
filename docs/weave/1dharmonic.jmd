@@ -1,0 +1,98 @@
+---
+title: Solve the GPE in a 1D parabolic trap
+author: Ashton Bradley
+---
+
+In this simple example we find a ground state of the Gross-Pitaevskii equation
+in a harmonic trap.
+
+The mean field order parameter evolves according to
+$$
+i\hbar\frac{\partial \psi(x,t)}{\partial t}=\left(-\frac{\hbar^2\partial_x^2}{2m}+V(x,t)+g|\psi(x,t)|^2\right)\psi(x,t)
+$$
+
+First, we load some useful packages.
+```julia
+using Plots, LaTeXStrings, Pkg, Revise
+gr(legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false);
+```
+Now load `FourierGPE`
+```julia
+using FourierGPE
+```
+Let's define a convenient plot function
+```julia
+function showpsi(x,ψ)
+    p1 = plot(x,abs2.(ψ))
+    xlabel!(L"x/a_x");ylabel!(L"|\psi|^2")
+    p2 = plot(x,angle.(ψ))
+    xlabel!(L"x/a_x");ylabel!(L"\textrm{phase}(\psi)")
+    p = plot(p1,p2,layout=(2,1),size=(600,400))
+    return p
+end
+```
+
+## User parameters
+We reserve a place for user parameters.
+```julia
+@with_kw mutable struct Params <: UserParams @deftype Float64
+    # user parameters:
+    κ = 0.1
+end
+par = Params();
+```
+
+Let's set the system size, and number of spatial points
+```julia
+L = (20.0,)
+N = (128,)
+X,K,dX,dK,DX,DK,T = maketransforms(L,N)
+espec = 0.5*k2(L...,N...);
+```
+Now we need to initialize the simulation object and the transforms
+```julia
+sim = Sim(L,N,par)
+@pack! sim = T,X,K,espec
+initsim!(sim)
+@unpack_Sim sim;
+```
+## Declaring the potential
+Let's define the trapping potential.
+```julia
+import FourierGPE.V
+V(x,t) = 0.5*x^2
+```
+We only require that it is a scalar function
+because alter we will evaluate it using a broadcasted dot-call.
+
+## Initial condition
+Let's define a useful Thomas-Fermi wavefunction
+```julia
+ψ0(x,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,0.0)/μ,0.0)+im*0.0)
+x = X[1];
+```
+The initial state is now created as
+```julia
+ψi = ψ0.(x,μ,g)
+ψi .+= (randn(N...) |> complex)
+ϕi = kspace(ψi,sim)
+@pack! sim = ϕi;
+```
+
+## Evolution in k-space
+The `FFTW` library is used to evolve the Gross-Pitaevskii equation in k-space
+```julia
+sol = runsim(sim.ϕi,sim);
+```
+Here we save the entire solution as a single variable `sol`.
+
+Let's have a look at the final state and verify we have a ground state
+```julia
+ϕg = sol[end]
+ψg = xspace(ϕg,sim)
+showpsi(x,ψg)
+```
+
+# Imprinting a dark soliton
+We found a ground state by imaginary time propagation.
+Now we can impose phase and density imprint a dark soliton.
