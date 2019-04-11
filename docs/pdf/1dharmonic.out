@@ -1,0 +1,10 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Loading\040the\040package}{}% 2
+\BOOKMARK [1][-]{section.3}{User\040parameters}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Declaring\040the\040potential}{section.3}% 4
+\BOOKMARK [1][-]{section.4}{Initial\040condition}{}% 5
+\BOOKMARK [1][-]{section.5}{Evolution\040in\040k-space}{}% 6
+\BOOKMARK [2][-]{subsection.5.1}{Default\040simulation\040parameters}{section.5}% 7
+\BOOKMARK [1][-]{section.6}{Imprinting\040a\040dark\040soliton}{}% 8
+\BOOKMARK [2][-]{subsection.6.1}{Dark\040soliton\040in\040homogneous\040system}{section.6}% 9
+\BOOKMARK [2][-]{subsection.6.2}{Dark\040soliton\040in\040a\040harmonic\040trap}{section.6}% 10

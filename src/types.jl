@@ -17,15 +17,15 @@ end
     g = 0.1
     γ = 0.5; @assert γ >= 0.0
     ti = 0.0
-    tf = 1/γ
+    tf = 2/γ
     Nt::Int64 = 200
     t::LinRange{Float64} = LinRange(ti,tf,Nt)
     ϕi::Array{Complex{Float64},D} = zeros(N...) |> complex
     params::UserParams # optional parameters
-    T::TransformLibrary{D} = Transforms{D}()
     X::NTuple{D,Array{Float64,1}} = xvecs(L...,N...)
     K::NTuple{D,Array{Float64,1}} = kvecs(L...,N...)
     espec::Array{Complex{Float64},D} = k2(L...,N...)
+    T::TransformLibrary{D} = Transforms{D}()
 end
 
 Sim(L,N,par) = Sim{length(L)}(L=L,N=N,params=par)

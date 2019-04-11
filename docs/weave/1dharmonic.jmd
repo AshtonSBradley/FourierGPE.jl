@@ -3,6 +3,7 @@ title: Solve the GPE in a 1D parabolic trap
 author: Ashton Bradley
 ---
 
+# Introduction
 In this simple example we find a ground state of the Gross-Pitaevskii equation
 in a harmonic trap.
 
@@ -11,6 +12,7 @@ $$
 i\hbar\frac{\partial \psi(x,t)}{\partial t}=\left(-\frac{\hbar^2\partial_x^2}{2m}+V(x,t)+g|\psi(x,t)|^2\right)\psi(x,t)
 $$
 
+# Loading the package
 First, we load some useful packages.
 ```julia
 using Plots, LaTeXStrings, Pkg, Revise
@@ -32,7 +34,7 @@ function showpsi(x,ψ)
 end
 ```
 
-## User parameters
+# User parameters
 We reserve a place for user parameters.
 ```julia
 @with_kw mutable struct Params <: UserParams @deftype Float64
@@ -65,7 +67,7 @@ V(x,t) = 0.5*x^2
 We only require that it is a scalar function
 because alter we will evaluate it using a broadcasted dot-call.
 
-## Initial condition
+# Initial condition
 Let's define a useful Thomas-Fermi wavefunction
 ```julia
 ψ0(x,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,0.0)/μ,0.0)+im*0.0)
@@ -79,7 +81,7 @@ The initial state is now created as
 @pack! sim = ϕi;
 ```
 
-## Evolution in k-space
+# Evolution in k-space
 The `FFTW` library is used to evolve the Gross-Pitaevskii equation in k-space
 ```julia
 sol = runsim(sim.ϕi,sim);
@@ -92,7 +94,44 @@ Let's have a look at the final state and verify we have a ground state
 ψg = xspace(ϕg,sim)
 showpsi(x,ψg)
 ```
+The initial Thomas-Fermi state has been evolved for a default time $t=2/\gamma$ which is
+a characteristic damping time for the dissipative system with dimensionless damping
+$\gamma$. The solution will approch the ground state satisfying $L\psi_0=\mu\psi_0$ on a timescale of order
+$1/\gamma$. The figure shows a smooth density profile and a completely homogeneous phase
+profile over the region of finite atomic density, as required for the ground state.
 
+## Default simulation parameters
+The default parameters are given in the declaration of `Sim`, which allows parameter interdependence.
+The struct `Sim` is declared as:
+
+```julia; eval = false
+@with_kw mutable struct Sim{D} <: Simulation{D} @deftype Float64
+    L::NTuple{D,Float64}
+    N::NTuple{D,Int64}
+    μ = 15.0
+    g = 0.1
+    γ = 0.5; @assert γ >= 0.0
+    ti = 0.0
+    tf = 2/γ
+    Nt::Int64 = 200
+    t::LinRange{Float64} = LinRange(ti,tf,Nt)
+    ϕi::Array{Complex{Float64},D} = zeros(N...) |> complex
+    params::UserParams # optional parameters
+    T::TransformLibrary{D} = Transforms{D}()
+    X::NTuple{D,Array{Float64,1}} = xvecs(L...,N...)
+    K::NTuple{D,Array{Float64,1}} = kvecs(L...,N...)
+    espec::Array{Complex{Float64},D} = k2(L...,N...)
+end
+```
+where we see a set of default parameters, and then some useful transform fields built using the parameters.
+Note that the transforms have to be built after building `X,K`.
 # Imprinting a dark soliton
 We found a ground state by imaginary time propagation.
-Now we can impose phase and density imprint a dark soliton.
+Now we can impose a phase and density imprint consistent with a dark soliton.
+We will use the solution for the homogeneous system, which will be a reasonable
+approximation if we impose it on a smooth background solution.
+
+## Dark soliton in homogneous system
+
+
+## Dark soliton in a harmonic trap
