@@ -7,7 +7,7 @@ using FourierGPE
 # ==== Units: ========================
 # this example works in oscillator units
 # convenient plot
-function showpsi(ψ,x,y)
+function showpsi(x,y,ψ)
     p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
     xlabel!(L"x/a_x");ylabel!(L"y/a_y")
     title!(L"|\psi|^2")
