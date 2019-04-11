@@ -1,20 +1,17 @@
 using Plots, LaTeXStrings, Pkg, Revise
-gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+gr(legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 #pkg"activate ."
 using FourierGPE
 
 # ==== Units: ========================
 # this example works in oscillator units
-# convenient plot
-function showpsi(ψ,x,y)
-    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
-    xlabel!(L"x/a_x");ylabel!(L"y/a_y")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψ),aspectratio=1)
-    xlabel!(L"x/a_x");ylabel!(L"y/a_y")
-    title!(L"\textrm{phase}(\psi)")
-    p = plot(p1,p2,size=(600,300))
+function showpsi(x,ψ)
+    p1 = plot(x,abs2.(ψ))
+    xlabel!(L"x/a_x");ylabel!(L"|\psi|^2")
+    p2 = plot(x,angle.(ψ))
+    xlabel!(L"x/a_x");ylabel!(L"\textrm{phase}(\psi)")
+    p = plot(p1,p2,layout=(2,1),size=(600,400))
     return p
 end
 
@@ -26,8 +23,8 @@ end
 par = Params()
 
 # ==== set simulation parameters ====
-L = (20.0,20.0)
-N = (128,128)
+L = (20.0,)
+N = (128,)
 X,K,dX,dK,DX,DK,T = maketransforms(L,N)
 espec = 0.5*k2(L...,N...)
 
@@ -40,16 +37,16 @@ initsim!(sim)
 
 # declare the potential function
 import FourierGPE.V
-V(x,t)::Float64 = 0.5*x^2
+V(x,t) = 0.5*x^2
 V(x,y,t)::Float64 = 0.5*(x^2 + y^2)
 V(x,y,z,t)::Float64 = 0.5*(x^2 + y^2 + z^2)
 
 # useful TF state
-ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
+ψ0(x,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,0.0)/μ,0.0)+im*0.0)
 
-x,y = X
+x = X[1]
 #make initial state
-ψi = ψ0.(x,y',μ,g)
+ψi = ψ0.(x,μ,g)
 ψi .+= (randn(N...) |> complex)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi
@@ -62,30 +59,10 @@ sol = runsim(sim.ϕi,sim)
 # pull out the ground state:
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
-showpsi(ψg,x,y)
+showpsi(x,ψg)
 
-# Add a vortex off-axis
-using VortexDistributions
+# Add soliton
 
-# initial state: imprint a vortex inside Thomas-Fermi radius
-healing(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
-Rtf = sqrt(2*μ)
-rv = 0.5*Rtf
-xv,yv,cv = rv, 0.0, 1
-initialvortex = [xv yv cv]
-ξv = healing(xv,yv,μ,g)
-ψv = copy(ψg)
-makeallvortices!(ψv,initialvortex,x,y,ξv)
-showpsi(ψv,x,y)
-
-# In TF regim precession frequency is given analytically by:
-# (see Fetter JLTP 2010)
-ξ = 1/sqrt(μ)
-Ωm = 3*log(Rtf/ξ/sqrt(2))/2/Rtf^2
-Ωv = Ωm/(1-rv^2/Rtf^2)
-
-#or a period of
-Tv = 2*π/Ωv
 
 # ==== set simulation parameters ====
 γ = 0.0
@@ -106,10 +83,9 @@ solv = runsim(sim.ϕi,sim)
 ψf = xspace(ϕf,sim)
 showpsi(ψf,x,y)
 
-#trim last few frames to show one orbit
-# analytical result is within 10%
-anim = @animate for i=1:Nt-20
-    showpsi(xspace(solv[i],sim),x,y)
+anim = @animate for i=1:Nt
+    ψ = xspace(solv[i],sim)
+    showpsi(x,ψ)
 end
 
-gif(anim,"./examples/vortex.gif",fps=30)
+gif(anim,"./examples/soliton.gif",fps=30)

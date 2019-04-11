@@ -30,34 +30,30 @@ end
         return nothing
     end
 
-function maketransforms(Lx,Ly,Nx,Ny;flags=FFTW.MEASURE)
-    x,y = xvecs(Lx,Ly,Nx,Ny)
-    kx,ky,k2 = kvecs(Lx,Ly,Nx,Ny)
-
-    #measures for Parseval tests
-    Dx,Dkx = dfft(x,kx)
-    Dy,Dky = dfft(y,ky)
-    dx,dy  = diff(x)[1],diff(y)[1]
-    dkx,dky = diff(kx)[1],diff(ky)[1]
+function maketransforms(L,N;flags=FFTW.MEASURE)
+    X = xvecs(L...,N...)
+    K = kvecs(L...,N...)
+    M = length(N)
+    #measures for unitary FFT, and for standard integration
+    dX = zeros(M); dK = zeros(M)
+    DX = zeros(M); DK = zeros(M)
+    for i in eachindex(X)
+        DX[i],DK[i] = dfft(X[i],K[i])
+        dX[i],dK[i] = diff(X[i])[1],diff(K[i])[1]
+    end
+    dμx = prod(DX); dμk = prod(DK)
 
     # plan transforms
     FFTW.set_num_threads(Sys.CPU_THREADS)
-    ψtest = one(x*y' |> complex)
-    Txk = Dx*Dy*plan_fft(ψtest,flags=flags)
-    ψtest = one(x*y' |> complex)
-    Txk! = Dx*Dy*plan_fft!(ψtest,flags=flags)
-    ψtest = one(x*y' |> complex)
-    Tkx  = Dkx*Dky*plan_ifft(ψtest,flags=flags)
-    ψtest = one(x*y' |> complex)
-    Tkx!  = Dkx*Dky*plan_ifft!(ψtest,flags=flags)
-    ψtest = one(x*y' |> complex)
-
-return x,y,kx,ky,k2,dx,dy,dkx,dky,Dx,Dy,Dkx,Dky,Txk,Txk!,Tkx,Tkx!
-end
-
-@with_kw mutable struct Transforms
-    Txk::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,false,2},Float64} = 0.1*plan_fft(randn(2,2) |> complex)
-    Txk!::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,true,2},Float64} = 0.1*plan_fft!(randn(2,2) |> complex)
-    Tkx::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,false,2},Float64} = 0.1*plan_ifft(randn(2,2) |> complex)
-    Tkx!::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,true,2},Float64} = 0.1*plan_ifft!(randn(2,2) |> complex)
+    ψtest = ones(N...) |> complex
+    Txk = dμx*plan_fft(ψtest,flags=flags)
+    ψtest = ones(N...) |> complex
+    Txk! = dμx*plan_fft!(ψtest,flags=flags)
+    ψtest = ones(N...) |> complex
+    Tkx  = dμk*plan_ifft(ψtest,flags=flags)
+    ψtest = ones(N...) |> complex
+    Tkx!  = dμk*plan_ifft!(ψtest,flags=flags)
+    ψtest = ones(N...) |> complex
+    T = Transforms(Txk,Txk!,Tkx,Tkx!)
+return X,K,dX,dK,DX,DK,T
 end
