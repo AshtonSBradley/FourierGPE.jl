@@ -1,8 +1,8 @@
-This is XeTeX, Version 3.14159265-2.6-0.99999 (TeX Live 2018) (preloaded format=xelatex 2019.2.23)  12 APR 2019 07:24
+This is XeTeX, Version 3.14159265-2.6-0.99999 (TeX Live 2018) (preloaded format=xelatex 2019.2.25)  12 APR 2019 12:45
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
-**1dharmonic.tex -aux-directory ./tmp8CISgb -include-directory /Users/abradley/
+**1dharmonic.tex -aux-directory ./tmpJCSfR3 -include-directory /Users/abradley/
 .julia/dev/FourierGPE/docs/weave/../pdf
 (./1dharmonic.tex
 LaTeX2e <2018-04-01> patch level 2
@@ -278,9 +278,9 @@ Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4762.
 \c@Hy@tempcnt=\count108
 
-(/usr/local/texlive/2018/texmf-dist/tex/latex/url/url.sty
+(/Users/abradley/Library/texmf/tex/latex/misc/url.sty
 \Urlmuskip=\muskip11
-Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+Package: url 2006/04/12  ver 3.3  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 5115.
 \XeTeXLinkMargin=\dimen124
@@ -900,29 +900,51 @@ LaTeX Font Info:    External font `lmex10' loaded for size
  [1
 
 ] [2]
-File: /Users/abradley/.julia/dev/FourierGPE/docs/pdf/tmpwzxUcF/1dharmonic_11_1.
+File: /Users/abradley/.julia/dev/FourierGPE/docs/pdf/tmpxSQkAr/1dharmonic_11_1.
 pdf Graphic file (type pdf)
-<use /Users/abradley/.julia/dev/FourierGPE/docs/pdf/tmpwzxUcF/1dharmonic_11_1.p
+<use /Users/abradley/.julia/dev/FourierGPE/docs/pdf/tmpxSQkAr/1dharmonic_11_1.p
 df>
  [3]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 307.
+Overfull \hbox (1.68855pt too wide) in paragraph at lines 326--327
+\T1/lmr/m/n/12 We can re-cy-cle our ear-lier pa-ram-e-ter choices, mod-i-fy-ing
+ the damp-ing and sim-u-la-tion timescale 
+ []
 
-[4]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 307.
- (./1dharmonic.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 307.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 307.
+LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 336
+.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ts1lmtt.fd
+File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `lmtt' (encoding: TS1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+Package microtype Info: Character `texttrademark ' is missing
+(microtype)             in font `TS1/lmtt/m/n/10'.
+(microtype)             Ignoring protrusion settings for this character.
+ [4]
+File: /Users/abradley/.julia/dev/FourierGPE/docs/pdf/tmpxSQkAr/1dharmonic_17_1.
+pdf Graphic file (type pdf)
+<use /Users/abradley/.julia/dev/FourierGPE/docs/pdf/tmpxSQkAr/1dharmonic_17_1.p
+df>
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 430.
+ [5]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 430.
+
+(./1dharmonic.aux)
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 430.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 430.
 Package rerunfilecheck Info: File `1dharmonic.out' has not changed.
-(rerunfilecheck)             Checksum: AB4272BDAF4BC0E262F7F30E71CB00FA.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 307.
+(rerunfilecheck)             Checksum: 2F3AF91F2905B623306789E394081012.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 430.
  ) 
 Here is how much of TeX's memory you used:
- 22000 strings out of 492970
- 379902 string characters out of 6133938
- 497354 words of memory out of 5000000
- 25809 multiletter control sequences out of 15000+600000
- 606432 words of font info for 92 fonts, out of 8000000 for 9000
+ 22044 strings out of 492970
+ 380857 string characters out of 6133938
+ 503538 words of memory out of 5000000
+ 25848 multiletter control sequences out of 15000+600000
+ 606737 words of font info for 93 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  33i,6n,45p,10481b,1670s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on 1dharmonic.pdf (4 pages).
+Output written on 1dharmonic.pdf (5 pages).

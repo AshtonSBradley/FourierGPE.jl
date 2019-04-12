@@ -5,6 +5,8 @@
 \BOOKMARK [1][-]{section.4}{Initial\040condition}{}% 5
 \BOOKMARK [1][-]{section.5}{Evolution\040in\040k-space}{}% 6
 \BOOKMARK [2][-]{subsection.5.1}{Default\040simulation\040parameters}{section.5}% 7
-\BOOKMARK [1][-]{section.6}{Imprinting\040a\040dark\040soliton}{}% 8
-\BOOKMARK [2][-]{subsection.6.1}{Dark\040soliton\040in\040homogneous\040system}{section.6}% 9
-\BOOKMARK [2][-]{subsection.6.2}{Dark\040soliton\040in\040a\040harmonic\040trap}{section.6}% 10
+\BOOKMARK [1][-]{section.6}{Dark\040soliton\040in\040harmonically\040trapped\040system}{}% 8
+\BOOKMARK [2][-]{subsection.6.1}{Imprinting\040a\040dark\040soliton}{section.6}% 9
+\BOOKMARK [2][-]{subsection.6.2}{Initilize\040Simulation}{section.6}% 10
+\BOOKMARK [2][-]{subsection.6.3}{Solve\040equation\040of\040motion}{section.6}% 11
+\BOOKMARK [2][-]{subsection.6.4}{View\040the\040solution\040using\040Plots}{section.6}% 12

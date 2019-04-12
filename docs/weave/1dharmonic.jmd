@@ -98,7 +98,8 @@ The initial Thomas-Fermi state has been evolved for a default time $t=2/\gamma$ 
 a characteristic damping time for the dissipative system with dimensionless damping
 $\gamma$. The solution will approch the ground state satisfying $L\psi_0=\mu\psi_0$ on a timescale of order
 $1/\gamma$. The figure shows a smooth density profile and a completely homogeneous phase
-profile over the region of finite atomic density, as required for the ground state.
+profile over the region of finite atomic density, as required for the ground state. The indeterminate
+phase evident at large $|x|$ is unimportant.
 
 ## Default simulation parameters
 The default parameters are given in the declaration of `Sim`, which allows parameter interdependence.
@@ -117,21 +118,62 @@ The struct `Sim` is declared as:
     t::LinRange{Float64} = LinRange(ti,tf,Nt)
     ϕi::Array{Complex{Float64},D} = zeros(N...) |> complex
     params::UserParams # optional parameters
-    T::TransformLibrary{D} = Transforms{D}()
     X::NTuple{D,Array{Float64,1}} = xvecs(L...,N...)
     K::NTuple{D,Array{Float64,1}} = kvecs(L...,N...)
     espec::Array{Complex{Float64},D} = k2(L...,N...)
+    T::TransformLibrary{D} = Transforms{D}()
 end
 ```
 where we see a set of default parameters, and then some useful transform fields built using the parameters.
 Note that the transforms have to be built after building `X,K`.
-# Imprinting a dark soliton
+
+# Dark soliton in harmonically trapped system
 We found a ground state by imaginary time propagation.
 Now we can impose a phase and density imprint consistent with a dark soliton.
 We will use the solution for the homogeneous system, which will be a reasonable
 approximation if we impose it on a smooth background solution.
 
-## Dark soliton in homogneous system
+## Imprinting a dark soliton
+```julia
+ψf = sol[end]
+c = sqrt(μ)
+ξ = 1/sqrt(g*abs2.(ψf[Int(end/2)]))
+v = 0.3*c;
+```
+Soliton speed is determined by depth and local healing length. Start at $xs=0.0$
+```julia
+xs = 0.
+v = 0.5*c
+f = sqrt(1-(v/c)^2)
 
+ψs = @. ψf*(f*tanh(f*(x -xs)/ξ)+im*v/c);
+```
+## Initilize Simulation
+We can recycle our earlier parameter choices, modifying the damping and simulation timescale
+```julia
+γ = 0.0
+tf = 8*pi/sqrt(2); t = LinRange(ti,tf,Nt)
+simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
+# @pack! simSoliton = T
+initsim!(simSoliton)
+@unpack_Sim simSoliton;
+```
+In doing so, we have to specify the dimension of the simulation in this case (an improved constructor needed).
 
-## Dark soliton in a harmonic trap
+## Solve equation of motion
+As before, we specify the initial condition in momentum space, and evolve
+```julia
+ϕi = kspace(ψs,simSoliton)
+@pack! simSoliton = ϕi;
+sols = runsim(simSoliton.ϕi,simSoliton);
+```
+
+## View the solution using Plots
+```julia
+y = g*abs2.(sols[Nt-4])
+plot(x,y,fill=(y,0.4),size=(400,200),legend=false,grid=false)
+xlims!(-10,10);ylims!(0,1.2*μ)
+xlabel!(L"x/a_x")
+ylabel!(L"\mu(x)/\hbar\omega_x")
+title!(L"\textrm{local}\;\mu",titlefontsize=12)
+```
