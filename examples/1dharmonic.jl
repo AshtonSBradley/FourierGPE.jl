@@ -67,7 +67,7 @@ xlims!(-10,10); ylims!(0,1.3*μ)
 title!(L"\textrm{local}\; \mu(x)")
 xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
 
-# Impring dark soliton
+# Imprint dark soliton
 ψf = xspace(sol[end],sim)
 c = sqrt(μ)
 ξ = 1/c
@@ -97,16 +97,13 @@ sols = runsim(simSoliton.ϕi,simSoliton)
 ψf = xspace(ϕf,simSoliton)
 showpsi(x,ψf)
 
-# anim = @animate for i ∈ eachindex(t)
-i = 1
+anim = @animate for i in 1:length(t)-4
     ψ = xspace(sols[i],simSoliton)
     y = g*abs2.(ψ)
-    plot(x,y,fill=(0,0.2),size=(600,200))
-    plot!(x,one.(x)*μ)
-    plot!(x,V.(x,0.0))
+    plot(x,y,fill=(0,0.2),size=(600,300),grid=false)
     xlims!(-10,10); ylims!(0,1.3*μ)
     title!(L"\textrm{local}\; \mu(x)")
     xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
-# end
+end
 
 gif(anim,"./examples/soliton.gif",fps=30)
