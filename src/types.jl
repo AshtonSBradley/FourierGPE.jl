@@ -27,7 +27,6 @@ end
     X::NTuple{D,Array{Float64,1}} = xvecs(L,N)
     K::NTuple{D,Array{Float64,1}} = kvecs(L,N)
     espec::Array{Complex{Float64},D} = 0.5*k2(L,N)
-    #T::TransformLibrary{D} = Transforms{D}()
     flags::UInt32 = FFTW.MEASURE
     T::TransformLibrary = makeT(X,K;flags=flags)
 end
