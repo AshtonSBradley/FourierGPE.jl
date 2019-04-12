@@ -22,7 +22,6 @@ end
     t::LinRange{Float64} = LinRange(ti,tf,Nt)
     ϕi::Array{Complex{Float64},D} = zeros(N...) |> complex
     alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Tsit5()
-    dt::Float64 = 0.01π/μ
     params::UserParams # optional parameters
     X::NTuple{D,Array{Float64,1}} = xvecs(L...,N...)
     K::NTuple{D,Array{Float64,1}} = kvecs(L...,N...)

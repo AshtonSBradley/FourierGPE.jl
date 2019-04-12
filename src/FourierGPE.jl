@@ -14,7 +14,7 @@ include("evolution.jl")
 
 
 export Simulation, TransformLibrary, UserParams
-export linspace, xvecs, kvecs, dfft, crandn_array
+export xvec, kvec, xvecs, kvecs, dfft, crandn_array
 export maketransforms, makearrays, xspace, xspace!, kspace, kspace!
 export nlin, nlin!, Lgp, Lgp!, V, initsim!, runsim, internalnorm
 export Transforms, @pack_Transforms!, @unpack_Transforms

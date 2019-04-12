@@ -1,22 +1,29 @@
 # array methods
 linspace(a,b,n) = LinRange(a,b,n) |> collect
 
+xvec(L,N)=LinRange(-L/2,L/2,N+1)[2:end] |> collect
+
+function kvec(λ,N)
+    @assert iseven(N)
+    nkx = 0:Int(N/2)
+    kx = [nkx[1:end-1];-reverse(nkx[2:end])]*2*π/λ
+return kx
+end
+
 function xvecs(L,N)
     X = []
     for (λ,ν) in zip(L,N)
-        x = linspace(-λ/2,λ/2,ν+1)[2:end]
+        x = xvec(λ,ν)
         push!(X,x)
     end
     return X |> Tuple
 end
 
 function kvecs(L,N)
-    @assert all(iseven.(N))
     K = []
     for (λ,ν) in zip(L,N)
-        nkx = 0:Int(ν/2)
-        kx = [nkx[1:end-1];-reverse(nkx[2:end])]*2*π/λ
-        push!(K,kx)
+        k = kvec(λ,ν)
+        push!(K,k)
     end
     return K |> Tuple
 end
@@ -25,13 +32,13 @@ function k2(L,N)
     M = length(L)
     K = kvecs(L,N)
     if M==1
-    K2 = [k^2 for k ∈ K[1] ]
+        K2 = [k^2 for k ∈ K[1] ]
     elseif M==2
-    K2 = [kx^2 + ky^2 for kx in K[1], ky in K[2]]
+        K2 = [kx^2 + ky^2 for kx in K[1], ky in K[2]]
     elseif M==3
-    K2 = [kx^2 + ky^2 + kz^2 for kx in K[1], ky in K[2], kz in K[3]]
+        K2 = [kx^2 + ky^2 + kz^2 for kx in K[1], ky in K[2], kz in K[3]]
     elseif M==4
-    K2 = [kx^2 + ky^2 + kz^2 + kw^2 for kx in K[1], ky in K[2], kz in K[3], kw in K[4]]
+        K2 = [kx^2 + ky^2 + kz^2 + kw^2 for kx in K[1], ky in K[2], kz in K[3], kw in K[4]]
     end
     return K2 |> complex
 end

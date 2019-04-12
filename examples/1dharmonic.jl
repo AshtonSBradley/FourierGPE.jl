@@ -17,13 +17,13 @@ end
 
 # ==== define user parameters =======
 @with_kw mutable struct Params <: UserParams @deftype Float64
-    # user parameters:
+    # parameters (at least a placeholder):
     κ = 0.1
 end
 par = Params()
 
 # ==== set simulation parameters ====
-L = (60.0,)
+L = (40.0,)
 N = (512,)
 μ = 25.0
 # old init code
@@ -40,8 +40,6 @@ sim = Sim(L,N,par)
 # declare the potential function
 import FourierGPE.V
 V(x,t) = 0.5*x^2
-V(x,y,t)::Float64 = 0.5*(x^2 + y^2)
-V(x,y,z,t)::Float64 = 0.5*(x^2 + y^2 + z^2)
 
 # useful TF state
 ψ0(x,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,0.0)/μ,0.0)+im*0.0)
@@ -54,7 +52,7 @@ x = X[1]
 sim
 
 # ====== Evolve in k space ==========
-sol = runsim(sim.ϕi,sim)
+sol = runsim(sim)
 # ===================================
 
 # pull out the ground state:
@@ -90,7 +88,7 @@ simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
 # ===================================
 
 # ====== Evolve in k space ==========
-sols = runsim(simSoliton.ϕi,simSoliton)
+sols = runsim(simSoliton)
 # ===================================
 
 ϕf = sols[end-4]
