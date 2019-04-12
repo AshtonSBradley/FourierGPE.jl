@@ -31,8 +31,8 @@ end
     end
 
 function maketransforms(L,N;flags=FFTW.MEASURE)
-    X = xvecs(L...,N...)
-    K = kvecs(L...,N...)
+    X = xvecs(L,N)
+    K = kvecs(L,N)
     M = length(N)
     #measures for unitary FFT, and for standard integration
     dX = zeros(M); dK = zeros(M)

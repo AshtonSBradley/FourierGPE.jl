@@ -2,7 +2,7 @@
 function initsim!(sim;flags=FFTW.MEASURE)
     @unpack L,N = sim
     X,K,dX,dK,DX,DK,T = maketransforms(L,N)
-    espec = 0.5*k2(L...,N...)
+    espec = 0.5*k2(L,N)
     @pack! sim = T,X,K,espec
     return nothing
 end
@@ -69,7 +69,7 @@ function runsim(sim,ϕ=sim.ϕi)
     prob = ODEProblem(Lgp!,ϕ,(sim.ti,sim.tf),sim)
     @info "𝒅𝜳 ⭆ Evolving in kspace"
     @info "damping γ = $(sim.γ)"
-    @time sol = solve(prob,alg=sim.alg,saveat=sim.t)
+    @time sol = solve(prob,alg=sim.alg,saveat=sim.t,reltol=sim.reltol)
     @info "⭆ Finished."
 return sol
 end

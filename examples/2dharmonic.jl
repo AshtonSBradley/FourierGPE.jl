@@ -28,21 +28,24 @@ par = Params()
 # ==== set simulation parameters ====
 L = (20.0,20.0)
 N = (128,128)
-X,K,dX,dK,DX,DK,T = maketransforms(L,N)
-espec = 0.5*k2(L...,N...)
+μ = 25.0
+# X,K,dX,dK,DX,DK,T = maketransforms(L,N)
+# espec = 0.5*k2(L...,N...)
 
-# ====== Initialize simulation ======
+# ===# ====== Initialize simulation ======
 sim = Sim(L,N,par)
-@pack! sim = T,X,K,espec
-initsim!(sim)
+@pack! sim = μ
 @unpack_Sim sim
+# ====================================== Initialize simulation ======
+# sim = Sim(L,N,par)
+# @pack! sim = T,X,K,espec
+# initsim!(sim)
+# @unpack_Sim sim
 # ===================================
 
 # declare the potential function
 import FourierGPE.V
-V(x,t)::Float64 = 0.5*x^2
 V(x,y,t)::Float64 = 0.5*(x^2 + y^2)
-V(x,y,z,t)::Float64 = 0.5*(x^2 + y^2 + z^2)
 
 # useful TF state
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
@@ -50,19 +53,18 @@ V(x,y,z,t)::Float64 = 0.5*(x^2 + y^2 + z^2)
 x,y = X
 #make initial state
 ψi = ψ0.(x,y',μ,g)
-ψi .+= (randn(N...) |> complex)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi
 sim
 
 # ====== Evolve in k space ==========
-sol = runsim(sim.ϕi,sim)
+sol = runsim(sim)
 # ===================================
 
 # pull out the ground state:
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
-showpsi(ψg,x,y)
+showpsi(x,y,ψg)
 
 # Add a vortex off-axis
 using VortexDistributions
@@ -76,7 +78,7 @@ initialvortex = [xv yv cv]
 ξv = healing(xv,yv,μ,g)
 ψv = copy(ψg)
 makeallvortices!(ψv,initialvortex,x,y,ξv)
-showpsi(ψv,x,y)
+showpsi(x,y,ψv)
 
 # In TF regim precession frequency is given analytically by:
 # (see Fetter JLTP 2010)
@@ -92,24 +94,26 @@ Tv = 2*π/Ωv
 tf = Tv
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)
-@pack! sim = tf,t,γ,ϕi
-initsim!(sim)
+reltol = 1e-7
+alg = DP5()
+@pack! sim = tf,t,γ,ϕi,reltol,alg
+# initsim!(sim)
 
 @unpack_Sim sim
-# ===================================
 
 # ====== Evolve in k space ==========
-solv = runsim(sim.ϕi,sim)
+solv = runsim(sim)
 # ===================================
 
-ϕf = solv[200]
+ϕf = solv[100]
 ψf = xspace(ϕf,sim)
-showpsi(ψf,x,y)
+showpsi(x,y,ψf)
 
 #trim last few frames to show one orbit
 # analytical result is within 10%
-anim = @animate for i=1:Nt-20
-    showpsi(xspace(solv[i],sim),x,y)
+anim = @animate for i=1:Nt-6
+    ψ = xspace(solv[i],sim)
+    showpsi(x,y,ψ)
 end
 
 gif(anim,"./examples/vortex.gif",fps=30)

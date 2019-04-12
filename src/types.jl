@@ -22,10 +22,11 @@ end
     t::LinRange{Float64} = LinRange(ti,tf,Nt)
     ϕi::Array{Complex{Float64},D} = zeros(N...) |> complex
     alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Tsit5()
+    reltol::Float64 = 1e-6
     params::UserParams # optional parameters
-    X::NTuple{D,Array{Float64,1}} = xvecs(L...,N...)
-    K::NTuple{D,Array{Float64,1}} = kvecs(L...,N...)
-    espec::Array{Complex{Float64},D} = 0.5*k2(L...,N...)
+    X::NTuple{D,Array{Float64,1}} = xvecs(L,N)
+    K::NTuple{D,Array{Float64,1}} = kvecs(L,N)
+    espec::Array{Complex{Float64},D} = 0.5*k2(L,N)
     #T::TransformLibrary{D} = Transforms{D}()
     flags::UInt32 = FFTW.MEASURE
     T::TransformLibrary = makeT(X,K;flags=flags)
