@@ -23,15 +23,17 @@ end
 par = Params()
 
 # ==== set simulation parameters ====
-L = (20.0,)
-N = (128,)
-X,K,dX,dK,DX,DK,T = maketransforms(L,N)
-espec = 0.5*k2(L...,N...)
-
+L = (60.0,)
+N = (512,)
+μ = 25.0
+# old init code
+# X,K,dX,dK,DX,DK,T = maketransforms(L,N)
+# espec = 0.5*k2(L...,N...)
+# @pack! sim = T,X,K,espec
+# initsim!(sim)
 # ====== Initialize simulation ======
 sim = Sim(L,N,par)
-@pack! sim = T,X,K,espec
-initsim!(sim)
+@pack! sim = μ
 @unpack_Sim sim
 # ===================================
 
@@ -47,7 +49,6 @@ V(x,y,z,t)::Float64 = 0.5*(x^2 + y^2 + z^2)
 x = X[1]
 #make initial state
 ψi = ψ0.(x,μ,g)
-ψi .+= (randn(N...) |> complex)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi
 sim
@@ -59,33 +60,53 @@ sol = runsim(sim.ϕi,sim)
 # pull out the ground state:
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
-showpsi(x,ψg)
+plot(x,g*abs2.(ψg),fill=(0,0.2),size=(600,200))
+plot!(x,one.(x)*μ)
+plot!(x,V.(x,0.0))
+xlims!(-10,10); ylims!(0,1.3*μ)
+title!(L"\textrm{local}\; \mu(x)")
+xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
 
-# Add soliton
+# Impring dark soliton
+ψf = xspace(sol[end],sim)
+c = sqrt(μ)
+ξ = 1/c
+v = 0.5*c
+xs = 0.
+f = sqrt(1-(v/c)^2)
 
-
+ψs = ψf.*(f*tanh.(f*(x .-xs)/ξ).+im*v/c);
+showpsi(x,ψs)
+xlims!(-10,10)
 # ==== set simulation parameters ====
 γ = 0.0
-tf = Tv
-t = LinRange(ti,tf,Nt)
-ϕi = kspace(ψv,sim)
-@pack! sim = tf,t,γ,ϕi
-initsim!(sim)
+tf = 8*pi/sqrt(2); t = LinRange(ti,tf,Nt)
+dt = 0.01π/μ
+simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
+ϕi = kspace(ψs,simSoliton)
+@pack! simSoliton = ϕi
 
-@unpack_Sim sim
+@unpack_Sim simSoliton
 # ===================================
 
 # ====== Evolve in k space ==========
-solv = runsim(sim.ϕi,sim)
+sols = runsim(simSoliton.ϕi,simSoliton)
 # ===================================
 
-ϕf = solv[200]
-ψf = xspace(ϕf,sim)
-showpsi(ψf,x,y)
+ϕf = sols[end-4]
+ψf = xspace(ϕf,simSoliton)
+showpsi(x,ψf)
 
-anim = @animate for i=1:Nt
-    ψ = xspace(solv[i],sim)
-    showpsi(x,ψ)
-end
+# anim = @animate for i ∈ eachindex(t)
+i = 1
+    ψ = xspace(sols[i],simSoliton)
+    y = g*abs2.(ψ)
+    plot(x,y,fill=(0,0.2),size=(600,200))
+    plot!(x,one.(x)*μ)
+    plot!(x,V.(x,0.0))
+    xlims!(-10,10); ylims!(0,1.3*μ)
+    title!(L"\textrm{local}\; \mu(x)")
+    xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
+# end
 
 gif(anim,"./examples/soliton.gif",fps=30)

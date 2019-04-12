@@ -49,7 +49,7 @@ function nlin!(dϕ,ϕ,sim::Sim{3},t)
 end
 
 function Lgp!(dϕ,ϕ,sim,t)
-    @unpack μ,γ,espec = sim
+    @unpack γ,μ,espec = sim
     nlin!(dϕ,ϕ,sim,t)
     @. dϕ = -im*(1.0 - im*γ)*(dϕ + (espec - μ)*ϕ)
     return nothing
@@ -69,7 +69,7 @@ function runsim(ϕ,sim)
     prob = ODEProblem(Lgp!,ϕ,(sim.ti,sim.tf),sim)
     @info "𝒅𝜳 ⭆ Evolving in kspace"
     @info "damping γ = $(sim.γ)"
-    @time sol = solve(prob,alg=Tsit5(),saveat=sim.t,reltol=1e-7)
+    @time sol = solve(prob,alg=sim.alg,dt=sim.dt,saveat=sim.t)
     @info "⭆ Finished."
 return sol
 end
