@@ -30,6 +30,8 @@ function k2(L,N)
     K2 = [kx^2 + ky^2 for kx in K[1], ky in K[2]]
     elseif M==3
     K2 = [kx^2 + ky^2 + kz^2 for kx in K[1], ky in K[2], kz in K[3]]
+    elseif M==4
+    K2 = [kx^2 + ky^2 + kz^2 + kw^2 for kx in K[1], ky in K[2], kz in K[3], kw in K[4]]
     end
     return K2 |> complex
 end
