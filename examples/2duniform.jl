@@ -9,10 +9,6 @@ using FourierGPE
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-# uniform potential
-import FourierGPE.V
-V(x,y,t) = zero(x*y)
-
 function showpsi(ψ,x,y)
     p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
@@ -24,28 +20,38 @@ function showpsi(ψ,x,y)
     return p
 end
 
+# ==== define user parameters =======
+@with_kw mutable struct Params <: UserParams @deftype Float64
+    # user parameters:
+    κ = 0.1
+end
+par = Params()
+
 # ==== set simulation parameters ====
-sim = Sim()
-γ = 0.5
-Nx = 512; Ny = 512
-sim = Sim(γ=γ,Nx=Nx,Ny=Ny)
-initsim!(sim)
+L=(200.,200.)
+N=(512,512)
+
+# ========= Initialize simulation ======
+sim = Sim(L,N,par)
 @unpack_Sim sim
-# ================================
 
-#make convenient arrays
-x,y,kx,ky,dx,dy,dkx,dky = makearrays(Lx,Ly,Nx,Ny)
+# uniform potential
+import FourierGPE.V
+V(x,y,t) = zero(x*y)
 
-# useful state functions
-ψ0(x,y,μ,g) = sqrt(μ/g) |> complex
+# ========= useful state functions
+ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healing(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
-# inital state (uniform)
+x,y = X
+#make initial state
 ψi = ψ0.(x,y',μ,g)
+ϕi = kspace(ψi,sim)
+@pack! sim = ϕi
+sim
 
 # ====== Evolve in k space ==========
-ϕi = kspace(ψi,sim)
-sol = runsim(ϕi,sim)
+sol = runsim(sim)
 # ===================================
 
 # pull out the ground state
@@ -65,21 +71,27 @@ makeallvortices!(ψv,dipole,x,y,ξv)
 # ==== set simulation parameters ====
 c = sqrt(μ)
 γ = 0.01
-tf = 6*Lx/c
+tf = 6*L[1]/c
 
-sim = Sim(sim,γ=γ,tf=tf)
-initsim!(sim)
+t = LinRange(ti,tf,Nt)
+ϕi = kspace(ψv,sim)
+reltol = 1e-7
+alg = DP5()
+@pack! sim = tf,t,γ,ϕi,reltol,alg
+# initsim!(sim)
+
 @unpack_Sim sim
-# ==================================
 
-ϕv = kspace(ψv,sim)
-solv = runsim(ϕv,sim)
+# ====== Evolve in k space ==========
+solv = runsim(sim)
+# ===================================
+
 ψd = xspace(solv[end],sim)
-showpsi(ψd,x,y)
+showpsi(x,y,ψd)
 
 # dipole decay
 anim = @animate for i=1:Nt
-    showpsi(xspace(solv[i],sim),x,y)
+    showpsi(x,y,xspace(solv[i],sim))
 end
 
 gif(anim,"./examples/dipole.gif",fps=30)

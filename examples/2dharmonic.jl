@@ -32,7 +32,7 @@ N = (128,128)
 # X,K,dX,dK,DX,DK,T = maketransforms(L,N)
 # espec = 0.5*k2(L...,N...)
 
-# ===# ====== Initialize simulation ======
+# ========= Initialize simulation ======
 sim = Sim(L,N,par)
 @pack! sim = μ
 @unpack_Sim sim
