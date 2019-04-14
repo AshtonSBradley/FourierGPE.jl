@@ -8,6 +8,14 @@ function dfft(x,k)
     return Dx, Dk
 end
 
+function dfftall(X,K)
+    DX = zeros(M); DK = zeros(M)
+    for i ∈ eachindex(X)
+        DX[i],DK[i] = dfft(X[i],K[i])
+    end
+    return DX,DK
+end
+
     function xspace(ψ,sim)
         @unpack T = sim
         return T.Tkx*ψ

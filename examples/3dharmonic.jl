@@ -94,7 +94,7 @@ function densityfilm(sol,Nt)
     tindex = Node(1)
     scene = volume(lift(i -> dense(sol[i]), tindex),
     algorithm = :iso,
-    show_axis=true,
+    show_axis=false,
     isovalue=3f0(.15))
 
     R = 70
