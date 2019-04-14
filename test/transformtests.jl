@@ -1,4 +1,7 @@
 #transform tests
+using Revise
+
+using FourierGPE
 
 function makearrays(L,N)
     X = xvecs(L,N)
@@ -35,8 +38,7 @@ prefix    = :plan_
 
 for (Tij,dμi,trans) ∈ zip(Tij,dμi,trans)
     plantrans = Symbol(prefix,trans)
-    ex = :($Tij = $dμi*$plantrans(ψtest,flags=flags))
-    eval(ex)
+    @eval $Tij = $dμi*$plantrans(ψtest,flags=flags)
 end
 
 T = Transforms(Txk,Txk!,Tkx,Tkx!)

@@ -9,6 +9,7 @@ function dfft(x,k)
 end
 
 function dfftall(X,K)
+    M = length(X)
     DX = zeros(M); DK = zeros(M)
     for i ∈ eachindex(X)
         DX[i],DK[i] = dfft(X[i],K[i])
