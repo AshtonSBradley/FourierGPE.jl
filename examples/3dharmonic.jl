@@ -16,10 +16,10 @@ end
 par = Params()
 
 # ==== set simulation parameters ====
-L=(16.,16.,16.)
+L=(15.,15.,15.)
 N=(64,64,64)
 γ = 0.05
-tf = 4/γ
+tf = 1.5/γ
 Nt = 200
 t = LinRange(0.,tf,Nt)
 # ========= Initialize simulation ======
@@ -29,7 +29,7 @@ sim = Sim(L,N,par)
 
 # uniform potential
 import FourierGPE.V
-V(x,y,z,t) = zero(x*y*z)
+V(x,y,z,t) = 0.5*(x^2+y^2+4*z^2)
 
 # ========= useful state functions
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
@@ -81,22 +81,35 @@ gif(anim,"./examples/3dquench.gif",fps=30)
 # ========== animate isosurface in Makie ========
 using Makie, AbstractPlotting
 
-function dense(i)
-    ψm = xspace(sol[i],sim)
+function dense(phi)
+    ψm = xspace(phi,sim)
     density = abs2.(ψm)
     pmax = maximum(density)
     return density/pmax
 end
 
-function densityfilm(Nt,saveto="examples/3dquenchiso.gif")
-scene = Scene()
-tindex = Node(1)
+function densityfilm(sol,Nt)
+    saveto="examples/3dtrap.gif"
+    scene = Scene()
+    tindex = Node(1)
+    scene = volume(lift(i -> dense(sol[i]), tindex),
+    algorithm = :iso,
+    show_axis=true,
+    isovalue=3f0(.15))
 
-scene = volume(lift(i -> dense(i), tindex), algorithm = :iso,show_axis=false)
+    R = 70
+    eyepos = Vec3f0(R,R,R)
+    lookat = Vec3f0(18,18,0)
 
-record(scene, saveto, 1:Nt-10) do i
-    tindex[] = i
+    record(scene, saveto, 1:Nt) do i
+        update_cam!(scene, eyepos, lookat)
+        rotate_cam!(scene, 0., -0.25, 0.)
+        tindex[] = i
+    end
+    p = scene[end];
+    return
 end
-end
 
-densityfilm(Nt-20)
+p = densityfilm(sol,Nt)
+
+# p.attributes.attribute
