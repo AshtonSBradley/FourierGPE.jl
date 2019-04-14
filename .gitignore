@@ -56,7 +56,7 @@ Temporary Items
 .apdisk
 
 # potentially large graphics files
-.mp4
-.gif
+*.mp4
+*.gif
 
 # End of https://www.gitignore.io/api/julia,macos
