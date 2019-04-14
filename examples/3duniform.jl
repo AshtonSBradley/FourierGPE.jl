@@ -19,7 +19,7 @@ par = Params()
 # ==== set simulation parameters ====
 L=(16.,16.,16.)
 N=(64,64,64)
-γ = 0.1
+γ = 0.05
 tf = 4/γ
 Nt = 200
 t = LinRange(0.,tf,Nt)
@@ -97,3 +97,5 @@ record(scene, saveto, 1:Nt-10) do i
     tindex[] = i
 end
 end
+
+densityfilm(Nt-20)
