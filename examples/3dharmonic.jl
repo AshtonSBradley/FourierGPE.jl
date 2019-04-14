@@ -11,9 +11,12 @@ using FourierGPE
 # ==== define user parameters =======
 @with_kw mutable struct Params <: UserParams @deftype Float64
     # user parameters:
-    κ = 0.1
+    V::Expr = :(V(x,y,z,t) = 0.5*(x^2+y^2+4*z^2))
 end
 par = Params()
+
+import FourierGPE.V
+eval(par.V)
 
 # ==== set simulation parameters ====
 L=(15.,15.,15.)
@@ -26,10 +29,6 @@ t = LinRange(0.,tf,Nt)
 sim = Sim(L,N,par)
 @pack! sim = γ,tf,Nt,t
 @unpack_Sim sim
-
-# uniform potential
-import FourierGPE.V
-V(x,y,z,t) = 0.5*(x^2+y^2+4*z^2)
 
 # ========= useful state functions
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
