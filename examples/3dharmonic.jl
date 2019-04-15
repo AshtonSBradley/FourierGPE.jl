@@ -11,7 +11,7 @@ using FourierGPE
 # ==== define user parameters =======
 @with_kw mutable struct Params <: UserParams @deftype Float64
     # user parameters:
-    V::Expr = :(V(x,y,z,t) = 0.5*(x^2+y^2+4*z^2))
+    V::Expr = :( V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2) )
 end
 par = Params()
 
@@ -69,11 +69,10 @@ end
 showpsi(x,y,ψg[:,:,1])
 
 # animate a slice
-# dipole decay
 anim = @animate for i=1:Nt
-    showpsi(x,y,xspace(sol[i],sim)[:,:,1])
+    ψ = xspace(sol[i],sim)[:,:,1]
+    showpsi(x,y,ψ)
 end
-
 gif(anim,"./examples/3dquench.gif",fps=30)
 
 

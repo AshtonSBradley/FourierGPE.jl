@@ -238,3 +238,76 @@ k3 = map(x-> sum(abs2.(x)),kind)
 k1 = k2(L,N) |> real
 
 all(k1==k3)
+
+
+# macro for potential definition
+# let's say we want to define the potential
+#V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2)
+
+using Revise, FourierGPE
+
+
+import FourierGPE.V
+
+V(x,y,z,t) = 0.5*(x^2 + y^2 + 10*z^2)
+
+ex1 = :(V(x,y,z,t) = 0.5*(x^2 + y^2 + 10*z^2))
+
+ex = :(
+@with_kw mutable struct Params <: UserParams
+    Vdef::Expr = :($ex1)
+end
+)
+
+eval(ex)
+
+par = Params()
+eval(par.Vdef)
+par.Vdef.args
+V(.1,.1,.1,.1)
+
+
+# what about build user parameters using macro?
+
+macro params(Pname::Symbol,q)
+    ex = :(q = $q)
+    ex = :(
+    @with_kw mutable struct $Pname <: UserParams @deftype Float64
+        $ex
+    end
+    )
+    return eval(ex)
+end
+
+a = .1
+@params TestP5 a
+par = TestP5()
+
+@params mysim a
+par = mysim()
+@defparams TestP2 a
+par = TestP()
+
+
+# ===== easy start macro =====
+
+@with_kw mutable struct Params <: UserParams @deftype Float64
+    # user parameters:
+    V::Expr = :( V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2) )
+end
+par = Params()
+
+import FourierGPE.V
+eval(par.V)
+
+# ==== set simulation parameters ====
+L=(15.,15.,15.)
+N=(64,64,64)
+γ = 0.05
+tf = 1.5/γ
+Nt = 200
+t = LinRange(0.,tf,Nt)
+# ========= Initialize simulation ======
+sim = Sim(L,N,par)
+@pack! sim = γ,tf,Nt,t
+@unpack_Sim sim
