@@ -1,7 +1,7 @@
 # initialize transforms and fields
 function initsim!(sim;flags=FFTW.MEASURE)
     @unpack L,N = sim
-    X,K,dX,dK,DX,DK,T = maketransforms(L,N)
+    X,K,dX,dK,DX,DK,T = makearraystransforms(L,N)
     espec = 0.5*k2(L,N)
     @pack! sim = T,X,K,espec
     return nothing

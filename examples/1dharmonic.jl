@@ -1,5 +1,5 @@
 using Plots, LaTeXStrings, Pkg, Revise
-gr(legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+gr(grid=false,legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 #pkg"activate ."
 using FourierGPE
@@ -32,6 +32,12 @@ N = (512,)
 # @pack! sim = T,X,K,espec
 # initsim!(sim)
 # ====== Initialize simulation ======
+
+X,K,dX,dK = makearrays(L,N)
+
+T = makeT(X,K)
+
+
 sim = Sim(L,N,par)
 @pack! sim = μ
 @unpack_Sim sim
@@ -84,6 +90,7 @@ simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
 ϕi = kspace(ψs,simSoliton)
 @pack! simSoliton = ϕi
 
+#update all variables in current global workspace
 @unpack_Sim simSoliton
 # ===================================
 

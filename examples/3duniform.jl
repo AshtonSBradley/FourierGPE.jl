@@ -88,7 +88,7 @@ function dense(i)
     return density/pmax
 end
 
-function densityfilm(Nt,saveto="examples/3dquenchiso.gif")
+function densityfilm(Nt,saveto="examples/3dquenchisotest.gif")
 scene = Scene()
 tindex = Node(1)
 
@@ -99,4 +99,4 @@ record(scene, saveto, 1:Nt-10) do i
 end
 end
 
-densityfilm(Nt-10)
+densityfilm(Nt)

@@ -1,5 +1,5 @@
 using Plots, LaTeXStrings, Pkg, Revise
-gr(titlefontsize=12,size=(500,300),colorbar=false)
+gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 using FourierGPE
 
@@ -9,7 +9,7 @@ using FourierGPE
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-function showpsi(ψ,x,y)
+function showpsi(x,y,ψ)
     p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
     title!(L"|\psi|^2")
@@ -57,7 +57,7 @@ sol = runsim(sim)
 # pull out the ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
-showpsi(ψg,x,y)
+showpsi(x,y,ψg)
 
 # make an initial dipole
 using VortexDistributions
@@ -76,8 +76,8 @@ tf = 6*L[1]/c
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)
 reltol = 1e-7
-alg = DP5()
-@pack! sim = tf,t,γ,ϕi,reltol,alg
+# alg = DP5()
+@pack! sim = tf,t,γ,ϕi,reltol
 # initsim!(sim)
 
 @unpack_Sim sim
@@ -91,7 +91,8 @@ showpsi(x,y,ψd)
 
 # dipole decay
 anim = @animate for i=1:Nt
-    showpsi(x,y,xspace(solv[i],sim))
+    ψ = xspace(solv[i],sim)
+    showpsi(x,y,ψ)
 end
 
 gif(anim,"./examples/dipole.gif",fps=30)
@@ -109,8 +110,14 @@ function showenergies(ψ,x,y,kx,ky,k2)
     return p
 end
 
+X,K,dX,dK = makearrays(L,N)
+ksq = k2(K)
+kx,ky = K
+dx,dy = dX
+
 anim = @animate for i=1:Nt
-    showenergies(xspace(solv[i],sim),x,y,kx,ky,k2)
+    ψ = xspace(solv[i],sim)
+    showenergies(ψ,x,y,K...,k2(K))
 end
 
 gif(anim,"./examples/dipoleenergies.gif",fps=30)
@@ -119,16 +126,16 @@ gif(anim,"./examples/dipoleenergies.gif",fps=30)
 
 # nonlinearity
 function xenergy(ϕ,sim,t)
-    @unpack g,x,y = sim
+    @unpack g,X = sim; x,y = X
     ψ = xspace(ϕ,sim)
     @. ψ *= 0.5*g*abs2(ψ) + V(x,y',t)
     return kspace(ψ,sim)
 end
 
 function gpenergy(ϕ,sim,t)
-    @unpack μ,γ,k2 = sim
+    @unpack μ,γ,espec = sim
     chi = xenergy(ϕ,sim,t)
-    H = @. 0.5*k2*abs2(ϕ) + conj(ϕ)*chi
+    H = @. espec*abs2(ϕ) + conj(ϕ)*chi
     return sum(H)*dx*dy |> real
 end
 
@@ -140,7 +147,7 @@ Natoms = zero(t)
 for (i,t) in enumerate(t)
     ϕ = solv[i]
     ψ = xspace(ϕ,sim)
-    et,ei,ec = energydecomp(ψ,kx,ky',k2)
+    et,ei,ec = energydecomp(ψ,kx,ky',ksq)
     Ei[i] = sum(ei)*dx*dy |> real
     Ec[i] = sum(ec)*dx*dy |> real
     Natoms[i] = sum(abs2.(ψ))*dx*dy

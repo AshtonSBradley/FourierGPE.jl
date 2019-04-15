@@ -36,10 +36,24 @@ dμi       = [:dμx :dμx :dμk :dμk]
 trans     = [:fft :fft! :ifft :ifft!]
 prefix    = :plan_
 
-for (Tij,dμi,trans) ∈ zip(Tij,dμi,trans)
-    plantrans = Symbol(prefix,trans)
-    @eval $Tij = $dμi*$plantrans(ψtest,flags=flags)
+# for (Tij,dμi,trans) ∈ zip(Tij,dμi,trans)
+#     plantrans = Symbol(prefix,trans)
+#     @eval $Tij = $dμi*$plantrans(ψtest,flags=flags)
+# end
+
+# ====== simpler approach =====
+function a(funcs, args)
+    x = []
+    for f in eachindex(funcs)
+        push!(x, funcs[f](args[f]...))
+    end
+    return x
 end
+
+trantest = (plan_fft,plan_ifft)
+argetest = ((ψtest,flags=flags))
+t = a(trans,args)
+# ====== simpler approach =====
 
 T = Transforms(Txk,Txk!,Tkx,Tkx!)
 
