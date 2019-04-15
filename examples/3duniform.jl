@@ -99,4 +99,4 @@ record(scene, saveto, 1:Nt-10) do i
 end
 end
 
-densityfilm(Nt-20)
+densityfilm(Nt-10)
