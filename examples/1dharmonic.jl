@@ -33,9 +33,9 @@ N = (512,)
 # initsim!(sim)
 # ====== Initialize simulation ======
 
-X,K,dX,dK = makearrays(L,N)
-
-T = makeT(X,K)
+# X,K,dX,dK = makearrays(L,N)
+#
+# T = makeT(X,K)
 
 
 sim = Sim(L,N,par)
@@ -85,7 +85,6 @@ xlims!(-10,10)
 # ==== set simulation parameters ====
 γ = 0.0
 tf = 8*pi/sqrt(2); t = LinRange(ti,tf,Nt)
-dt = 0.01π/μ
 simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
 ϕi = kspace(ψs,simSoliton)
 @pack! simSoliton = ϕi
