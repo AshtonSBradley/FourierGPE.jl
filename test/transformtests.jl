@@ -1,37 +1,39 @@
 #transform tests
-using Revise
+# using Test
 
-using FourierGPE
 
-N = 100
-trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
-meas = (.3,.1,.1,.1)
-ψtest = randn(N)+im*randn(N)
-flags = FFTW.MEASURE
+# test Parseval's theorem for wavefunctions
+function parsevaltest(L,N)
+# L = (30.,20.)
+# N = (30,34)
+X,K,dX,dK = makearrays(L,N)
+T = makeT(X,K)
 
-args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
-# ====== simpler approach (?) =====
+ψ = randn(N...) + im*randn(N...)
 
-function deftrans(funcs,args,kwargs)
-    trans = []
-    for j ∈ eachindex(funcs)
-        push!(trans, funcs[j](args[j]...,flags=kwargs))
-    end
-    return meas.*trans
+n1 = sum(abs2.(ψ))*prod(dX)
+ϕ = T.Txk*ψ
+
+n2 = sum(abs2.(ϕ))*prod(dK)
+return n1,n2
 end
 
-t1 = deftrans(trans,args,flags)
+L = (88.)
+N = (128)
+n1,n2 = parsevaltest(L,N)
+@test n1 ≈ n2
 
+L = (30.,20.)
+N = (30,34)
+n1,n2 = parsevaltest(L,N)
+@test n1 ≈ n2
 
-# ====== simpler approach =====
+L = (30.,20.,10)
+N = (30,34,24)
+n1,n2 = parsevaltest(L,N)
+@test n1 ≈ n2
 
-T = Transforms(Txk,Txk!,Tkx,Tkx!)
-
-# Txk = dμx*plan_fft(ψtest,flags=flags)
-# # ψtest = ones(Ns...) |> complex
-# Txk! = dμx*plan_fft!(ψtest,flags=flags)
-# # ψtest = ones(Ns...) |> complex
-# Tkx  = dμk*plan_ifft(ψtest,flags=flags)
-# # ψtest = ones(Ns...) |> complex
-# Tkx!  = dμk*plan_ifft!(ψtest,flags=flags)
-# # ψtest = ones(Ns...) |> complex
+L = (30.,20.,10,50.)
+N = (30,34,24,22)
+n1,n2 = parsevaltest(L,N)
+@test n1 ≈ n2
