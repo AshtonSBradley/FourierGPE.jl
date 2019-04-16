@@ -3,56 +3,26 @@ using Revise
 
 using FourierGPE
 
-function makearrays(L,N)
-    X = xvecs(L,N)
-    K = kvecs(L,N)
-    dX = Float64[]; dK = Float64[]
-    for j ∈ eachindex(X)
-        x=X[j];k=K[j]
-        dx = x[2]-x[1];dk = k[2]-k[1]
-        push!(dX,dx)
-        push!(dK,dk)
-    end
-    dX = dX |> Tuple
-    dK = dK |> Tuple
-    return X,K,dX,dK
-end
-
-L = (11.,140.)
-N = (20,40)
-X,K,dX,dK = makearrays(L,N)
-DX,DK = dfftall(X,K)
-
-#measures for unitary FFT
-dμx = prod(DX); dμk = prod(DK)
-
-# plan transforms
-FFTW.set_num_threads(Sys.CPU_THREADS)
+N = 100
+trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
+meas = (.3,.1,.1,.1)
+ψtest = randn(N)+im*randn(N)
 flags = FFTW.MEASURE
-ψtest = ones(N...) |> complex
 
-Tij       = [:Txk :Txk! :Tkx :Tkx!]
-dμi       = [:dμx :dμx :dμk :dμk]
-trans     = [:fft :fft! :ifft :ifft!]
-prefix    = :plan_
+args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
+# ====== simpler approach (?) =====
 
-# for (Tij,dμi,trans) ∈ zip(Tij,dμi,trans)
-#     plantrans = Symbol(prefix,trans)
-#     @eval $Tij = $dμi*$plantrans(ψtest,flags=flags)
-# end
-
-# ====== simpler approach =====
-function a(funcs, args)
-    x = []
-    for f in eachindex(funcs)
-        push!(x, funcs[f](args[f]...))
+function deftrans(funcs,args,kwargs)
+    trans = []
+    for j ∈ eachindex(funcs)
+        push!(trans, funcs[j](args[j]...,flags=kwargs))
     end
-    return x
+    return meas.*trans
 end
 
-trantest = (plan_fft,plan_ifft)
-argetest = ((ψtest,flags=flags))
-t = a(trans,args)
+t1 = deftrans(trans,args,flags)
+
+
 # ====== simpler approach =====
 
 T = Transforms(Txk,Txk!,Tkx,Tkx!)
