@@ -27,16 +27,6 @@ L = (40.0,)
 N = (512,)
 μ = 25.0
 
-<<<<<<< HEAD
-# ====== Initialize simulation ======
-
-# X,K,dX,dK = makearrays(L,N)
-=======
-# X,K,dX,dK = makearrays(L,N)
-#
->>>>>>> 9efca4a6ee30f5bbce0c8cb008b00d66b424073f
-# T = makeT(X,K)
-
 
 sim = Sim(L,N,par)
 @pack! sim = μ
