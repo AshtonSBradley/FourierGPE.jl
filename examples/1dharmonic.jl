@@ -26,16 +26,11 @@ par = Params()
 L = (40.0,)
 N = (512,)
 μ = 25.0
-# old init code
-# X,K,dX,dK,DX,DK,T = maketransforms(L,N)
-# espec = 0.5*k2(L...,N...)
-# @pack! sim = T,X,K,espec
-# initsim!(sim)
+
 # ====== Initialize simulation ======
 
-X,K,dX,dK = makearrays(L,N)
-
-T = makeT(X,K)
+# X,K,dX,dK = makearrays(L,N)
+# T = makeT(X,K)
 
 
 sim = Sim(L,N,par)
@@ -50,12 +45,12 @@ V(x,t) = 0.5*x^2
 # useful TF state
 ψ0(x,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,0.0)/μ,0.0)+im*0.0)
 
-x = X[1]
+
 #make initial state
+x = X[1]
 ψi = ψ0.(x,μ,g)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi
-sim
 
 # ====== Evolve in k space ==========
 sol = runsim(sim)
@@ -85,7 +80,6 @@ xlims!(-10,10)
 # ==== set simulation parameters ====
 γ = 0.0
 tf = 8*pi/sqrt(2); t = LinRange(ti,tf,Nt)
-dt = 0.01π/μ
 simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
 ϕi = kspace(ψs,simSoliton)
 @pack! simSoliton = ϕi
@@ -98,11 +92,11 @@ simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
 sols = runsim(simSoliton)
 # ===================================
 
-ϕf = sols[end-4]
+ϕf = sols[end-3]
 ψf = xspace(ϕf,simSoliton)
 showpsi(x,ψf)
 
-anim = @animate for i in 1:length(t)-4
+anim = @animate for i in 1:length(t)-3
     ψ = xspace(sols[i],simSoliton)
     y = g*abs2.(ψ)
     plot(x,y,fill=(0,0.2),size=(600,300),grid=false)

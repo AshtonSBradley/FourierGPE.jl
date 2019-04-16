@@ -1,11 +1,12 @@
 # FourierGPE.jl
 Simple GPE solver using FFTW
 
-- Intended to provide simple, fast, and flexible modelling of Bose-Einstein condensate experiments
-- Currently implements only 2D. Dims 1, 3 will come shortly.
-- Allocation free adaptive evolution in kspace
-- Establish some useful defaults for time evolution in `OrdinaryDiffEq.jl`
+- Intended to provide simple, fast, and flexible modelling of Bose-Einstein condensate experiments.
+- Allocation free, adaptive evolution in kspace.
+- Establish some useful defaults and runnable examples for time evolution in `OrdinaryDiffEq.jl`
+- Can handle arbitrary spatial dimensions.
 - Not de-aliased (projective methods available elsewhere)
+- See [FGPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl) for tutorials to get started.
 
 ## Installing
 
@@ -28,11 +29,11 @@ The potential will be called as `V.(x,y',t)`, using the column vectors `x,y` and
 You can add additional parameters by editing the definition of `Par` in `/src/helpers.jl`,
 which will require you to supply a default, and optionally a type (if it differs from `Float64`).
 
-Modified parameters for a particular simulation will be correctly saved and made available using, e.g. 
+Modified parameters for a particular simulation will be correctly saved and made available using, e.g.
 
 ```julia
 sim = Par() # initialize default simulation
-a = 0.1 # modified value 
+a = 0.1 # modified value
 @pack! sim = a #pack it into sim
 initsim!(sim)  # create initial arrays and transforms
 @unpack_Par sim # provde all variables in the current workspace
@@ -47,4 +48,4 @@ sol = runsim(sim,phi)
 ## Default solver
 Currently uses `alg=Tsit5()`, an adaptive RK routine. The default `reltol` is not quite small enough for some applications, so it is set to `reltol = 1e-7`. See `src/evolution.jl` for details.
 
-For more info see the runnable examples 
+For more info see the runnable examples at [F]GPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl)
