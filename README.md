@@ -48,4 +48,4 @@ sol = runsim(sim,phi)
 ## Default solver
 Currently uses `alg=Tsit5()`, an adaptive RK routine. The default `reltol` is not quite small enough for some applications, so it is set to `reltol = 1e-7`. See `src/evolution.jl` for details.
 
-For more info see the runnable examples at [F]GPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl)
+For more info see the runnable examples at [FGPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl)
