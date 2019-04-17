@@ -27,6 +27,11 @@ L = (40.0,)
 N = (512,)
 μ = 25.0
 
+randn(100)
+#X,K,dX,dK = makearrays(L,N)
+#
+# T = makeT(X,K)
+
 
 sim = Sim(L,N,par)
 @pack! sim = μ

@@ -1,5 +1,5 @@
 using Plots, LaTeXStrings, Pkg, Revise
-gr(legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+gr(legend=false,titlefontsize=12,size=(500,300),colorbar=false)
 
 #pkg"activate ."
 using FourierGPE
@@ -9,7 +9,7 @@ import FourierGPE.V
 V(x,t) = zero(x) |> complex
 
 # ==== Units: ========================
-# this example works in oscillator units
+# we work in units of ...
 function showpsi(x,ψ)
     p1 = plot(x,abs2.(ψ))
     xlabel!(L"x/a_x");ylabel!(L"|\psi|^2")
@@ -34,10 +34,10 @@ g = -0.01
 γ = 0.0
 Ns = 200
 ξs = 2/abs(g)/Ns
-us = 30
-tf = π |> Float64
-Nt = 400
-t = LinRange(ti,tf,Nt)
+us = 20
+tf = 1π |> Float64
+Nt = 150
+t = LinRange(0.,tf,Nt)
 # ====== Initialize simulation ======
 sim = Sim(L,N,par)
 @pack! sim = μ,g,γ,t,tf,Nt
@@ -46,7 +46,7 @@ sim = Sim(L,N,par)
 #soliton wavefunction
 X,K = makearrays(L,N)
 x = X[1]
-ψs(x) = sqrt(Ns/2ξs)*sech(x/ξs)*exp(-im*us*x)
+ψs(x) = sqrt(Ns/2ξs)*sech(x/ξs)*exp(im*us*x)
 ψi = ψs.(x)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi
@@ -55,24 +55,13 @@ sim
 sol = runsim(sim)
 # ===================================
 
-y = abs2.(sol[Nt-76])
+y = abs2.(xspace(sol[Nt-76],sim))
 plot(x,y,fill=(0, 0.2),size=(600,150),legend=false,grid=false,xticks=false,yticks=false,axis=false)
 
-anim = @animate for i=1:2:Nt-76
+anim = @animate for i=1:Nt-8
     ψ = xspace(sol[i],sim)
     y=abs2.(ψ)
     plot(x,y,fill=(0, 0.2),size=(600,150),legend=false,grid=false,xticks=false,yticks=false,axis=false)
 end
 
-gif(anim, "./examples/brightsoliton.gif", fps = 24)
-
-# anim = @animate for i in 1:length(t)-4
-#     ψ = xspace(sols[i],simSoliton)
-#     y = g*abs2.(ψ)
-#     plot(x,y,fill=(0,0.2),size=(600,300))
-#     xlims!(-10,10); ylims!(0,1.3*μ)
-#     title!(L"\textrm{local}\; \mu(x)")
-#     xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
-# end
-#
-# gif(anim,"./examples/soliton.gif",fps=30)
+gif(anim, "./examples/brightsoliton.gif", fps = 25)
