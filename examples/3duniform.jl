@@ -92,7 +92,7 @@ function densityfilm(Nt,saveto="examples/3dquenchisotest.gif")
 scene = Scene()
 tindex = Node(1)
 
-scene = volume(lift(i -> dense(i), tindex), algorithm = :iso,show_axis=false)
+scene = volume(lift(i -> dense(i), tindex), algorithm = :iso,isorange=0.1,show_axis=false)
 
 record(scene, saveto, 1:Nt-10) do i
     tindex[] = i
