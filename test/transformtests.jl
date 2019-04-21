@@ -4,8 +4,6 @@
 
 # test Parseval's theorem for wavefunctions
 function parsevaltest(L,N)
-# L = (30.,20.)
-# N = (30,34)
 X,K,dX,dK = makearrays(L,N)
 T = makeT(X,K)
 

@@ -48,7 +48,7 @@ function makeT(X,K,flags=FFTW.MEASURE)
 
     N = [ length(X[i]) for i ∈ eachindex(X) ] |> Tuple
     DX,DK = dfftall(X,K)
-    dμx = prod(DX);
+    dμx = prod(DX)
     dμk = prod(DK)
     ψtest = ones(N...) |> complex
 
@@ -67,6 +67,6 @@ function maketransarrays(L,N,flags=FFTW.MEASURE)
 
     X,K,dX,dK = makearrays(L,N)
     T = makeT(X,K,flags)
-    
+
 return X,K,dX,dK,DX,DK,T
 end
