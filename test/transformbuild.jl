@@ -37,7 +37,6 @@ function makeT(X,K,flags=FFTW.MEASURE)
 end
 
 function makeTMixed(X,K,flags=FFTW.MEASURE)
-        # @assert length(X) > 1
         N = length.(X)
         DX,DK = dfftall(X,K)
         ψtest = ones(N...) |> complex
@@ -130,7 +129,7 @@ n2 = sum(abs2.(ϕ))*prod(dK)
 return n1,n2
 end
 
-function mixedparsevaltest(L,N,j)
+function mixedparsevaltestxk(L,N,j)
 X,K,dX,dK = makearrays(L,N)
 T = makeallT(X,K)
 
@@ -144,14 +143,26 @@ n2 = sum(abs2.(ϕ))*prod(dX)*dK[j]/dX[j]
 return n1,n2
 end
 
+function mixedparsevaltestkx(L,N,j)
+X,K,dX,dK = makearrays(L,N)
+T = makeallT(X,K)
+
+ϕ = randn(N...) + im*randn(N...)
+
+n1 = sum(abs2.(ϕ))*prod(dK)
+
+ψ = T.Mkx[j]*ϕ
+
+n2 = sum(abs2.(ψ))*prod(dK)*dX[j]/dK[j]
+return n1,n2
+end
+
 T = makeallT(X,K)
 
 L = (100.,200.,300)
 N = (50,80,60)
 X,K = makearrays(L,N)
 t1 = makeT(X,K)
-
-
 
 using Test
 L = (88.)
@@ -176,38 +187,76 @@ n1,n2 = parsevaltest(L,N)
 
 L = (88.)
 N = (128)
-n1,n2 = mixedparsevaltest(L,N,1)
+n1,n2 = mixedparsevaltestxk(L,N,1)
 @test n1 ≈ n2
 
 L = (30.,20.)
 N = (30,34)
-n1,n2 = mixedparsevaltest(L,N,1)
+n1,n2 = mixedparsevaltestxk(L,N,1)
 @test n1 ≈ n2
 
-n1,n2 = mixedparsevaltest(L,N,2)
+n1,n2 = mixedparsevaltestxk(L,N,2)
 @test n1 ≈ n2
 
 L = (30.,20.,10)
 N = (30,34,24)
-n1,n2 = mixedparsevaltest(L,N,1)
+n1,n2 = mixedparsevaltestxk(L,N,1)
 @test n1 ≈ n2
 
-n1,n2 = mixedparsevaltest(L,N,2)
+n1,n2 = mixedparsevaltestxk(L,N,2)
 @test n1 ≈ n2
 
-n1,n2 = mixedparsevaltest(L,N,3)
+n1,n2 = mixedparsevaltestxk(L,N,3)
 @test n1 ≈ n2
 
 L = (30.,20.,10,50.)
 N = (30,34,24,22)
-n1,n2 = mixedparsevaltest(L,N,1)
+n1,n2 = mixedparsevaltestxk(L,N,1)
 @test n1 ≈ n2
 
-n1,n2 = mixedparsevaltest(L,N,2)
+n1,n2 = mixedparsevaltestxk(L,N,2)
 @test n1 ≈ n2
 
-n1,n2 = mixedparsevaltest(L,N,3)
+n1,n2 = mixedparsevaltestxk(L,N,3)
 @test n1 ≈ n2
 
-n1,n2 = mixedparsevaltest(L,N,4)
+n1,n2 = mixedparsevaltestxk(L,N,4)
+@test n1 ≈ n2
+
+L = (88.)
+N = (128)
+n1,n2 = mixedparsevaltestkx(L,N,1)
+@test n1 ≈ n2
+
+L = (30.,20.)
+N = (30,34)
+n1,n2 = mixedparsevaltestkx(L,N,1)
+@test n1 ≈ n2
+
+n1,n2 = mixedparsevaltestkx(L,N,2)
+@test n1 ≈ n2
+
+L = (30.,20.,10)
+N = (30,34,24)
+n1,n2 = mixedparsevaltestkx(L,N,1)
+@test n1 ≈ n2
+
+n1,n2 = mixedparsevaltestkx(L,N,2)
+@test n1 ≈ n2
+
+n1,n2 = mixedparsevaltestkx(L,N,3)
+@test n1 ≈ n2
+
+L = (30.,20.,10,50.)
+N = (30,34,24,22)
+n1,n2 = mixedparsevaltestkx(L,N,1)
+@test n1 ≈ n2
+
+n1,n2 = mixedparsevaltestkx(L,N,2)
+@test n1 ≈ n2
+
+n1,n2 = mixedparsevaltestkx(L,N,3)
+@test n1 ≈ n2
+
+n1,n2 = mixedparsevaltestkx(L,N,4)
 @test n1 ≈ n2
