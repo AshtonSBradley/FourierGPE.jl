@@ -49,10 +49,24 @@ function makearrays(L,N)
 end
 
 """
-`A = crandn_array(M)`
+A = crandn_array(M)
 
-Make `2x2` complex `randn()` array of dimension `M` (a placeholder)."""
+Make placeholder `2x2x...` complex `randn()` array of `M` dimensions."""
 function crandn_array(M)
     a = Int.(ones(M)).+1
     return randn(a...) |> complex
+end
+
+"""
+A = crandnpartition(D,M)
+
+Make placeholder ArrayPartition vector of length `D`, containing `2x2x...` rank M complex matrices.
+"""
+function crandnpartition(D,M)
+    a = crandn_array(M)
+    args = []
+    for j = 1:D
+        push!(args,a)
+    end
+    return ArrayPartition(args...)
 end

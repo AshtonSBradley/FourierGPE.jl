@@ -1,114 +1,22 @@
 #transform tests
 using Revise
 
-using FourierGPE, RecursiveArrayTools
+using FourierGPE
 
-N = 100
-trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
-meas = (.3,.1,.1,.1)
-ψtest = randn(N)+im*randn(N)
-flags = FFTW.MEASURE
+import FourierGPE: makeT
 
-# args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
-args = (ψtest,)
-# ====== simpler approach (?) =====
+# abstract type MixedTransformLibrary end
 
-function deftrans(funcs,args,kwargs)
-    trans = []
-    for fun ∈ funcs
-        push!(trans, fun(args...,flags=kwargs))
-    end
-    return meas.*trans
-end
-
-t1 = deftrans(trans,args,flags)
-
-
-# ====== simpler approach =====
-
-T = Transforms(t1...)
-
-# test vecgtor of array
-using FastGaussQuadrature, Test
-
-x,w = gausslaguerre(70)
-T2 = VectorOfArray([w*w'])
-push!(T2,x*x')
-
-
-recs = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-testva = VectorOfArray(recs)
-
-for (i, elem) in enumerate(testva)
-    @test elem == testva[i]
-end
-
-push!(testva, [10, 11, 12])
-
-testva[1]
-
-
-recs = [[1 2 3;4 5 6], [4 5 6; 7 8 9], [7 8 9; 10 11 12]]
-testva = VectorOfArray(recs)
-
-for (i, elem) in enumerate(testva)
-    @test elem == testva[i]
-end
-testva[1]
-
-append!(testva, [10 11 12; 13 14 15] )
-
-
-
-# ==== add mixed transforms =====
-abstract type MixedTransformLibrary end
-
-@with_kw mutable struct Transforms2{D} <: TransformLibrary
+@with_kw mutable struct TransformsNew{D,N} <: TransformLibrary
     Txk::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,false,D},Float64} = 0.1*plan_fft(crandn_array(D))
     Txk!::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,true,D},Float64} = 0.1*plan_fft!(crandn_array(D))
     Tkx::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,false,D},Float64} = 0.1*plan_ifft(crandn_array(D))
     Tkx!::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,true,D},Float64} = 0.1*plan_ifft!(crandn_array(D))
-    Tmixed::MixedTransformLibrary = makeTMixed()
-end
-
-
-using FFTW
-
-N = 1024
-psitest = randn(N,N) + im*randn(N,N)
-P = plan_fft(psitest,2)
-
-phitest = P*psitest
-
-import FourierGPE: makeT
-
-function makeT(X,K,flags=FFTW.MEASURE)
-
-    N = [ length(X[i]) for i ∈ eachindex(X) ] |> Tuple
-    DX,DK = dfftall(X,K)
-    dμx = prod(DX)
-    dμk = prod(DK)
-    ψtest = ones(N...) |> complex
-    #
-    # # plan transforms
-    # FFTW.set_num_threads(Sys.CPU_THREADS)
-    # Txk = dμx*plan_fft(ψtest,flags=flags)
-    # Txk! = dμx*plan_fft!(ψtest,flags=flags)
-    # Tkx  = dμk*plan_ifft(ψtest,flags=flags)
-    # Tkx!  = dμk*plan_ifft!(ψtest,flags=flags)
-    # T = Transforms(Txk,Txk!,Tkx,Tkx!)
-
-    trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
-    meas = (dμx,dμx,dμk,dμk)
-    flags = FFTW.MEASURE
-    FFTW.set_num_threads(Sys.CPU_THREADS)
-    args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
-
-    t1 = deftrans(trans,args,meas,flags)
-
-    T = Transforms(t1...)
-
-    return T
+    Mxk::Array{AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,false,D},Float64},1} = makeTMixed(D)[1]
+    Mxk!::Array{AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,true,D},Float64},1} = makeTMixed(D)[2]
+    Mkx::Array{AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,false,D},Float64},1} = makeTMixed(D)[3]
+    Mkx!::Array{AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,true,D},Float64},1} = makeTMixed(D)[4]
+    psi::ArrayPartition{Complex{Float64},NTuple{N,Array{Complex{Float64},D}}} = crandnpartition(N,D)
 end
 
 function definetransforms(funcs,args,meas,kwargs)
@@ -119,14 +27,96 @@ function definetransforms(funcs,args,meas,kwargs)
     return meas.*trans
 end
 
-L = (100.,200.,300)
-N = (50,80,60)
+function makeT(X,K,flags=FFTW.MEASURE)
+
+    N = [ length(X[i]) for i ∈ eachindex(X) ] |> Tuple
+    DX,DK = dfftall(X,K)
+    dμx = prod(DX)
+    dμk = prod(DK)
+    ψtest = ones(N...) |> complex
+
+    trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
+    meas = (dμx,dμx,dμk,dμk)
+    flags = FFTW.MEASURE
+    args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
+    FFTW.set_num_threads(Sys.CPU_THREADS)
+
+    return definetransforms(trans,args,meas,flags)
+end
+
+function makeTMixed(X,K,flags=FFTW.MEASURE)
+        @assert length(X) > 1
+        N = [ length(X[i]) for i in eachindex(X) ] |> Tuple
+        DX,DK = dfftall(X,K)
+        ψtest = ones(N...) |> complex
+
+        FFTW.set_num_threads(Sys.CPU_THREADS)
+
+        args = []
+        transxk = []
+        transxk! = []
+        transkx = []
+        transkx! = []
+        measxk = []
+        measkx = []
+
+
+        for j = 1:length(N)
+            push!(args, (ψtest,j))
+            push!(transxk, plan_fft)
+            push!(transxk!, plan_fft!)
+            push!(transkx, plan_ifft)
+            push!(transkx!, plan_ifft!)
+            push!(measkx, DK[j])
+            push!(measxk, DX[j])
+        end
+
+        Mxk = definetransforms(transxk,args,measxk,flags)
+        Mxk! = definetransforms(transxk!,args,measxk,flags)
+        Mkx = definetransforms(transkx,args,measkx,flags)
+        Mkx! = definetransforms(transkx!,args,measkx,flags)
+
+    return Mxk,Mxk!,Mkx,Mkx!
+end
+
+function makeTMixed(D::Int)
+    L = ones(D) |> Tuple
+    N = 4*ones(D) .|> Int |> Tuple
+    X,K = makearrays(L,N)
+    return makeTMixed(X,K)
+end
+
+# test transform build
+L = (10.,20.,40.)
+N = (64,64,128)
 X,K = makearrays(L,N)
-T = makeT(X,K)
+t1 = makeT(X,K)
+t2 = makeTMixed(X,K)
+t2[1]
+T = Transforms(t1...)
+
+#TODO sort of working to here, but need to check inputs
+T2 = TransformsNew{3,4}()
+T3 = TransformsNew(t1...,t2...)
+
+# to access a scratch field (default is 2x2x...)
+T2.psi.x
+
+
+# dims 1, and rest need attention with makeallT
+function makeallT(X,K)
+    t1 = makeT(X,K)
+    t2 = makeTMixed(X,K)
+    T = TransformsTest(t1...,t2)
+    return T
+end
+
+
+
 
 function parsevaltest(L,N)
 X,K,dX,dK = makearrays(L,N)
-T = makeT(X,K)
+T = makeallT(X,K)
 
 ψ = randn(N...) + im*randn(N...)
 
@@ -136,6 +126,29 @@ n1 = sum(abs2.(ψ))*prod(dX)
 n2 = sum(abs2.(ϕ))*prod(dK)
 return n1,n2
 end
+
+function mixedparsevaltest(L,N,j)
+X,K,dX,dK = makearrays(L,N)
+T = makeallT(X,K)
+
+ψ = randn(N...) + im*randn(N...)
+
+n1 = sum(abs2.(ψ))*prod(dX)
+
+ϕ = T.Tmixed[1+(j-1)*4 |> Int]*ψ
+
+n2 = sum(abs2.(ϕ))*prod(dX)*dK[j]/dX[j]
+return n1,n2
+end
+
+T = makeallT(X,K)
+
+L = (100.,200.,300)
+N = (50,80,60)
+X,K = makearrays(L,N)
+t1 = makeT(X,K)
+
+
 
 using Test
 L = (88.)
@@ -159,41 +172,26 @@ n1,n2 = parsevaltest(L,N)
 @test n1 ≈ n2
 
 
-function makeTMixed(X,K,flags=FFTW.MEASURE)
-        @assert length(X) > 1
-        N = [ length(X[i]) for i ∈ eachindex(X) ] |> Tuple
-        DX,DK = dfftall(X,K)
-        ψtest = ones(N...) |> complex
+# ====================
 
-        flags = FFTW.MEASURE
-        FFTW.set_num_threads(Sys.CPU_THREADS)
+t4 = makeTMixed(3)
+#add
+makeTMixed(2)
 
-        args = []
-        trans = []
-        meas = []
-        for j = 1:length(N)
-            push!(args, (ψtest,j))
-            push!(args, (ψtest,j))
-            push!(args, (ψtest,j))
-            push!(args, (ψtest,j))
-            push!(trans, plan_fft)
-            push!(trans, plan_fft!)
-            push!(trans, plan_ifft)
-            push!(trans, plan_ifft!)
-            push!(meas, DX[j])
-            push!(meas, DX[j])
-            push!(meas, DK[j])
-            push!(meas, DK[j])
-        end
+t1 = makeT(X,K)
 
-        t1 = definetransforms(trans,args,meas,flags)
+test3 = TransformsTest{3}()
 
-        # M = Transforms(t1...)
+M = makeTMixed(X,K)
 
-    return t1
-end
+M[1]
 
 t1 = makeTMixed(X,K)
+typeof(t1[1])
+typeof(t2.Txk)
+t2 = makeT(X,K)
+
+T = Transforms2{3}()
 
 # ok, so we can make the right object, parameterized on system dimension
 
