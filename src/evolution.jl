@@ -65,11 +65,11 @@ function internalnorm(u,t)
     return sum((abs2.(u) .> 1e-6*maximum(abs2.(u))).*abs2.(u))
 end
 
-function runsim(sim,ϕ=sim.ϕi)
+function runsim(sim,ϕ=sim.ϕi;info=true)
     prob = ODEProblem(Lgp!,ϕ,(sim.ti,sim.tf),sim)
-    @info "𝒅𝜳 ⭆ Evolving in kspace"
-    @info "damping γ = $(sim.γ)"
-    @time sol = solve(prob,alg=sim.alg,saveat=sim.t,reltol=sim.reltol)
-    @info "⭆ Finished."
+    info && @info "𝒅𝜳 ⭆ Evolving in kspace"
+    info && @info "damping γ = $(sim.γ)"
+    sol = solve(prob,alg=sim.alg,saveat=sim.t,reltol=sim.reltol)
+    info && @info "⭆ Finished."
 return sol
 end

@@ -1,5 +1,5 @@
 # ground state tests
-using FourierGPE, Test
+# using FourierGPE, Test
 @with_kw mutable struct Params <: UserParams @deftype Float64
     # parameters (at least a placeholder):
     κ = 0.1
@@ -11,7 +11,6 @@ L = (40.0,)
 N = (512,)
 μ = 25.0
 
-randn(100)
 #X,K,dX,dK = makearrays(L,N)
 #
 # T = makeT(X,K)
@@ -45,7 +44,7 @@ x = X[1]
 function testsim(sim)
     err = false
     sol = try
-            runsim(sim)
+            runsim(sim;info=false)
         catch e
             err = true
         end
