@@ -1,6 +1,6 @@
 using FourierGPE, Test
 
 #runtests
-@testset "Transform tests" begin include("transformtests.jl") end
-# @testset "Ground state" begin include("groundstatetests.jl") end
-# @testset "Evolution tests" begin include("evolutiontests.jl") end
+@testset "Parseval tests" begin include("parsevaltests.jl") end
+# @testset "Mixed Parseval tests" begin include("mixedparsevaltests.jl") end
+@testset "Ground state tests" begin include("groundstatetests.jl") end
