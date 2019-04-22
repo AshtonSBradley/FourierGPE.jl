@@ -60,12 +60,12 @@ end
 """
 A = crandnpartition(D,M)
 
-Make placeholder ArrayPartition vector of length `D`, containing `2x2x...` rank M complex matrices.
+Make placeholder ArrayPartition vector of length `N`, containing `2x2x...` rank D complex matrices.
 """
-function crandnpartition(D,M)
-    a = crandn_array(M)
+function crandnpartition(D,N)
+    a = crandn_array(D)
     args = []
-    for j = 1:D
+    for j = 1:N
         push!(args,a)
     end
     return ArrayPartition(args...)

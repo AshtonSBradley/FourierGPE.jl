@@ -16,7 +16,7 @@ import FourierGPE: makeT
     Mxk!::Array{AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,true,D},Float64},1} = makeTMixed(D)[2]
     Mkx::Array{AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,false,D},Float64},1} = makeTMixed(D)[3]
     Mkx!::Array{AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,true,D},Float64},1} = makeTMixed(D)[4]
-    psi::ArrayPartition{Complex{Float64},NTuple{N,Array{Complex{Float64},D}}} = crandnpartition(N,D)
+    psi::ArrayPartition = crandnpartition(D,N)
 end
 
 function definetransforms(funcs,args,meas,kwargs)
@@ -45,12 +45,10 @@ function makeT(X,K,flags=FFTW.MEASURE)
 end
 
 function makeTMixed(X,K,flags=FFTW.MEASURE)
-        @assert length(X) > 1
+        # @assert length(X) > 1
         N = [ length(X[i]) for i in eachindex(X) ] |> Tuple
         DX,DK = dfftall(X,K)
         ψtest = ones(N...) |> complex
-
-        FFTW.set_num_threads(Sys.CPU_THREADS)
 
         args = []
         transxk = []
@@ -67,10 +65,12 @@ function makeTMixed(X,K,flags=FFTW.MEASURE)
             push!(transxk!, plan_fft!)
             push!(transkx, plan_ifft)
             push!(transkx!, plan_ifft!)
-            push!(measkx, DK[j])
             push!(measxk, DX[j])
+            push!(measkx, DK[j])
+
         end
 
+        FFTW.set_num_threads(Sys.CPU_THREADS)
         Mxk = definetransforms(transxk,args,measxk,flags)
         Mxk! = definetransforms(transxk!,args,measxk,flags)
         Mkx = definetransforms(transkx,args,measkx,flags)
@@ -87,7 +87,7 @@ function makeTMixed(D::Int)
 end
 
 # test transform build
-L = (10.,20.,40.)
+L = (20.,20.,20.)
 N = (64,64,128)
 X,K = makearrays(L,N)
 t1 = makeT(X,K)
@@ -95,12 +95,14 @@ t2 = makeTMixed(X,K)
 t2[1]
 T = Transforms(t1...)
 
-#TODO sort of working to here, but need to check inputs
-T2 = TransformsNew{3,4}()
-T3 = TransformsNew(t1...,t2...)
+# seems to be working
+T2 = TransformsNew{3,5}()
+T3 = TransformsNew{3,2}(t1...,t2...,crandnpartition(3,2))
 
 # to access a scratch field (default is 2x2x...)
-T2.psi.x
+T3.psi.x
+
+T3.Mxk
 
 
 # dims 1, and rest need attention with makeallT
@@ -110,9 +112,6 @@ function makeallT(X,K)
     T = TransformsTest(t1...,t2)
     return T
 end
-
-
-
 
 function parsevaltest(L,N)
 X,K,dX,dK = makearrays(L,N)
