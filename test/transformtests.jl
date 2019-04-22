@@ -5,7 +5,7 @@
 # test Parseval's theorem for wavefunctions
 function parsevaltest(L,N)
 X,K,dX,dK = makearrays(L,N)
-T = makeT(X,K)
+T = Transforms(makeT(X,K)...)
 
 ψ = randn(N...) + im*randn(N...)
 

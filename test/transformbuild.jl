@@ -19,14 +19,6 @@ import FourierGPE: makeT
     psi::ArrayPartition = crandnpartition(D,N)
 end
 
-function definetransforms(funcs,args,meas,kwargs)
-    trans = []
-    for (i,fun) ∈ enumerate(funcs)
-        push!(trans, fun(args[i]...,flags=kwargs))
-    end
-    return meas.*trans
-end
-
 function makeT(X,K,flags=FFTW.MEASURE)
 
     N = [ length(X[i]) for i ∈ eachindex(X) ] |> Tuple
@@ -46,7 +38,7 @@ end
 
 function makeTMixed(X,K,flags=FFTW.MEASURE)
         # @assert length(X) > 1
-        N = [ length(X[i]) for i in eachindex(X) ] |> Tuple
+        N = length.(X)
         DX,DK = dfftall(X,K)
         ψtest = ones(N...) |> complex
 
@@ -98,20 +90,32 @@ T = Transforms(t1...)
 # seems to be working
 T2 = TransformsNew{3,5}()
 T3 = TransformsNew{3,2}(t1...,t2...,crandnpartition(3,2))
-
+length(size(t1[1]))
+length(size(t2[1]))
 # to access a scratch field (default is 2x2x...)
 T3.psi.x
 
 T3.Mxk
 
-
-# dims 1, and rest need attention with makeallT
-function makeallT(X,K)
+"""
+M is number of scratch fields, fallback to one.
+"""
+function makeallT(X,K,M=1)
+    D = length(X)
+    N = length.(X)
     t1 = makeT(X,K)
     t2 = makeTMixed(X,K)
-    T = TransformsTest(t1...,t2)
+    ψ = randn(N...) |> complex
+    args = []
+    for j in 1:M
+        push!(args,ψ)
+    end
+    args = args |> Tuple
+    T = TransformsNew{D}{M}(t1...,t2...,ArrayPartition(args...))
     return T
 end
+
+T = makeallT(X,K,2)
 
 function parsevaltest(L,N)
 X,K,dX,dK = makearrays(L,N)
@@ -134,7 +138,7 @@ T = makeallT(X,K)
 
 n1 = sum(abs2.(ψ))*prod(dX)
 
-ϕ = T.Tmixed[1+(j-1)*4 |> Int]*ψ
+ϕ = T.Mxk[j]*ψ
 
 n2 = sum(abs2.(ϕ))*prod(dX)*dK[j]/dX[j]
 return n1,n2
@@ -170,48 +174,40 @@ N = (30,34,24,22)
 n1,n2 = parsevaltest(L,N)
 @test n1 ≈ n2
 
+L = (88.)
+N = (128)
+n1,n2 = mixedparsevaltest(L,N,1)
+@test n1 ≈ n2
 
-# ====================
+L = (30.,20.)
+N = (30,34)
+n1,n2 = mixedparsevaltest(L,N,1)
+@test n1 ≈ n2
 
-t4 = makeTMixed(3)
-#add
-makeTMixed(2)
+n1,n2 = mixedparsevaltest(L,N,2)
+@test n1 ≈ n2
 
-t1 = makeT(X,K)
+L = (30.,20.,10)
+N = (30,34,24)
+n1,n2 = mixedparsevaltest(L,N,1)
+@test n1 ≈ n2
 
-test3 = TransformsTest{3}()
+n1,n2 = mixedparsevaltest(L,N,2)
+@test n1 ≈ n2
 
-M = makeTMixed(X,K)
+n1,n2 = mixedparsevaltest(L,N,3)
+@test n1 ≈ n2
 
-M[1]
+L = (30.,20.,10,50.)
+N = (30,34,24,22)
+n1,n2 = mixedparsevaltest(L,N,1)
+@test n1 ≈ n2
 
-t1 = makeTMixed(X,K)
-typeof(t1[1])
-typeof(t2.Txk)
-t2 = makeT(X,K)
+n1,n2 = mixedparsevaltest(L,N,2)
+@test n1 ≈ n2
 
-T = Transforms2{3}()
+n1,n2 = mixedparsevaltest(L,N,3)
+@test n1 ≈ n2
 
-# ok, so we can make the right object, parameterized on system dimension
-
-N = 100
-trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
-meas = (.3,.1,.1,.1)
-ψtest = randn(N,N)+im*randn(N,N)
-flags = FFTW.MEASURE
-
-# args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
-args = (ψtest,)
-# ====== simpler approach (?) =====
-
-
-t1 = deftrans(trans,args,flags)
-
-T = Transforms(t1...)
-
-# ==== give transforms a new life outside Sim =====
-using FourierGPE
-
-x = gensym()
-eval(:($(x) = Transforms{1}()))
-getfield(Main,x)
+n1,n2 = mixedparsevaltest(L,N,4)
+@test n1 ≈ n2

@@ -31,7 +31,7 @@ end
     X::NTuple{D,Array{Float64,1}} = xvecs(L,N)
     K::NTuple{D,Array{Float64,1}} = kvecs(L,N)
     espec::Array{Complex{Float64},D} = 0.5*k2(K)
-    T::TransformLibrary = makeT(X,K,flags)
+    T::TransformLibrary = Transforms(makeT(X,K,flags)...)
 end
 
 Sim(L,N,par) = Sim{length(L)}(L=L,N=N,params=par)

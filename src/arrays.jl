@@ -60,7 +60,7 @@ end
 """
 A = crandnpartition(D,M)
 
-Make placeholder ArrayPartition vector of length `N`, containing `2x2x...` rank D complex matrices.
+Make placeholder ArrayPartition vector of length `M`, containing `2x2x...` rank D complex matrices.
 """
 function crandnpartition(D,N)
     a = crandn_array(D)
