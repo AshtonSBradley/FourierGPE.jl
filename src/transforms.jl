@@ -105,42 +105,6 @@ Mkx! = definetransforms(transkx!,args,measkx,flags)
 return Mxk,Mxk!,Mkx,Mkx!
 end
 
-# function makeT(X,K,flags=FFTW.MEASURE)
-#
-#     N = length.(X)
-#     DX,DK = dfftall(X,K)
-#     dμx = prod(DX)
-#     dμk = prod(DK)
-#     ψtest = ones(N...) |> complex
-#
-#     trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
-#     meas = (dμx,dμx,dμk,dμk)
-#     flags = FFTW.MEASURE
-#     args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
-#     FFTW.set_num_threads(Sys.CPU_THREADS)
-#
-#     return definetransforms(trans,args,meas,flags)
-# end
-
-# function makeT(X,K,flags=FFTW.MEASURE)
-#
-#     N = [ length(X[i]) for i ∈ eachindex(X) ] |> Tuple
-#     DX,DK = dfftall(X,K)
-#     dμx = prod(DX)
-#     dμk = prod(DK)
-#     ψtest = ones(N...) |> complex
-#
-#     # plan transforms
-#     FFTW.set_num_threads(Sys.CPU_THREADS)
-#     Txk = dμx*plan_fft(ψtest,flags=flags)
-#     Txk! = dμx*plan_fft!(ψtest,flags=flags)
-#     Tkx  = dμk*plan_ifft(ψtest,flags=flags)
-#     Tkx!  = dμk*plan_ifft!(ψtest,flags=flags)
-#     T = Transforms(Txk,Txk!,Tkx,Tkx!)
-#
-#     return T
-# end
-
 function maketransarrays(L,N,j=1;flags=FFTW.MEASURE)
 
     X,K,dX,dK = makearrays(L,N)
