@@ -48,13 +48,15 @@ function definetransforms(funcs,args,meas,kwargs)
 end
 
 """
-    T = makeT(X,K)
+    T = makeT(X,K,N)
 
 Build transform library for the array tuples `X`, `K`. Defaults to a measure plan.
+`j` is number of scratch fields to initialize for in-place evaluation.
 """
-function makeT(X,K,flags=FFTW.MEASURE)
-
-    N = [ length(X[i]) for i ∈ eachindex(X) ] |> Tuple
+function makeT(X,K,j=1;flags=FFTW.MEASURE)
+    FFTW.set_num_threads(Sys.CPU_THREADS)
+    dim = length(X)
+    N = length.(X)
     DX,DK = dfftall(X,K)
     dμx = prod(DX)
     dμk = prod(DK)
@@ -64,10 +66,61 @@ function makeT(X,K,flags=FFTW.MEASURE)
     meas = (dμx,dμx,dμk,dμk)
     flags = FFTW.MEASURE
     args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
-    FFTW.set_num_threads(Sys.CPU_THREADS)
+    Txk,Txk!,Tkx,Tkx! = definetransforms(trans,args,meas,flags)
+    Mxk,Mxk!,Mkx,Mkx! = makeTMixed(X,K,flags=flags)
 
-    return definetransforms(trans,args,meas,flags)
+    return Transforms{dim,j}(Txk,Txk!,Tkx,Tkx!,Mxk,Mxk!,Mkx,Mkx!,crandnpartition(dim,j))
 end
+
+function makeTMixed(X,K;flags=FFTW.MEASURE)
+    FFTW.set_num_threads(Sys.CPU_THREADS)
+    N = length.(X)
+    dim = length(X)
+    DX,DK = dfftall(X,K)
+    ψtest = ones(N...) |> complex
+
+args = []
+transxk = []
+transxk! = []
+transkx = []
+transkx! = []
+measxk = []
+measkx = []
+
+
+for i = 1:dim
+    push!(args, (ψtest,i))
+    push!(transxk, plan_fft)
+    push!(transxk!, plan_fft!)
+    push!(transkx, plan_ifft)
+    push!(transkx!, plan_ifft!)
+    push!(measxk, DX[i])
+    push!(measkx, DK[i])
+
+end
+Mxk = definetransforms(transxk,args,measxk,flags)
+Mxk! = definetransforms(transxk!,args,measxk,flags)
+Mkx = definetransforms(transkx,args,measkx,flags)
+Mkx! = definetransforms(transkx!,args,measkx,flags)
+return Mxk,Mxk!,Mkx,Mkx!
+end
+
+# function makeT(X,K,flags=FFTW.MEASURE)
+#
+#     N = length.(X)
+#     DX,DK = dfftall(X,K)
+#     dμx = prod(DX)
+#     dμk = prod(DK)
+#     ψtest = ones(N...) |> complex
+#
+#     trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
+#     meas = (dμx,dμx,dμk,dμk)
+#     flags = FFTW.MEASURE
+#     args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
+#     FFTW.set_num_threads(Sys.CPU_THREADS)
+#
+#     return definetransforms(trans,args,meas,flags)
+# end
 
 # function makeT(X,K,flags=FFTW.MEASURE)
 #
@@ -88,10 +141,10 @@ end
 #     return T
 # end
 
-function maketransarrays(L,N,flags=FFTW.MEASURE)
+function maketransarrays(L,N,j=1;flags=FFTW.MEASURE)
 
     X,K,dX,dK = makearrays(L,N)
-    T = Transforms(makeT(X,K,flags)...)
+    T = makeT(X,K,j,flags=flags)
 
 return X,K,dX,dK,DX,DK,T
 end

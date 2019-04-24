@@ -27,12 +27,6 @@ L = (40.0,)
 N = (512,)
 μ = 25.0
 
-randn(100)
-#X,K,dX,dK = makearrays(L,N)
-#
-# T = makeT(X,K)
-
-
 sim = Sim(L,N,par)
 @pack! sim = μ
 @unpack_Sim sim
@@ -77,6 +71,7 @@ f = sqrt(1-(v/c)^2)
 ψs = ψf.*(f*tanh.(f*(x .-xs)/ξ).+im*v/c);
 showpsi(x,ψs)
 xlims!(-10,10)
+
 # ==== set simulation parameters ====
 γ = 0.0
 tf = 8*pi/sqrt(2); t = LinRange(ti,tf,Nt)

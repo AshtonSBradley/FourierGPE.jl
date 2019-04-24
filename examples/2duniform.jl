@@ -75,8 +75,8 @@ tf = 6*L[1]/c
 
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)
-reltol = 1e-7
-# alg = DP5()
+reltol = 1e-7 #requires slightly smaller tolerance
+
 @pack! sim = tf,t,γ,ϕi,reltol
 # initsim!(sim)
 

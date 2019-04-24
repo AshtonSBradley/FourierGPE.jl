@@ -1,6 +1,6 @@
 function mixedparsevaltestxk(L,N,j)
 X,K,dX,dK = makearrays(L,N)
-T = makeallT(X,K)
+T = makeT(X,K)
 
 ψ = randn(N...) + im*randn(N...)
 
@@ -14,7 +14,7 @@ end
 
 function mixedparsevaltestkx(L,N,j)
 X,K,dX,dK = makearrays(L,N)
-T = makeallT(X,K)
+T = makeT(X,K)
 
 ϕ = randn(N...) + im*randn(N...)
 
