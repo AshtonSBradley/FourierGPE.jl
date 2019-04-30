@@ -73,3 +73,6 @@ function runsim(sim,ϕ=sim.ϕi;info=true)
     info && @info "⭆ Finished."
 return sol
 end
+
+# TODO callback for saving as file sequence
+# TODO vortex lattice in 2D, persistent current in 3D examples
