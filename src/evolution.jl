@@ -65,11 +65,29 @@ function internalnorm(u,t)
     return sum((abs2.(u) .> 1e-6*maximum(abs2.(u))).*abs2.(u))
 end
 
-function runsim(sim,ϕ=sim.ϕi;info=true)
+function runsim(sim,ϕ=sim.ϕi)#;info=true,manyfiles=false)
+    @unpack info,manyfiles,path,tplot,filename = sim
+
+    function save_function(ψ...)
+        isdir(path) || mkdir(path)
+        i = findfirst(x->x== ψ[2],sim.t)
+        padi = lpad(string(i),ndigits(length(sim.t)),"0")
+        info && println("Save $i at t = $(trunc(ψ[2];digits=3))")
+        tofile = path*"/"*filename*padi*".jld2";
+        save(tofile,"ψ",ψ[1],"t",ψ[2])
+    end
+    savecb = FunctionCallingCallback(save_function;
+                     funcat = sim.t, # times to save at
+                     func_everystep=false,
+                     func_start = true,
+                     tdir=1)
     prob = ODEProblem(Lgp!,ϕ,(sim.ti,sim.tf),sim)
     info && @info "𝒅𝜳 ⭆ Evolving in kspace"
+    (info && manyfiles) && @info "Saving to "*path
     info && @info "damping γ = $(sim.γ)"
-    sol = solve(prob,alg=sim.alg,saveat=sim.t,reltol=sim.reltol)
+    manyfiles ?
+    (sol = solve(prob,alg=sim.alg,saveat=sim.t[end],reltol=sim.reltol,callback=savecb,dense=false,maxiters=1e10)) :
+    (sol = solve(prob,alg=sim.alg,saveat=sim.t,reltol=sim.reltol,dense=false,maxiters=1e10))
     info && @info "⭆ Finished."
 return sol
 end

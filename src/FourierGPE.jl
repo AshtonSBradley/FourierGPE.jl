@@ -1,7 +1,7 @@
 module FourierGPE
 
 using Reexport
-@reexport using OrdinaryDiffEq
+@reexport using DifferentialEquations
 @reexport using RecursiveArrayTools
 @reexport using FFTW
 @reexport using Parameters
@@ -21,5 +21,5 @@ export nlin, nlin!, Lgp, Lgp!, V, initsim!, runsim, internalnorm
 export Transforms, @pack_Transforms!, @unpack_Transforms
 export Sim, @pack_Sim!, @unpack_Sim
 export Params, @pack_Params!, @unpack_Params
-export k2, @pack!, @unpack, makeT, makeTMixed, definetransforms
+export k2, @pack!, @unpack, makeT, makeTMixed, definetransforms 
 end # module

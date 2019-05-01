@@ -49,7 +49,7 @@ x = X[1]
 ψs(x) = sqrt(Ns/2ξs)*sech(x/ξs)*exp(im*us*x)
 ψi = ψs.(x)
 ϕi = kspace(ψi,sim)
-@pack! sim = ϕi
+@pack_Sim! sim
 sim
 # ====== Evolve in k space ==========
 sol = runsim(sim)

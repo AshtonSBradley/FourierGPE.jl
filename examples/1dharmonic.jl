@@ -48,6 +48,7 @@ x = X[1]
 
 # ====== Evolve in k space ==========
 sol = runsim(sim)
+sim
 # ===================================
 
 # pull out the ground state:
