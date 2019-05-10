@@ -19,7 +19,7 @@ export xvec, kvec, xvecs, kvecs, dfft, dfftall, crandn_array, crandnpartition
 export maketransarrays, makearrays, xspace, xspace!, kspace, kspace!
 export nlin, nlin!, Lgp, Lgp!, V, initsim!, runsim, internalnorm
 export Transforms, @pack_Transforms!, @unpack_Transforms
-export Sim, @pack_Sim!, @unpack_Sim
+export Sim, @pack_Sim!, @unpack_Sim, showpsi
 export Params, @pack_Params!, @unpack_Params
-export k2, @pack!, @unpack, makeT, makeTMixed, definetransforms 
+export k2, @pack!, @unpack, makeT, makeTMixed, definetransforms
 end # module

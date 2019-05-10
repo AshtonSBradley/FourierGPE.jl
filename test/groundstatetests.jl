@@ -1,5 +1,5 @@
 # ground state tests
-# using FourierGPE, Test
+using FourierGPE, Test
 @with_kw mutable struct Params <: UserParams @deftype Float64
     # parameters (at least a placeholder):
     κ = 0.1
@@ -50,6 +50,8 @@ function testsim(sim)
         end
 return sol,err
 end
+
+runsim(sim;info=false,nfiles=false)
 
 sol,err = testsim(sim)
 @test err == false

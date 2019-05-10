@@ -65,10 +65,34 @@ function internalnorm(u,t)
     return sum((abs2.(u) .> 1e-6*maximum(abs2.(u))).*abs2.(u))
 end
 
-function runsim(sim,ϕ=sim.ϕi)#;info=true,manyfiles=false)
-    @unpack info,manyfiles,path,tplot,filename = sim
+function showpsi(x,ψ)
+    p1 = plot(x,abs2.(ψ))
+    xlabel!("x");ylabel!("|\\psi|^2")
+    p2 = plot(x,angle.(ψ))
+    xlabel!("x");ylabel!("phase (\\psi)")
+    p = plot(p1,p2,layout=(2,1),size=(600,400))
+    return p
+end
 
-    function save_function(ψ...)
+function showpsi(x,y,ψ)
+    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
+    xlabel!("x");ylabel!("y")
+    title!("|\\psi|^2")
+    p2 = heatmap(x,y,angle.(ψ),aspectratio=1)
+    xlabel!("x");ylabel!("y")
+    title!("phase (\\psi)")
+    p = plot(p1,p2,size=(600,300))
+    return p
+end
+
+#make 3D plot a slice by default, through z=0
+showpsi(x,y,z,ψ) = showpsi(x,y,ψ[:,:,size(ψ)[end]/2 |> Int])
+#TODO: how to implement this? add to callback?
+
+function runsim(sim,ϕ=sim.ϕi;info=true,tplot=false,nfiles=false)
+    @unpack nfiles,path,filename = sim
+
+    function savefunction(ψ...)
         isdir(path) || mkdir(path)
         i = findfirst(x->x== ψ[2],sim.t)
         padi = lpad(string(i),ndigits(length(sim.t)),"0")
@@ -76,21 +100,22 @@ function runsim(sim,ϕ=sim.ϕi)#;info=true,manyfiles=false)
         tofile = path*"/"*filename*padi*".jld2";
         save(tofile,"ψ",ψ[1],"t",ψ[2])
     end
-    savecb = FunctionCallingCallback(save_function;
+
+    savecb = FunctionCallingCallback(savefunction;
                      funcat = sim.t, # times to save at
                      func_everystep=false,
                      func_start = true,
                      tdir=1)
+
     prob = ODEProblem(Lgp!,ϕ,(sim.ti,sim.tf),sim)
     info && @info "𝒅𝜳 ⭆ Evolving in kspace"
-    (info && manyfiles) && @info "Saving to "*path
     info && @info "damping γ = $(sim.γ)"
-    manyfiles ?
+    (info && nfiles) && @info "Saving to "*path
+    nfiles ?
     (sol = solve(prob,alg=sim.alg,saveat=sim.t[end],reltol=sim.reltol,callback=savecb,dense=false,maxiters=1e10)) :
     (sol = solve(prob,alg=sim.alg,saveat=sim.t,reltol=sim.reltol,dense=false,maxiters=1e10))
     info && @info "⭆ Finished."
 return sol
 end
 
-# TODO callback for saving as file sequence
 # TODO vortex lattice in 2D, persistent current in 3D examples
