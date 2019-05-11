@@ -58,5 +58,6 @@ Temporary Items
 # potentially large graphics files
 *.mp4
 *.gif
+*.mov
 
 # End of https://www.gitignore.io/api/julia,macos
