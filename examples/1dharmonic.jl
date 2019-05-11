@@ -4,17 +4,6 @@ gr(grid=false,legend=false,titlefontsize=12,size=(500,300),transpose=true,colorb
 #pkg"activate ."
 using FourierGPE
 
-# ==== Units: ========================
-# this example works in oscillator units
-function showpsi(x,ψ)
-    p1 = plot(x,abs2.(ψ))
-    xlabel!(L"x/a_x");ylabel!(L"|\psi|^2")
-    p2 = plot(x,angle.(ψ))
-    xlabel!(L"x/a_x");ylabel!(L"\textrm{phase}(\psi)")
-    p = plot(p1,p2,layout=(2,1),size=(600,400))
-    return p
-end
-
 # ==== define user parameters =======
 @with_kw mutable struct Params <: UserParams @deftype Float64
     # parameters (at least a placeholder):

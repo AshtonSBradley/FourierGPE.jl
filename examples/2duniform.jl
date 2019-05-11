@@ -9,17 +9,6 @@ using FourierGPE
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-function showpsi(x,y,ψ)
-    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
-    xlabel!(L"x/\xi");ylabel!(L"y/\xi")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψ),aspectratio=1)
-    xlabel!(L"x/\xi");ylabel!(L"y/\xi")
-    title!(L"\textrm{phase}(\psi)")
-    p = plot(p1,p2,size=(600,300))
-    return p
-end
-
 # ==== define user parameters =======
 @with_kw mutable struct Params <: UserParams @deftype Float64
     # user parameters:

@@ -67,27 +67,27 @@ end
 
 function showpsi(x,ψ)
     p1 = plot(x,abs2.(ψ))
-    xlabel!("x");ylabel!("|\\psi|^2")
+    xlabel!(L"x");ylabel!(L"|\psi|^2")
     p2 = plot(x,angle.(ψ))
-    xlabel!("x");ylabel!("phase (\\psi)")
+    xlabel!(L"x");ylabel!(L"\textrm{phase} (\psi)")
     p = plot(p1,p2,layout=(2,1),size=(600,400))
     return p
 end
 
 function showpsi(x,y,ψ)
     p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
-    xlabel!("x");ylabel!("y")
-    title!("|\\psi|^2")
+    xlabel!(L"x");ylabel!(L"y")
+    title!(L"|\psi|^2")
     p2 = heatmap(x,y,angle.(ψ),aspectratio=1)
-    xlabel!("x");ylabel!("y")
-    title!("phase (\\psi)")
+    xlabel!(L"x");ylabel!(L"y")
+    title!(L"\textrm{phase} (\psi)")
     p = plot(p1,p2,size=(600,300))
     return p
 end
 
 #make 3D plot a slice by default, through z=0
 showpsi(x,y,z,ψ) = showpsi(x,y,ψ[:,:,size(ψ)[end]/2 |> Int])
-#TODO: how to implement this? add to callback?
+#TODO: implement time plotting. Callback?
 
 function runsim(sim,ϕ=sim.ϕi;info=true,tplot=false,nfiles=false)
     @unpack nfiles,path,filename = sim
@@ -119,3 +119,13 @@ return sol
 end
 
 # TODO vortex lattice in 2D, persistent current in 3D examples
+
+function testsim(sim)
+    err = false
+    sol = try
+            runsim(sim;info=false)
+        catch e
+            err = true
+        end
+return sol,err
+end

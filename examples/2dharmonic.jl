@@ -1,22 +1,11 @@
-using Plots, LaTeXStrings, Pkg, Revise
-gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+using Pkg, Revise
 
 #pkg"activate ."
 using FourierGPE
+gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 # ==== Units: ========================
 # this example works in oscillator units
-# convenient plot
-function showpsi(x,y,ψ)
-    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
-    xlabel!(L"x/a_x");ylabel!(L"y/a_y")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψ),aspectratio=1)
-    xlabel!(L"x/a_x");ylabel!(L"y/a_y")
-    title!(L"\textrm{phase}(\psi)")
-    p = plot(p1,p2,size=(600,300))
-    return p
-end
 
 # ==== define user parameters =======
 @with_kw mutable struct Params <: UserParams @deftype Float64
@@ -29,18 +18,11 @@ par = Params()
 L = (20.0,20.0)
 N = (128,128)
 μ = 25.0
-# X,K,dX,dK,DX,DK,T = maketransforms(L,N)
-# espec = 0.5*k2(L...,N...)
 
 # ========= Initialize simulation ======
 sim = Sim(L,N,par)
 @pack! sim = μ
 @unpack_Sim sim
-# ====================================== Initialize simulation ======
-# sim = Sim(L,N,par)
-# @pack! sim = T,X,K,espec
-# initsim!(sim)
-# @unpack_Sim sim
 # ===================================
 
 # declare the potential function

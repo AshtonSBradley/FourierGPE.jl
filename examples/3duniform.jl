@@ -50,19 +50,19 @@ sol = runsim(sim)
 
 
 # ====== animate slice using Plots ===
-using Plots
+# using Plots
 gr(titlefontsize=12,size=(500,300),colorbar=false)
 
-function showpsi(x,y,ψ)
-    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
-    xlabel!(L"x/\xi");ylabel!(L"y/\xi")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψ),aspectratio=1)
-    xlabel!(L"x/\xi");ylabel!(L"y/\xi")
-    title!(L"\textrm{phase}(\psi)")
-    p = plot(p1,p2,size=(600,300))
-    return p
-end
+# function showpsi(x,y,ψ)
+#     p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
+#     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
+#     title!(L"|\psi|^2")
+#     p2 = heatmap(x,y,angle.(ψ),aspectratio=1)
+#     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
+#     title!(L"\textrm{phase}(\psi)")
+#     p = plot(p1,p2,size=(600,300))
+#     return p
+# end
 
 # pull out the ground state
 ϕg = sol[end]
