@@ -64,11 +64,13 @@ function makeT(X,K,j=1;flags=FFTW.MEASURE)
 
     trans = (plan_fft,plan_fft!,plan_ifft,plan_ifft!)
     meas = (dμx,dμx,dμk,dμk)
-    flags = FFTW.MEASURE
+    # flags = FFTW.MEASURE
     args = ((ψtest,),(ψtest,),(ψtest,),(ψtest,))
+
+    # flags != FFTW.MEASURE && @info "Planning FFTs ..."
     Txk,Txk!,Tkx,Tkx! = definetransforms(trans,args,meas,flags)
     Mxk,Mxk!,Mkx,Mkx! = makeTMixed(X,K,flags=flags)
-
+    # @info "...Plans created."
     return Transforms{dim,j}(Txk,Txk!,Tkx,Tkx!,Mxk,Mxk!,Mkx,Mkx!,crandnpartition(dim,j))
 end
 

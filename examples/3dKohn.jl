@@ -18,16 +18,20 @@ eval(par.V)
 # ==== set simulation parameters ====
 L = (15.,15.,15.)
 N = (64,64,64)
-γ = 0.05
-tf = 1.5/γ
+γ = 0.5
+tf = 2/γ
 Nt = 200
 t = LinRange(0.,tf,Nt)
+
 # ========= Initialize simulation ======
+# flags = FFTW.PATIENT
 sim = Sim(L,N,par)
+# sim = Sim{length(L)}(L=L,N=N,flags=flags,params=par)
 @pack! sim = γ,tf,Nt,t
 @unpack_Sim sim
+sim
 
-# ========= useful state functions
+# ========= useful state functions ========
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
 healing(x,y,z,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,z,μ,g)))
 
@@ -37,8 +41,6 @@ x,y,z = X
 ψi = randn(N)+im*randn(N)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi,γ,tf,t
-
-sim
 
 # ====== Evolve in k space ==========
 sol = runsim(sim)
@@ -54,7 +56,7 @@ gr(titlefontsize=12,size=(500,300),colorbar=false)
 zmid = findfirst(z .≈ 0)
 showpsi(x,y,ψg[:,:,zmid])
 
-
+plot(x,y,abs2.(ψg[:,:,zmid]),linetype=:surface)
 
 # === Dynamics of Kohn mode =======================
 # kick it
@@ -85,6 +87,18 @@ end
 
 gif(anim,"./examples/3dKohn.gif",fps=30)
 # gif(anim,"./examples/3dKohn.mov",fps=30)
+
+# adimate slice as a surface
+anim = @animate for i=1:Nt
+    ϕ = solk[i]
+    zmid = findfirst(z .≈ 0)
+    ψ = xspace(ϕ,simk)[:,:,zmid]
+    plot(x,y,abs2.(ψ),linetype=:surface)
+end
+
+gif(anim,"./examples/3dKohnSurface.mov",fps=30)
+
+simk
 
 # ========== animate isosurface in Makie ========
 using Makie, AbstractPlotting
