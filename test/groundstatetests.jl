@@ -1,5 +1,5 @@
 # ground state tests
-using Test, Revise, FourierGPE
+# using Test, Revise, FourierGPE
 @with_kw mutable struct Params <: UserParams @deftype Float64
     # user parameters: add with defaults.
     ω = 2*pi
