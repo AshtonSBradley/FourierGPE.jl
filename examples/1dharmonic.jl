@@ -28,7 +28,6 @@ V(x,t) = 0.5*x^2
 # useful TF state
 ψ0(x,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,0.0)/μ,0.0)+im*0.0)
 
-
 #make initial state
 x = X[1]
 ψi = ψ0.(x,μ,g)

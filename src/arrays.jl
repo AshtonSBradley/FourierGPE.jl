@@ -1,7 +1,7 @@
 # array methods
 linspace(a,b,n) = LinRange(a,b,n) |> collect
 
-xvec(L,N)=LinRange(-L/2,L/2,N+1)[2:end] |> collect
+xvec(L,N) = LinRange(-L/2,L/2,N+1)[2:end] |> collect
 
 function kvec(λ,N)
     @assert iseven(N)
