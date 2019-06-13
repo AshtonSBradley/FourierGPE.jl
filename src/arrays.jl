@@ -38,7 +38,7 @@ function makearrays(L,N)
     K = kvecs(L,N)
     dX = Float64[]; dK = Float64[]
     for j ∈ eachindex(X)
-        x=X[j];k=K[j]
+        x=X[j]; k=K[j]
         dx = x[2]-x[1];dk = k[2]-k[1]
         push!(dX,dx)
         push!(dK,dk)
