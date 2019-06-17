@@ -96,7 +96,7 @@ function runsim(sim,ϕ=sim.ϕi;info=true,tplot=false,nfiles=false)
         isdir(path) || mkdir(path)
         i = findfirst(x->x== ψ[2],sim.t)
         padi = lpad(string(i),ndigits(length(sim.t)),"0")
-        info && println("Save $i at t = $(trunc(ψ[2];digits=3))")
+        info && println("⭆ Save $i at t = $(trunc(ψ[2];digits=3))")
         tofile = path*"/"*filename*padi*".jld2";
         save(tofile,"ψ",ψ[1],"t",ψ[2])
     end
@@ -108,12 +108,12 @@ function runsim(sim,ϕ=sim.ϕi;info=true,tplot=false,nfiles=false)
                      tdir=1)
 
     prob = ODEProblem(Lgp!,ϕ,(sim.ti,sim.tf),sim)
-    info && @info "𝒅𝜳 ⭆ Evolving in kspace"
-    info && @info "damping γ = $(sim.γ)"
-    (info && nfiles) && @info "Saving to "*path
+    info && @info "⭆ 𝒅𝜳 Evolving in kspace"
+    info && @info "⭆ Damping γ = $(sim.γ)"
+    (info && nfiles) && @info "⭆ Saving to "*path
     nfiles ?
-    (sol = solve(prob,alg=sim.alg,saveat=sim.t[end],reltol=sim.reltol,callback=savecb,dense=false,maxiters=1e10)) :
-    (sol = solve(prob,alg=sim.alg,saveat=sim.t,reltol=sim.reltol,dense=false,maxiters=1e10))
+    (sol = solve(prob,alg=sim.alg,saveat=sim.t[end],reltol=sim.reltol,callback=savecb,dense=false,maxiters=1e10,progress=true)) :
+    (sol = solve(prob,alg=sim.alg,saveat=sim.t,reltol=sim.reltol,dense=false,maxiters=1e10,progress=true))
     info && @info "⭆ Finished."
 return sol
 end

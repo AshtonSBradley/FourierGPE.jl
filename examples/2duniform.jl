@@ -1,20 +1,24 @@
-using Plots, LaTeXStrings, Pkg, Revise
+using Plots, LaTeXStrings
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
-using FourierGPE
-
+using Revise, FourierGPE
+# Pkg.activate(".")
 # ==== Units: ========================
 # Units of ξ for length, 1/μ for time
 # related by μ ≡ ħ²/mξ² = mc^2 where
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-# ==== define user parameters =======
+# ==== define potential =======
 @with_kw mutable struct Params <: UserParams @deftype Float64
     # user parameters:
-    κ = 0.1
+    V::Expr = :( V(x,y,t) = zero(x*y) )
 end
 par = Params()
+
+import FourierGPE.V
+eval(par.V)
+# ==================================
 
 # ==== set simulation parameters ====
 L=(200.,200.)
@@ -24,13 +28,9 @@ N=(512,512)
 sim = Sim(L,N,par)
 @unpack_Sim sim
 
-# uniform potential
-import FourierGPE.V
-V(x,y,t) = zero(x*y)
-
 # ========= useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
-healing(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
+healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
 x,y = X
 #make initial state
@@ -53,7 +53,7 @@ using VortexDistributions
 
 ψv = copy(ψg)
 d = 10
-ξv = healing(0.,0.,μ,g)
+ξv = healinglength(0.,0.,μ,g)
 dipole = [0.0 d/2 1; 0.0 -d/2 -1]
 makeallvortices!(ψv,dipole,x,y,ξv)
 
@@ -64,16 +64,15 @@ tf = 6*L[1]/c
 
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)
-reltol = 1e-7 #requires slightly smaller tolerance
+reltol = 1e-7 #uniform requires slightly smaller tolerance
 
 @pack! sim = tf,t,γ,ϕi,reltol
-# initsim!(sim)
-
-@unpack_Sim sim
 
 # ====== Evolve in k space ==========
 solv = runsim(sim)
 # ===================================
+
+@unpack_Sim sim
 
 ψd = xspace(solv[end],sim)
 showpsi(x,y,ψd)
@@ -89,10 +88,10 @@ gif(anim,"./examples/dipole.gif",fps=30)
 # plot energies
 function showenergies(ψ,x,y,kx,ky,k2)
     et,ei,ec = energydecomp(ψ,kx,ky',k2)
-    p1 = heatmap(x,y,log.(ei),aspectratio=1)
+    p1 = heatmap(x,y,log10.(ei),aspectratio=1)
     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
     title!("Incompressible")
-    p2 = heatmap(x,y,log.(ec),aspectratio=1)
+    p2 = heatmap(x,y,log10.(ec),aspectratio=1)
     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
     title!("Compressible")
     p = plot(p1,p2,size=(600,300))
