@@ -10,11 +10,11 @@ using Revise, FourierGPE
 # the uniform system.
 
 # ==== define potential =======
-@with_kw mutable struct Params <: UserParams @deftype Float64
+@with_kw mutable struct Potential <: UserParams @deftype Float64
     # user parameters:
     V::Expr = :( V(x,y,t) = zero(x*y) )
 end
-par = Params()
+par = Potential()
 
 import FourierGPE.V
 eval(par.V)
