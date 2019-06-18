@@ -48,7 +48,6 @@ sim
 sol = runsim(sim)
 # ===================================
 
-
 # ====== show slice using Plots ===
 gr(titlefontsize=12,size=(500,300),colorbar=false)
 
@@ -67,7 +66,6 @@ anim = @animate for i=1:Nt
 end
 gif(anim,"./examples/3dquench.gif",fps=30)
 
-
 # ========== animate isosurface in Makie ========
 using Makie, AbstractPlotting
 
@@ -84,6 +82,7 @@ function densityfilm(sol,Nt)
     tindex = Node(1)
     scene = volume(lift(i -> dense(sol[i]), tindex),
     algorithm = :iso,
+    color = (:mediumseagreen,0.25),
     show_axis=false,
     isovalue=3f0(.15))
 
