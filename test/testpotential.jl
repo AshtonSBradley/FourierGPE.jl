@@ -1,4 +1,4 @@
-using LinearAlgebra, BenchmarkTools
+using LinearAlgebra, BenchmarkTools, Revise
 
 N = 512
 V0 = randn(N,N,N)
@@ -36,3 +36,35 @@ function makepotential(V0,Vt,x,y,z)
 end
 
 @btime V2 = makepotential(V0,Vt,x,y,z)
+
+
+# macro
+
+using FourierGPE
+import FourierGPE.V
+
+@with_kw mutable struct Potential <: UserParams @deftype Float64
+    V::Expr = :( V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2) )
+end
+
+pot = Potential()
+# Symbol(par.V)
+# import FourierGPE.V
+# eval(par.V)
+
+macro potential(V)
+    @eval p = Potential($V)
+    @eval $p.V
+    return p
+end
+
+@potential :(V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2))
+
+
+macro capture(fdef)
+    @eval $fdef
+end
+
+@capture :(f(x)=x^2)
+
+f(1)

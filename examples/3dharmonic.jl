@@ -76,8 +76,8 @@ function dense(phi)
     return density/pmax
 end
 
-function densityfilm(sol,Nt)
-    saveto="examples/3dtrap.gif"
+function densityfilm(sol,Nt;file="3dquench.gif")
+    saveto="examples/"*file
     scene = Scene()
     tindex = Node(1)
     scene = volume(lift(i -> dense(sol[i]), tindex),
@@ -99,6 +99,6 @@ function densityfilm(sol,Nt)
     return
 end
 
-p = densityfilm(sol,Nt)
+p = densityfilm(sol,Nt,file="3dquench1.gif")
 
 # p.attributes.attribute
