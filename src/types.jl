@@ -2,6 +2,21 @@
 abstract type Simulation{D} end
 abstract type UserParams end
 abstract type TransformLibrary end
+abstract type Field end
+
+struct XField{D} <: Field
+    psiX::Array{Complex{Float64},D}
+    X::NTuple{D}
+    K::NTuple{D}
+    K2::Array{Float64,D}
+end
+
+struct KField{D} <: Field
+    psiK::Array{Complex{Float64},D}
+    X::NTuple{D}
+    K::NTuple{D}
+    K2::Array{Float64,D}
+end
 
 @with_kw mutable struct Transforms{D,N} <: TransformLibrary
     Txk::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,false,D},Float64} = 0.1*plan_fft(crandn_array(D))
