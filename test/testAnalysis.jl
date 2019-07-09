@@ -27,32 +27,38 @@ vidotvc = Vi[1].*Vc[1] .+ Vi[2].*Vc[2]
 
 maximum(abs2.(vidotvc))
 
-vidotvc ≈ zero.(vidotvc)
-
+x,y = X
+Vc
 # test incompressible
 
 using LinearAlgebra, VortexDistributions
 
-L = 20
-N = 100
+L = 200
+N = 1000
 
 X = xvecs((L,L),(N,N))
 K = kvecs((L,L),(N,N))
 K2 = k2(K)
 psi = one.(X[1].*X[2]') |> complex
-makevortex!(psi,[0.,0.,1],X[1],X[2],1)
+d = 10.0
+dipole = [0.0 d/2 1; 0.0 -d/2 -1]
+makeallvortices!(psi,dipole,X[1],X[2],1)
 rho = abs2.(psi)
 heatmap(angle.(psi))
+heatmap(rho)
 
 psix = XField(psi,X,K,K2)
 psik = KField(fft(psi),X,K,K2)
-v = velocity(psix)
-wx = rho*v[1]
-wy = rho*v[2]
+vx,vy = velocity(psix)
+jx = rho.*vx
+jy = rho.*vy
+j = sqrt.(jx.^2 .+ jy.^2)
+wx = sqrt.(rho).*vx
+wy = sqrt.(rho).*vy
 @time Vi,Vc = helmholtz(wx,wy,psix)
 
-ei = @. 0.5*abs2.(Vi[1].^2 .+ Vi[2].^2)
-ec = @. 0.5*abs2.(Vc[1].^2 .+ Vc[2].^2)
+ei = 0.5*abs.(Vi[1].^2 .+ Vi[2].^2)
+ec = 0.5*abs.(Vc[1].^2 .+ Vc[2].^2)
 
 heatmap(ei)
 heatmap(ec)
