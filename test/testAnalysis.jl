@@ -21,11 +21,16 @@ vx,vy = velocity(psix)
 @test vx ≈ ktest*one.(vx)
 @test vy ≈ zero.(vy)
 
+#Decomposition
 Vi,Vc = helmholtz(vx,vy,psix)
 
 #orthogonality of Helmholtz decomposition
 vidotvc = Vi[1].*Vc[1] .+ Vi[2].*Vc[2]
 @test maximum(abs.(vidotvc)) < 1e-10
+
+#projective
+@test Vi[1] .+ Vc[1] ≈ vx
+@test Vi[2] .+ Vc[2] ≈ vy
 
 x,y = X
 Vc
@@ -34,27 +39,27 @@ Vc
 # test incompressible
 abstract type Vortex end
 
-struct Vortex2 <: Vortex
+struct PointVortex <: Vortex
     xv::Float64
     yv::Float64
     qv::Int64
 end
 
-Λ =0.8249
+Λ = 0.8249
 vcore(x) = (Λ*x)^2/(1+(Λ*x)^2)
 vdensity(x,y) = vcore(r(x,y))
 vphase(x,y) = atan(y,x)
 r(x,y) = sqrt(x^2+y^2)
 vortexgrid(x,y,x0,y0,q0) = vdensity(x - x0, y - y0)*exp(im*q0*vphase(x-x0,y-y0))
 
-function make_vortex!(psi::XField,vort::Vortex2)
+function make_vortex!(psi::XField,vort::PointVortex)
     @unpack xv,yv,qv = vort
     @unpack psiX,X,K,K2=psi; x,y = X
     psiX .*= @. vortexgrid(x,y',xv,yv,qv)
     return XField(psiX,X,K,K2)
 end
 
-L = 200
+L = 1000
 N = 1000
 
 X = xvecs((L,L),(N,N))
@@ -64,31 +69,30 @@ psi = one.(X[1].*X[2]') |> complex
 psix = XField(psi,X,K,K2)
 
 d = 10.0
-vort1 = Vortex2(0.,d/2,1)
-vort2 = Vortex2(0.,-d/2,-1)
-make_vortex!(psix,vort1)
+vort1 = PointVortex(0.,d/2,1)
+vort2 = PointVortex(0.,-d/2,-1)
+@time make_vortex!(psix,vort1)
 make_vortex!(psix,vort2)
-# x,y=X
-# x0 = 0.0; y0 = d/2
-# @. psi *= vortexDensityAnsatz(R(x - x0,y' - y0))*exp(im*vortexPhase(x - x0,y' - y0,0.,d/2)-im*vortexPhase(x,y',0.,-d/2))
+
 psi = psix.psiX
 rho = abs2.(psi)
 heatmap(angle.(psi))
 heatmap(rho)
 
 vx,vy = velocity(psix)
-jx = rho.*vx
-jy = rho.*vy
-j = sqrt.(jx.^2 .+ jy.^2)
 wx = sqrt.(rho).*vx
 wy = sqrt.(rho).*vy
-@time Vi,Vc = helmholtz(wx,wy,psix)
+W = wx,wy
+@time Wi,Wc = helmholtz(W,psix)
 
-ei = 0.5*abs.(Vi[1].^2 .+ Vi[2].^2)
-ec = 0.5*abs.(Vc[1].^2 .+ Vc[2].^2)
+ei = 0.5*abs.(Wi[1].^2 .+ Wi[2].^2)
+ec = 0.5*abs.(Wc[1].^2 .+ Wc[2].^2)
 
-heatmap(ei)
-heatmap(ec)
+x,y = X;dx = diff(x)[1]; dy = diff(y)[1]
+sum(ei)*dx*dy
+sum(ec)*dx*dy
+heatmap(x,y,ei);xlims!(-50,50);ylims!(-50,50)
+heatmap(x,y,ec);xlims!(-50,50);ylims!(-50,50)
 
 #TODO test compressible
 L = 200
@@ -108,15 +112,12 @@ heatmap(angle.(psi))
 heatmap(rho)
 
 vx,vy = velocity(psix)
-jx = rho.*vx
-jy = rho.*vy
-j = sqrt.(jx.^2 .+ jy.^2)
 wx = sqrt.(rho).*vx
 wy = sqrt.(rho).*vy
-@time Vi,Vc = helmholtz(wx,wy,psix)
+@time Wi,Wc = helmholtz(wx,wy,psix)
 
-ei = 0.5*abs.(Vi[1].^2 .+ Vi[2].^2)
-ec = 0.5*abs.(Vc[1].^2 .+ Vc[2].^2)
+ei = 0.5*abs.(Wi[1].^2 .+ Wi[2].^2)
+ec = 0.5*abs.(Wc[1].^2 .+ Wc[2].^2)
 
 heatmap(ei)
 heatmap(ec)
