@@ -46,10 +46,10 @@ struct PointVortex <: Vortex
 end
 
 Λ = 0.8249
-vcore(x) = (Λ*x)^2/(1+(Λ*x)^2)
+r(x,y) = sqrt(x^2+y^2)
+vcore(r) = (Λ*r)^2/(1+(Λ*r)^2)
 vdensity(x,y) = vcore(r(x,y))
 vphase(x,y) = atan(y,x)
-r(x,y) = sqrt(x^2+y^2)
 vortexgrid(x,y,x0,y0,q0) = vdensity(x - x0, y - y0)*exp(im*q0*vphase(x-x0,y-y0))
 
 function make_vortex!(psi::XField,vort::PointVortex)
