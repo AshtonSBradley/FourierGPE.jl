@@ -1,61 +1,75 @@
-using LinearAlgebra, BenchmarkTools, Revise
+using LinearAlgebra, BenchmarkTools, Parameters, Revise
 
-N = 512
-V0 = randn(N,N,N)
+N = 64
+U0 = randn(N,N,N)
 
-V1 = similar(V0)
-V2 = similar(V0)
+U1 = similar(U0)
+U2 = similar(U0)
 
 x = LinRange(-1,1,N)
 y = x'
 
-z = reshape(x,1,1,length(x))
+@time z = reshape(x,1,1,length(x))
 
 V(x,y,z,t) = x^2 + y^2 + z^2
 
-@btime @. V0 += V(x,y,z,0.)
+@time @. U0 += V(x,y,z,0.)
 
-@btime @. V0 = V(x,y,z,0.)
+@time @. U0 = V(x,y,z,0.)
 
-@btime @. V1 += V0
+@time @. U1 += U0
 
-@btime @. V0 = V0 + V1
+@time @. U0 = U0 + U1
 
-function makepotential(V0,V,x,y,z,t)
-    @. V0 += V(x,y,z,t)
-    return V0
+function Vadd!(V1,V0,V,t)
+    @. V1 = V0 + V(x,y,z,t)
+    return nothing
 end
 
-@btime V2 = makepotential(V0,V,x,y,z,0.)
+@btime Vadd!(U1,U0,V,0.)
 
+# function Valloc!(V1,V,t)
+#     @. V1 = V(x,y,z,t)
+#     return nothing
+# end
+
+# @btime Valloc!(V1,V,0.)
 
 # macro
 
 using FourierGPE
 import FourierGPE.V
 
-@with_kw mutable struct Potential <: UserParams @deftype Float64
-    V::Expr = :( V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2) )
+# static potential array
+struct VStatic{N} <: UserParams
+    V0::Array{Complex{Float64},N}
+end
+
+V0(x,y,z) = 0.25*(x^2 + y^2 + 4*z^2)
+p0 = VStatic(V0.(x,y,z) .|> complex)
+
+
+# dynamical potential function
+@with_kw mutable struct Potential <: UserParams
+    V::Expr = :( 0.5*(x^2 + y^2 + 4*z^2) )
+end
+
+macro potential(V,p)
+    @eval $p = Potential($V)
+end
+
+macro staticpotential(V,p)
+    @eval $p = VStatic($V.(x,y,z) .|> complex)
+end
+
+#TODO change sim to have V0, V, Vt fields
+macro potentials(sim,p,q)
+    @eval Sim($sim,V0 = $p,V = $q)
 end
 
 pot = Potential()
-# Symbol(par.V)
-# import FourierGPE.V
-# eval(par.V)
+ex = pot.V
 
-macro potential(V)
-    @eval p = Potential($V)
-    @eval $p.V
-    return p
-end
+@potential :(0.25*(x^2 + y^2 + 4*z^2)) p1
 
-@potential :(V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2))
-
-
-macro capture(fdef)
-    @eval $fdef
-end
-
-@capture :(f(x)=x^2)
-
-f(1)
+@staticpotential V0 p2
