@@ -1,4 +1,4 @@
-using LinearAlgebra, BenchmarkTools, Parameters, Revise
+using Test, LinearAlgebra, BenchmarkTools, Parameters, Revise
 
 N = 64
 U0 = randn(N,N,N)
@@ -26,7 +26,7 @@ function Vadd!(V1,V0,V,t)
     return nothing
 end
 
-@btime Vadd!(U1,U0,V,0.)
+@time Vadd!(U1,U0,V,0.)
 
 # function Valloc!(V1,V,t)
 #     @. V1 = V(x,y,z,t)
@@ -73,3 +73,9 @@ ex = pot.V
 @potential :(0.25*(x^2 + y^2 + 4*z^2)) p1
 
 @staticpotential V0 p2
+
+
+#TODO V0 should just be a regular array
+@test p2 == p0
+
+p0 .≈ p2
