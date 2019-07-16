@@ -57,7 +57,6 @@ end
     Nt::Int64 = 200     # number of saves over (ti,tf)
     params::UserParams = Params() # optional user parameters
     V0::StaticPotential{D} = StaticPotential{D}(zeros(N))
-    V::UserParams = Potential()
     t::LinRange{Float64} = LinRange(ti,tf,Nt) # time of saves
     ϕi::Array{Complex{Float64},D} = zeros(N...) |> complex # initial condition
     alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Tsit5() # default solver

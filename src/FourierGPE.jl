@@ -19,7 +19,7 @@ include("analysis.jl")
 export Simulation, TransformLibrary, UserParams
 export xvec, kvec, xvecs, kvecs, dfft, dfftall, crandn_array, crandnpartition
 export maketransarrays, makearrays, xspace, xspace!, kspace, kspace!
-# export nlin, nlin!, Lgp, Lgp!, V
+export nlin, nlin!, Lgp, Lgp!, V
 export initsim!, runsim, internalnorm
 export Transforms, @pack_Transforms!, @unpack_Transforms
 export Sim, @pack_Sim!, @unpack_Sim, showpsi, testsim

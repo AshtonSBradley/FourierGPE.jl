@@ -7,6 +7,11 @@ function initsim!(sim;flags=FFTW.MEASURE)
     return nothing
 end
 
+# default potential
+V(x,t) = 0.0
+V(x,y,t) = 0.0
+V(x,y,z,t) = 0.0
+
 # nonlinearity
 function nlin(ϕ,sim,t)
     @unpack g,x,y = sim
@@ -25,10 +30,10 @@ end
 # end
 
 function nlin!(dϕ,ϕ,sim::Sim{1},t)
-    @unpack g,X,V,V0 = sim; x = X[1]
+    @unpack g,X,V0 = sim; x = X[1]; U0 = V0.V0
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= V0 + V(x,t) + g*abs2(dϕ)
+    @. dϕ *= U0 + V(x,t) + g*abs2(dϕ)
     kspace!(dϕ,sim)
     return nothing
 end
@@ -43,10 +48,10 @@ end
 # end
 
 function nlin!(dϕ,ϕ,sim::Sim{2},t)
-    @unpack g,X,V0,V = sim; x,y = X
+    @unpack g,X,V0 = sim; x,y = X; U0 = V0.V0
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= V0 + V(x,y',t) + g*abs2(dϕ)
+    @. dϕ *= U0 + V(x,y',t) + g*abs2(dϕ)
     kspace!(dϕ,sim)
     return nothing
 end
@@ -62,11 +67,11 @@ end
 # end
 
 function nlin!(dϕ,ϕ,sim::Sim{3},t)
-    @unpack g,X,V0,V = sim; x,y,z = X
+    @unpack g,X,V0 = sim; x,y,z = X; U0 = V0.V0
     y = y'; z = reshape(z,(1,1,length(z)))
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= V0 + V(x,y,z,t) + g*abs2(ϕ)
+    @. dϕ *= U0 + V(x,y,z,t) + g*abs2(ϕ)
     kspace!(dϕ,sim)
     return nothing
 end
