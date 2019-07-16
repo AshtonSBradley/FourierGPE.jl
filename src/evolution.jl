@@ -7,11 +7,6 @@ function initsim!(sim;flags=FFTW.MEASURE)
     return nothing
 end
 
-# evolution: default potential
-V(x,t)::Float64 = 0.5*x^2
-V(x,y,t)::Float64 = 0.5*(x^2 + y^2)
-V(x,y,z,t)::Float64 = 0.5*(x^2 + y^2 + z^2)
-
 # nonlinearity
 function nlin(ϕ,sim,t)
     @unpack g,x,y = sim
@@ -20,30 +15,58 @@ function nlin(ϕ,sim,t)
     return kspace(ψ,sim)
 end
 
+# function nlin!(dϕ,ϕ,sim::Sim{1},t)
+#     @unpack g,X = sim; x = X[1]
+#     dϕ .= ϕ
+#     xspace!(dϕ,sim)
+#     @. dϕ *= g*abs2(dϕ) + V(x,t)
+#     kspace!(dϕ,sim)
+#     return nothing
+# end
+
 function nlin!(dϕ,ϕ,sim::Sim{1},t)
-    @unpack g,X = sim; x = X[1]
+    @unpack g,X,V,V0 = sim; x = X[1]
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= g*abs2(dϕ) + V(x,t)
+    @. dϕ *= V0 + V(x,t) + g*abs2(dϕ)
     kspace!(dϕ,sim)
     return nothing
 end
+
+# function nlin!(dϕ,ϕ,sim::Sim{2},t)
+#     @unpack g,X = sim; x,y = X
+#     dϕ .= ϕ
+#     xspace!(dϕ,sim)
+#     @. dϕ *= g*abs2(dϕ) + V(x,y',t)
+#     kspace!(dϕ,sim)
+#     return nothing
+# end
 
 function nlin!(dϕ,ϕ,sim::Sim{2},t)
-    @unpack g,X = sim; x,y = X
+    @unpack g,X,V0,V = sim; x,y = X
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= g*abs2(dϕ) + V(x,y',t)
+    @. dϕ *= V0 + V(x,y',t) + g*abs2(dϕ)
     kspace!(dϕ,sim)
     return nothing
 end
 
+# function nlin!(dϕ,ϕ,sim::Sim{3},t)
+#     @unpack g,X = sim; x,y,z = X
+#     y = y'; z = reshape(z,(1,1,length(z)))
+#     dϕ .= ϕ
+#     xspace!(dϕ,sim)
+#     @. dϕ *= g*abs2(dϕ) + V(x,y,z,t)
+#     kspace!(dϕ,sim)
+#     return nothing
+# end
+
 function nlin!(dϕ,ϕ,sim::Sim{3},t)
-    @unpack g,X = sim; x,y,z = X
+    @unpack g,X,V0,V = sim; x,y,z = X
     y = y'; z = reshape(z,(1,1,length(z)))
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= g*abs2(dϕ) + V(x,y,z,t)
+    @. dϕ *= V0 + V(x,y,z,t) + g*abs2(ϕ)
     kspace!(dϕ,sim)
     return nothing
 end

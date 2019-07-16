@@ -17,7 +17,7 @@ V(x,y,z,t) = x^2 + y^2 + z^2
 
 @time @. U0 = V(x,y,z,0.)
 
-@time @. U1 += U0
+@time @. U0 += V(x,y,z,0.)
 
 @time @. U0 = U0 + U1
 

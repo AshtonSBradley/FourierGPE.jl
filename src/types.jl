@@ -30,6 +30,21 @@ end
     psi::ArrayPartition = crandnpartition(D,N)
 end
 
+# ==== define user parameters =======
+# rename and make this whatevery you require and pass it to sim
+@with_kw mutable struct Params <: UserParams @deftype Float64
+    κ = 0.0 # a placeholder
+end
+
+@with_kw mutable struct StaticPotential{D} <: UserParams
+    V0::Array{Float64,D}
+end
+
+# dynamical potential function
+@with_kw mutable struct Potential <: UserParams
+    V::Expr = Meta.parse("x->nothing")
+end
+
 @with_kw mutable struct Sim{D} <: Simulation{D} @deftype Float64
     # Add more parameters as necessary, or add to params (see examples)
     L::NTuple{D,Float64} # box length scales
@@ -40,7 +55,9 @@ end
     ti = 0.0    # initial time
     tf = 2/γ    # final time
     Nt::Int64 = 200     # number of saves over (ti,tf)
-    params::UserParams # optional user parameters
+    params::UserParams = Params() # optional user parameters
+    V0::StaticPotential{D} = StaticPotential{D}(zeros(N))
+    V::UserParams = Potential()
     t::LinRange{Float64} = LinRange(ti,tf,Nt) # time of saves
     ϕi::Array{Complex{Float64},D} = zeros(N...) |> complex # initial condition
     alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Tsit5() # default solver
@@ -58,6 +75,7 @@ end
 end
 
 Sim(L,N,par) = Sim{length(L)}(L=L,N=N,params=par)
+Sim(L,N) = Sim{length(L)}(L=L,N=N,params=Params())
 
 FGPETypes = [Transforms Sim]
 for type in FGPETypes
