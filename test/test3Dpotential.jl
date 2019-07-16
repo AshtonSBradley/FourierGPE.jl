@@ -9,10 +9,8 @@ using FourierGPE
 # the uniform system.
 
 macro potential(sim,Vex)
-    ex = :( V(x,y,z,t)=$Vex )
-    # @show Vex
-    # @eval sim = Sim(sim,V=Potential($Vex))
-    return ex
+    @eval V(x,y,z,t)=$Vex
+    @eval sim = Sim($sim,V=Potential($Vex))
 end
 
 macro staticpotential(sim,V0)
