@@ -49,9 +49,10 @@ end
 
 function nlin!(dϕ,ϕ,sim::Sim{2},t)
     @unpack g,X,V0 = sim; x,y = X; U0 = V0.V0
+    y = y'
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= U0 + V(x,y',t) + g*abs2(dϕ)
+    @. dϕ *= U0 + V(x,y,t) + g*abs2(dϕ)
     kspace!(dϕ,sim)
     return nothing
 end

@@ -1,18 +1,7 @@
 using Pkg, Revise
 
-#pkg"activate ."
 using FourierGPE
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
-
-# ==== Units: ========================
-# this example works in oscillator units
-
-# ==== define user parameters =======
-@with_kw mutable struct Params <: UserParams @deftype Float64
-    # user parameters:
-    κ = 0.1
-end
-par = Params()
 
 # ==== set simulation parameters ====
 L = (20.0,20.0)
@@ -20,27 +9,31 @@ N = (128,128)
 μ = 25.0
 
 # ========= Initialize simulation ======
-sim = Sim(L,N,par)
+sim = Sim(L,N)
 @pack! sim = μ
 @unpack_Sim sim
+x,y = X
+
 # ===================================
+# Two ways to set potential:
 
-# declare the potential function
+# Time dependent potential function (here trivial t dep)
 import FourierGPE.V
-V(x,y,t)::Float64 = 0.5*(x^2 + y^2)
-
-# useful TF state
+V(x,y,t) = 0.5*(x^2 + y^2)
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 
-x,y = X
+# As a static Potential
+# Vs(x,y) = 0.5*(x^2 + y^2)
+# ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-Vs(x,y)/μ,0.0)+im*0.0)
+# sim = Sim(sim,V0=StaticPotential(Vs.(x,y')))
+
 #make initial state
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi
-sim
 
 # ====== Evolve in k space ==========
-sol = runsim(sim)
+@time sol = runsim(sim)
 # ===================================
 
 # pull out the ground state:
@@ -79,8 +72,6 @@ t = LinRange(ti,tf,Nt)
 reltol = 1e-7
 alg = DP5()
 @pack! sim = tf,t,γ,ϕi,reltol,alg
-# initsim!(sim)
-
 @unpack_Sim sim
 
 # ====== Evolve in k space ==========

@@ -1,24 +1,17 @@
 using Plots, LaTeXStrings, Pkg, Revise
 gr(grid=false,legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
-#pkg"activate ."
 using FourierGPE
-
-# ==== define user parameters =======
-@with_kw mutable struct Params <: UserParams @deftype Float64
-    # parameters (at least a placeholder):
-    κ = 0.1
-end
-par = Params()
 
 # ==== set simulation parameters ====
 L = (40.0,)
 N = (512,)
 μ = 25.0
 
-sim = Sim(L,N,par)
+sim = Sim(L,N)
 @pack! sim = μ
 @unpack_Sim sim
+
 # ===================================
 
 # declare the potential function
@@ -32,11 +25,10 @@ V(x,t) = 0.5*x^2
 x = X[1]
 ψi = ψ0.(x,μ,g)
 ϕi = kspace(ψi,sim)
-@pack! sim = ϕi
+@pack_Sim! sim
 
 # ====== Evolve in k space ==========
 sol = runsim(sim)
-sim
 # ===================================
 
 # pull out the ground state:

@@ -40,11 +40,6 @@ end
     V0::Array{Float64,D}
 end
 
-# dynamical potential function
-@with_kw mutable struct Potential <: UserParams
-    V::Expr = Meta.parse("x->nothing")
-end
-
 @with_kw mutable struct Sim{D} <: Simulation{D} @deftype Float64
     # Add more parameters as necessary, or add to params (see examples)
     L::NTuple{D,Float64} # box length scales

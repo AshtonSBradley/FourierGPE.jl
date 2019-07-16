@@ -7,13 +7,6 @@ using FourierGPE
 import FourierGPE.V
 V(x,t) = zero(x) |> complex
 
-# ==== define user parameters =======
-@with_kw mutable struct Params <: UserParams @deftype Float64
-    # parameters (at least a placeholder):
-    κ = 0.1
-end
-par = Params()
-
 # ==== set simulation parameters ====
 L = (60.0,)
 N = (512,)
@@ -25,10 +18,11 @@ Ns = 200
 us = 20
 tf = π |> Float64
 Nt = 150
-t = LinRange(0.,tf,Nt)
+ti = 0.0
+t = LinRange(ti,tf,Nt)
 
 # ====== Initialize simulation ======
-sim = Sim(L,N,par)
+sim = Sim(L,N)
 @pack! sim = μ,g,γ,t,tf,Nt
 @unpack_Sim sim
 # ===================================
@@ -38,8 +32,10 @@ x = X[1]
 ψs(x) = sqrt(Ns/2ξs)*sech(x/ξs)*exp(im*us*x)
 ψi = ψs.(x)
 ϕi = kspace(ψi,sim)
+
+# Set all fields
 @pack_Sim! sim
-sim
+
 # ====== Evolve in k space ==========
 sol = runsim(sim)
 # ===================================

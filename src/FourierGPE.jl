@@ -26,5 +26,5 @@ export Sim, @pack_Sim!, @unpack_Sim, showpsi, testsim
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, makeTMixed, definetransforms
 export Field, XField, KField, velocity, energydecomp, helmholtz
-export Params, StaticPotential, Potential
+export Params, StaticPotential 
 end # module

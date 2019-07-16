@@ -9,15 +9,6 @@ import FourierGPE:V
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-macro staticpotential(sim,V0)
-    @eval sim = Sim(sim,V0=StaticPotential($V0))
-end
-
-# macro potential(sim,Vex)
-#     @eval V(x,y,z,t)=$Vex
-#     # @eval sim3 = Sim($sim,V=Potential($esc(ex)))
-# end
-
 # ==== set simulation parameters ====
 L = (16.,16.,16.)
 N = (64,64,64)
@@ -30,18 +21,10 @@ X = xvecs(L,N)
 x,y,z = X
 y = y'
 z = reshape(z,1,1,length(z))
+V0 = @. zero(x*y*z)
 
 sim = Sim(L,N)
-@staticpotential sim zero(x.*y.*z)
-
-# #TODO get the macro to pass V to sim
-# ex = :(x^11)
-# dump(ex)
-# @potential sim x^11
-# sim = Sim(sim,V=Potential(ex))
-# V(.1,0,0,0)
-# Vtest(x,y,z,t)=sim.V.V
-# Vtest(0.1,0,0,0)
+# sim = Sim(sim,V0=StaticPotential(V0))
 
 V(x,y,z,t) = 0.25*(x^2 + y^2 + z^2)*(1+0.01*sin(t))
 
@@ -63,8 +46,3 @@ dϕi = similar(ϕi)
 @pack! sim = ϕi,γ,tf,t
 
 @time nlin!(dψi,ψi,sim,0.1)
-
-# ================
-# define static potential array
-
-testStatic = StaticPotential(zero(x.*y.*z))
