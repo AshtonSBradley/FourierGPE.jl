@@ -1,28 +1,27 @@
-j=2
-ex = :(Symbol("a",$j)+b*c+1)
 
-Symbol("func",10)
 
-macro sayhello()
-           return :( f(x) = x^2 )
-       end
 
-@sayhello
-
-macro xpow(n)
-    ex = :( g(x) = x^$n )
+macro fun1(exi)
+    ex = :( g(x) = $exi )
     return ex
 end
 
+macro test(Vex)
+    ex = :( V(x,y,z,t)=$Vex )
+    @show ex.args
+end
 
+@test y^4
+V(0.1,0.1,0,0)
 
-macro specgen()
-    ex = :( F(a,b)=[x^2 + y^2 for x in a, y in b] )
+macro pot(exi)
+    ex = :(V(x,y,z,t)=$exi)
     return ex
 end
 
+@pot x^2
+V.(.1,0,0,0)
 
-F(1:3,2:10)
 
 using Parameters
 
@@ -35,13 +34,7 @@ getfield(Main,x)()
 x
 
 
-macro spec(n)
-    ex = :(x1^2)
-    for j = 2:n
-        ex = :(ex + :(x1^2))
-    end
-    return ex
-end
+
 
 @spec(2)
 
@@ -128,7 +121,7 @@ formula = "3x^2 + 4x - 3sin(x)"
 
 eval(formula)
 
-formula2 = parse(formula)
+formula2 = Meta.parse(formula)
 
 
 ex = :(3x^2 + 4x - 3sin(x))

@@ -1,4 +1,4 @@
-using Test, Parameters, BenchmarkTools, Revise
+using Test, Parameters, BenchmarkTools
 
 using FourierGPE
 
@@ -8,14 +8,11 @@ using FourierGPE
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-macro potential(sim,V)
-    fn = Symbol("V(x,y,z,t)")
-    quote
-        function $(esc(fn))()
-            return $V
-        end
-        @eval sim = Sim(sim,V=Potential($V))
-    end
+macro potential(sim,Vex)
+    ex = :( V(x,y,z,t)=$Vex )
+    # @show Vex
+    # @eval sim = Sim(sim,V=Potential($Vex))
+    return ex
 end
 
 macro staticpotential(sim,V0)
@@ -35,21 +32,19 @@ x,y,z = X
 y = y'
 z = reshape(z,1,1,length(z))
 
-# par = Params()
-# p1 = Potential(:(0.25*(x^2 + y^2 + z^2)*(1+t)))
-# V0 = StaticPotential(zero(x.*y.*z))
-
 sim = Sim(L,N)
 @staticpotential sim zero(x.*y.*z)
 
-#TODO get the macro to define the function
-@potential sim :(0.25*(x^2 + y^2 + z^2)*(1+0.01*sin(t)))
-V(x,y,z,t) = 0.25*(x^2 + y^2 + z^2)*(1+0.01*sin(t))
+#TODO get the macro to pass V to sim
+ex = :(x^10)
+@potential sim x^10
+sim = Sim(sim,V=Potential(ex))
+V(.1,0,0,0)
+sim.V.V
+# V(x,y,z,t) = 0.25*(x^2 + y^2 + z^2)*(1+0.01*sin(t))
 
 @pack! sim = γ,tf,Nt,t
-
 @unpack μ,g = sim
-# @unpack_Sim sim
 
 # ========= useful state functions
 
