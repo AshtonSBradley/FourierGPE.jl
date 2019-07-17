@@ -29,7 +29,7 @@ u(k) = 0.5*(sqrt(f(k))+1)/f(k)^(1/4)
 v(k) = 0.5*(sqrt(f(k))-1)/f(k)^(1/4)
 lam = 0.01
 bog(x,k) = u(k)*exp(im*k*x) - conj(v(k))*exp(-im*k*x)
-ψb(x,k) = sqrt(μ/g)*(complex(1) + lam*bog(x,k))
+ψb(x,k) = sqrt(μ/g)*(1 + lam*bog(x,k))
 
 kb = k[20]
 ψi = ψb.(x,kb)
@@ -37,7 +37,7 @@ kb = k[20]
 
 # Set time evolution and pack
 reltol = 1e-7
-alg = Vern7()
+alg = Vern7() #higher order integrator required for homogeneous system
 
 @pack_Sim! sim
 
