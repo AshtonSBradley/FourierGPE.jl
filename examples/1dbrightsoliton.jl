@@ -3,10 +3,6 @@ gr(colorbar=false,size=(600,150),legend=false,grid=false,xticks=false,yticks=fal
 
 using FourierGPE
 
-# declare the potential function
-import FourierGPE.V
-V(x,t) = zero(x) |> complex
-
 # ==== set simulation parameters ====
 L = (60.0,)
 N = (512,)
@@ -26,8 +22,8 @@ sim = Sim(L,N)
 @pack! sim = μ,g,γ,t,tf,Nt
 @unpack_Sim sim
 # ===================================
+
 #soliton wavefunction
-X,K = makearrays(L,N)
 x = X[1]
 ψs(x) = sqrt(Ns/2ξs)*sech(x/ξs)*exp(im*us*x)
 ψi = ψs.(x)

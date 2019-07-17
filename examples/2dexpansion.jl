@@ -7,13 +7,6 @@ gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 # ==== Units: ========================
 # this example works in oscillator units
 
-# ==== define user parameters =======
-@with_kw mutable struct Params <: UserParams @deftype Float64
-    # user parameters:
-    κ = 0.1
-end
-par = Params()
-
 # ==== set simulation parameters ====
 L = (40.0,40.0)
 N = (256,256)
@@ -58,8 +51,7 @@ tf = 10.0
 t = LinRange(ti,tf,Nt)
 ϕi = ϕg
 
-pare = Params()
-sime = Sim(L,N,pare)
+sime = Sim(L,N)
 @pack! sime = tf,t,γ,ϕi
 # initsim!(sim)
 

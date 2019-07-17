@@ -9,23 +9,12 @@ using Revise, FourierGPE
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-# ==== define potential =======
-@with_kw mutable struct Potential <: UserParams @deftype Float64
-    # user parameters:
-    V::Expr = :( V(x,y,t) = zero(x*y) )
-end
-par = Potential()
-
-import FourierGPE.V
-eval(par.V)
-# ==================================
-
 # ==== set simulation parameters ====
 L=(200.,200.)
 N=(512,512)
 
 # ========= Initialize simulation ======
-sim = Sim(L,N,par)
+sim = Sim(L,N)
 @unpack_Sim sim
 
 # ========= useful state functions
@@ -37,7 +26,6 @@ x,y = X
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi
-sim
 
 # ====== Evolve in k space ==========
 sol = runsim(sim)

@@ -1,23 +1,17 @@
 # ground state tests
 # using Test, Revise, FourierGPE
-@with_kw mutable struct Params <: UserParams @deftype Float64
-    # user parameters: add with defaults.
-    ω = 2*pi
-    V::Expr = :(V(x,t) = 0.5*ω^2*x^2 )
-end
+
+import FourierGPE:V
+V(x,t) = 0.5*ω^2*x^2
+
 
 # ==== set simulation parameters ====
 L = (40.0,)
 N = (512,)
 μ = 25.0
-ω = 1.0
-Vdef = :(V(x,t) = 0.5*ω^2*x^2)
 
 # === collect parameters ===========
-eval(Vdef)
-par = Params(ω = ω,V=Vdef)
-
-sim = Sim(L,N,par)
+sim = Sim(L,N)
 @pack! sim = μ
 @unpack_Sim sim
 # ===================================

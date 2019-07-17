@@ -8,33 +8,27 @@ using FourierGPE
 # this example works in oscillator units
 
 
-# ==== define user parameters =======
-@with_kw mutable struct Params <: UserParams @deftype Float64
-    # user parameters:
-    Ω = 0.2
-end
-par = Params()
-
 # ==== set simulation parameters ====
 L = (20.0,20.0)
 N = (128,128)
 μ = 25.0
 
 # ========= Initialize simulation ======
-sim = Sim(L,N,par)
+sim = Sim(L,N)
 @pack! sim = μ
 @unpack_Sim sim
 
 
 # declare the potential function
 import FourierGPE.V
-V(x,y,t)::Float64 = 0.5*(x^2 + y^2)
+V(x,y,t) = 0.5*(x^2 + y^2)
 
 # useful TF state
 using VortexDistributions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
-x,y = X
+
 #make initial state
+x,y = X
 ψi = ψ0.(x,y',μ,g)
 makevortex!(ψi,[0. 0. 1],x,y)
 showpsi(x,y,ψi)

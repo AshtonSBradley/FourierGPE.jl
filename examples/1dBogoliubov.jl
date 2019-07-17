@@ -18,10 +18,8 @@ t = LinRange(ti,tf,Nt)
 sim = Sim(L,N)
 @pack! sim = μ,g,γ,t,tf,Nt
 @unpack_Sim sim
-sim
 # ===================================
 # Bogoliubov state
-X,K = makearrays(L,N)
 x = X[1]
 k = K[1]
 
@@ -29,11 +27,11 @@ k = K[1]
 f(k) = 1 + 4/k^2
 u(k) = 0.5*(sqrt(f(k))+1)/f(k)^(1/4)
 v(k) = 0.5*(sqrt(f(k))-1)/f(k)^(1/4)
-lam = 0.000001
+lam = 0.01
 bog(x,k) = u(k)*exp(im*k*x) - conj(v(k))*exp(-im*k*x)
 ψb(x,k) = sqrt(μ/g)*(complex(1) + lam*bog(x,k))
 
-kb = k[2]
+kb = k[20]
 ψi = ψb.(x,kb)
 ϕi = kspace(ψi,sim)
 
@@ -48,13 +46,13 @@ alg = Vern7()
 # ===================================
 
 y = abs2.(xspace(sol[end-1],sim));plot(x,y)
-y = xspace(sol[2],sim) |> imag ;plot(x,y)
 
 #make a movie?
 anim = @animate for i=1:Nt
     ψ = xspace(sol[i],sim)
     y=abs2.(ψ)
-    plot(x,y)
+    plot(x,y,fill=(0,0.3,:blue))
+    ylims!(0,120)
 end
 
 gif(anim, "./examples/bogoliubov.gif", fps = 25)

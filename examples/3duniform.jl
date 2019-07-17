@@ -8,13 +8,6 @@ using FourierGPE
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-# ==== define user parameters =======
-@with_kw mutable struct Params <: UserParams @deftype Float64
-    # user parameters:
-    κ = 0.1
-end
-par = Params()
-
 # ==== set simulation parameters ====
 L=(16.,16.,16.)
 N=(64,64,64)
@@ -23,20 +16,16 @@ tf = 4/γ
 Nt = 200
 t = LinRange(0.,tf,Nt)
 # ========= Initialize simulation ======
-sim = Sim(L,N,par)
+sim = Sim(L,N)
 @pack! sim = γ,tf,Nt,t
 @unpack_Sim sim
-
-# uniform potential
-import FourierGPE.V
-V(x,y,z,t) = zero(x*y*z)
 
 # ========= useful state functions
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
 healing(x,y,z,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,z,μ,g)))
 
-x,y,z = X
 #make initial state
+x,y,z = X
 ψi = ψ0.(x,y',reshape(z,1,1,length(z)),μ,g)
 ψi = randn(N)+im*randn(N)
 ϕi = kspace(ψi,sim)
