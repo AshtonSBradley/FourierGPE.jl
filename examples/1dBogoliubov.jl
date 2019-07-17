@@ -29,9 +29,9 @@ u(k) = 0.5*(sqrt(f(k))+1)/f(k)^(1/4)
 v(k) = 0.5*(sqrt(f(k))-1)/f(k)^(1/4)
 lam = 0.000001
 bog(x,k) = u(k)*exp(im*k*x) - conj(v(k))*exp(-im*k*x)
-ψb(x,k) = sqrt(μ/g)*(1 + lam*bog(x,k))
+ψb(x,k) = sqrt(μ/g)*(complex(1) + lam*bog(x,k))
 
-kb = k[20]
+kb = k[2]
 ψi = ψb.(x,kb)
 ϕi = kspace(ψi,sim)
 
@@ -42,11 +42,11 @@ alg = Vern7()
 @pack_Sim! sim
 
 # ====== Evolve in k space ==========
-sol = runsim(sim)
+@time sol = runsim(sim)
 # ===================================
 
-y = abs2.(xspace(sol[end],sim));plot(x,y)
-
+y = abs2.(xspace(sol[2],sim));plot(x,y)
+y = xspace(sol[1],sim) |> imag ;plot(x,y)
 #make a movie?
 anim = @animate for i=1:Nt
     ψ = xspace(sol[i],sim)
