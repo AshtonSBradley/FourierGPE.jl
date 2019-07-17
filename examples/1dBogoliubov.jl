@@ -6,25 +6,27 @@ using FourierGPE
 # ==== set simulation parameters ====
 L = (60.0,)
 N = (512,)
-μ = 25.0
+μ = 1.0
 g = 0.01
 γ = 0.0
-tf = 2.0pi
+tf = 20.0pi
 Nt = 150
 ti = 0.0
 t = LinRange(ti,tf,Nt)
+
 # ====== Initialize simulation ======
 sim = Sim(L,N)
 @pack! sim = μ,g,γ,t,tf,Nt
 @unpack_Sim sim
+sim
 # ===================================
-#bogoliubov state
+# Bogoliubov state
 X,K = makearrays(L,N)
 x = X[1]
 k = K[1]
-# define Bog state
 
-f(k) = 1 + 4*μ/k^2
+# Define Bog state
+f(k) = 1 + 4/k^2
 u(k) = 0.5*(sqrt(f(k))+1)/f(k)^(1/4)
 v(k) = 0.5*(sqrt(f(k))-1)/f(k)^(1/4)
 lam = 0.000001
@@ -45,8 +47,9 @@ alg = Vern7()
 @time sol = runsim(sim)
 # ===================================
 
-y = abs2.(xspace(sol[2],sim));plot(x,y)
-y = xspace(sol[1],sim) |> imag ;plot(x,y)
+y = abs2.(xspace(sol[end-1],sim));plot(x,y)
+y = xspace(sol[2],sim) |> imag ;plot(x,y)
+
 #make a movie?
 anim = @animate for i=1:Nt
     ψ = xspace(sol[i],sim)
