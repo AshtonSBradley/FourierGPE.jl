@@ -16,7 +16,7 @@ N=(512,512)
 # ========= Initialize simulation ======
 sim = Sim(L,N)
 @unpack_Sim sim
-
+μ = 1.0
 # ========= useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
@@ -25,7 +25,7 @@ x,y = X
 #make initial state
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
-@pack! sim = ϕi
+@pack! sim = ϕi,μ
 
 # ====== Evolve in k space ==========
 sol = runsim(sim)
@@ -48,7 +48,7 @@ makeallvortices!(ψv,dipole,x,y,ξv)
 # ==== set simulation parameters ====
 c = sqrt(μ)
 γ = 0.01
-tf = 6*L[1]/c
+tf = L[1]/c
 
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)

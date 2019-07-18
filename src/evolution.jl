@@ -21,30 +21,30 @@ function nlin(ϕ,sim,t)
 end
 
 function nlin!(dϕ,ϕ,sim::Sim{1},t)
-    @unpack g,X,V0 = sim; x = X[1]; U0 = V0.V0
+    @unpack g,X,V0 = sim; x = X[1]
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= U0 + V(x,t) + g*abs2(dϕ)
+    @. dϕ *= V0 + V(x,t) + g*abs2(dϕ)
     kspace!(dϕ,sim)
     return nothing
 end
 
 function nlin!(dϕ,ϕ,sim::Sim{2},t)
-    @unpack g,X,V0 = sim; x,y = X; U0 = V0.V0
+    @unpack g,X,V0 = sim; x,y = X
     y = y'
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= U0 + V(x,y,t) + g*abs2(dϕ)
+    @. dϕ *= V0 + V(x,y,t) + g*abs2(dϕ)
     kspace!(dϕ,sim)
     return nothing
 end
 
 function nlin!(dϕ,ϕ,sim::Sim{3},t)
-    @unpack g,X,V0 = sim; x,y,z = X; U0 = V0.V0
+    @unpack g,X,V0 = sim; x,y,z = X
     y = y'; z = reshape(z,(1,1,length(z)))
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= U0 + V(x,y,z,t) + g*abs2(ϕ)
+    @. dϕ *= V0 + V(x,y,z,t) + g*abs2(ϕ)
     kspace!(dϕ,sim)
     return nothing
 end
