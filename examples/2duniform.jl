@@ -11,11 +11,12 @@ using Revise, FourierGPE
 # ==== set simulation parameters
 L=(200.,200.)
 N=(512,512)
-
+μ = 1.0
 # ==== Initialize simulation
 sim = Sim(L,N)
+@pack! sim = μ
 @unpack_Sim sim
-μ = 1.0
+
 # ==== useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))

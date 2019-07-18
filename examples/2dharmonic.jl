@@ -12,7 +12,7 @@ N = (128,128)
 sim = Sim(L,N)
 @pack! sim = μ
 @unpack_Sim sim
-x,y = X
+
 
 # ===================================
 # Two ways to set potential:
@@ -23,20 +23,21 @@ V(x,y,t) = 0.5*(x^2 + y^2)
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 
 # As a static Potential
-# Vs(x,y) = 0.5*(x^2 + y^2)
-# ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-Vs(x,y)/μ,0.0)+im*0.0)
-# sim = Sim(sim,V0=StaticPotential(Vs.(x,y')))
+x,y = X
+Vs(x,y) = 0.5*(x^2 + y^2)
+ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-Vs(x,y)/μ,0.0)+im*0.0)
+sim = Sim(sim,V0=Vs.(x,y'))
 
-#make initial state
+# ==== make initial state
+
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi
 
-# ====== Evolve in k space ==========
+# ==== Evolve in k space
 @time sol = runsim(sim)
-# ===================================
 
-# pull out the ground state:
+# ==== pull out the ground state:
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
@@ -89,4 +90,4 @@ anim = @animate for i=1:Nt-6
     showpsi(x,y,ψ)
 end
 
-gif(anim,"./examples/vortex.gif",fps=30)
+gif(anim,"./examples/vortexprecession.gif",fps=30)
