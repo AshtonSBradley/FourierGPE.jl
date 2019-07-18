@@ -24,6 +24,7 @@ z = reshape(z,1,1,length(z))
 V0 = @. zero(x*y*z)
 
 sim = Sim(L,N)
+# sim = Sim(sim,V0=StaticPotential(V0))
 
 V(x,y,z,t) = 0.25*(x^2 + y^2 + z^2)*(1+0.01*sin(t))
 

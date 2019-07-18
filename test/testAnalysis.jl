@@ -1,42 +1,7 @@
 using Test, Plots, LinearAlgebra, Revise, FourierGPE
 
-#2d tests
-N = 100
 
-X = xvecs((1,1),(N,N))
-K = kvecs((1,1),(N,N))
-K2 = k2(K)
-
-ktest = 2*pi
-psi = @. exp(im*ktest*X[1]*one.(X[2]'))
-# Note: ktest = n*2*pi that are evaluated exactly are the precise values of representation.
-# Hence any derivative of a field constructed from a superpoisition of these k's will
-# also be exact.
-
-psix = XField(psi,X,K,K2)
-psik = KField(fft(psi),X,K,K2)
-
-# flow only in x direction, of correct value
-vx,vy = velocity(psix)
-@test vx ≈ ktest*one.(vx)
-@test vy ≈ zero.(vy)
-
-#Decomposition
-Vi,Vc = helmholtz(vx,vy,psix)
-
-#orthogonality of Helmholtz decomposition
-vidotvc = Vi[1].*Vc[1] .+ Vi[2].*Vc[2]
-@test maximum(abs.(vidotvc)) < 1e-10
-
-#projective
-@test Vi[1] .+ Vc[1] ≈ vx
-@test Vi[2] .+ Vc[2] ≈ vy
-
-x,y = X
-Vc
-
-
-# test incompressible
+# Test incompressible without loading VortexDistributions
 abstract type Vortex end
 
 struct PointVortex <: Vortex
@@ -59,7 +24,7 @@ function make_vortex!(psi::XField,vort::PointVortex)
     return XField(psiX,X,K,K2)
 end
 
-L = 1000
+L = 500
 N = 1000
 
 X = xvecs((L,L),(N,N))
@@ -74,10 +39,11 @@ vort2 = PointVortex(0.,-d/2,-1)
 @time make_vortex!(psix,vort1)
 make_vortex!(psix,vort2)
 
+x,y = X
 psi = psix.psiX
 rho = abs2.(psi)
-heatmap(angle.(psi))
-heatmap(rho)
+heatmap(x,y,angle.(psi))
+heatmap(x,y,rho)
 
 vx,vy = velocity(psix)
 wx = sqrt.(rho).*vx

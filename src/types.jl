@@ -36,6 +36,10 @@ end
     κ = 0.0 # a placeholder
 end
 
+@with_kw mutable struct StaticPotential{D} <: UserParams
+    V0::Array{Float64,D}
+end
+
 @with_kw mutable struct Sim{D} <: Simulation{D} @deftype Float64
     # Add more parameters as necessary, or add to params (see examples)
     L::NTuple{D,Float64} # box length scales
@@ -47,9 +51,9 @@ end
     tf = 2/γ    # final time
     Nt::Int64 = 200     # number of saves over (ti,tf)
     params::UserParams = Params() # optional user parameters
-    V0::Array{Float64,D} = zeros(N)
+    V0::StaticPotential{D} = StaticPotential{D}(zeros(N))
     t::LinRange{Float64} = LinRange(ti,tf,Nt) # time of saves
-    ϕi::Array{Complex{Float64},D} = zeros(N) |> complex # initial condition
+    ϕi::Array{Complex{Float64},D} = zeros(N...) |> complex # initial condition
     alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Tsit5() # default solver
     reltol::Float64 = 1e-6 # default tolerance; may need to use 1e-7 for corner cases
     flags::UInt32 = FFTW.MEASURE # choose a plan. PATIENT, NO_TIMELIMIT, EXHAUSTIVE

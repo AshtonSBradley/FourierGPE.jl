@@ -25,7 +25,7 @@ V(x,y,t) = 0.5*(x^2 + y^2)
 # As a static Potential
 # Vs(x,y) = 0.5*(x^2 + y^2)
 # ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-Vs(x,y)/μ,0.0)+im*0.0)
-# sim = Sim(sim,V0=ψ0(x,y',μ,g))
+# sim = Sim(sim,V0=StaticPotential(Vs.(x,y')))
 
 #make initial state
 ψi = ψ0.(x,y',μ,g)
