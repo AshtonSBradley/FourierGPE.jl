@@ -2,7 +2,7 @@
 # using Test, Revise, FourierGPE
 
 import FourierGPE:V
-V(x,t) = 0.5*ω^2*x^2
+V(x,t) = 0.5*x^2
 
 
 # ==== set simulation parameters ====
