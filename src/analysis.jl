@@ -1,14 +1,14 @@
 function velocity(psi::XField{1})
-	@unpack psiX,K,K2 = psi; kx = K[1]; ψ = psiX
+	@unpack psiX,K = psi; kx = K[1]; ψ = psiX
 	rho = abs2.(ψ)
 	ϕ = fft(ψ)
 	ψx = ifft(im*kx.*ϕ)
 	vx = @. imag(conj(ψ)*ψx)/rho
-	return vx 
+	return vx
 end
 
 function velocity(psi::XField{2})
-	@unpack psiX,K,K2 = psi; kx,ky=K; ψ = psiX
+	@unpack psiX,K = psi; kx,ky = K; ψ = psiX
 	rho = abs2.(ψ)
 	ϕ = fft(ψ)
 	ψx = ifft(im*kx.*ϕ)
@@ -19,7 +19,7 @@ function velocity(psi::XField{2})
 end
 
 function velocity(psi::XField{3})
-	@unpack psiX,K,K2 = psi;kx,ky,kz=K; ψ = psiX
+	@unpack psiX,K = psi; kx,ky,kz = K; ψ = psiX
 	rho = abs2.(ψ)
 	ϕ = fft(ψ)
 	ψx = ifft(im*kx.*ϕ)
@@ -66,12 +66,12 @@ function helmholtz(W::NTuple{N,Array{Float64,N}}, psi::XField{N}) where N
     return helmholtz(W..., psi)
 end
 
-function energdecomp(psi::XField{2})
-    @unpack psiX, K, K2 = psi; kx, ky = K; ψ = psiX
-    rho = abs2.(ψ)
+function energydecomp(psi::XField{2})
+    @unpack psiX = psi
+    rho = abs2.(psiX)
     vx, vy = velocity(psi)
-    wx = @. sqrt(rho) * vx; wy = @. sqrt(rho) * vy
-    Wi, Wc = helmholtz(W, K, k2)
+    wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
+    Wi, Wc = helmholtz(wx,wy,psi)
     wxi, wyi = Wi; wxc, wyc = Wc
     et = @. abs2(wx) + abs2(wy); et *= 0.5
     ei = @. abs2(wxi) + abs2(wyi); ei *= 0.5
@@ -80,11 +80,11 @@ function energdecomp(psi::XField{2})
 end
 
 function energydecomp(psi::XField{3})
-	@unpack psiX, K, K2 = psi; kx, ky, kz = K; ψ = psiX
-    rho = abs2.(ψ)
+	@unpack psiX = psi
+    rho = abs2.(psiX)
     vx, vy, vz = velocity(psi)
     wx = @. sqrt(rho) * vx; wy = @. sqrt(rho) * vy; wz = @. sqrt(rho) * vz
-    Wi, Wc = helmholtz(W, K, k2)
+    Wi, Wc = helmholtz(wx,wy,wz,psi)
     wxi, wyi, wzi = Wi; wxc, wyc, wzc = Wc
     et = @. abs2(wx) + abs2(wy) + abs2(wz); et *= 0.5
     ei = @. abs2(wxi) + abs2(wyi) + abs2(wzi); ei *= 0.5

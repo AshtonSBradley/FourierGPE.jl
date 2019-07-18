@@ -1,37 +1,36 @@
-using Plots, LaTeXStrings
+using Test, Plots, LaTeXStrings
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 using Revise, FourierGPE
-# Pkg.activate(".")
 # ==== Units: ========================
 # Units of ξ for length, 1/μ for time
 # related by μ ≡ ħ²/mξ² = mc^2 where
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-# ==== set simulation parameters ====
+# ==== set simulation parameters
 L=(200.,200.)
 N=(512,512)
 
-# ========= Initialize simulation ======
+# ==== Initialize simulation
 sim = Sim(L,N)
 @unpack_Sim sim
 μ = 1.0
-# ========= useful state functions
+# ==== useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
+
+# ==== make initial state
 x,y = X
-#make initial state
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi,μ
 
 # ====== Evolve in k space ==========
 sol = runsim(sim)
-# ===================================
 
-# pull out the ground state
+# ==== pull out the ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
@@ -42,6 +41,7 @@ using VortexDistributions
 ψv = copy(ψg)
 d = 10
 ξv = healinglength(0.,0.,μ,g)
+@test ξv == 1.0
 dipole = [0.0 d/2 1; 0.0 -d/2 -1]
 makeallvortices!(ψv,dipole,x,y,ξv)
 
@@ -53,13 +53,13 @@ tf = L[1]/c
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)
 reltol = 1e-7 #uniform requires slightly smaller tolerance
+alg = Vern7()
+@pack! sim = tf,t,γ,ϕi,reltol,alg
 
-@pack! sim = tf,t,γ,ϕi,reltol
-
-# ====== Evolve in k space ==========
+# ==== Evolve in k space
 solv = runsim(sim)
-# ===================================
 
+# ==== plot
 @unpack_Sim sim
 
 ψd = xspace(solv[end],sim)
@@ -74,8 +74,8 @@ end
 gif(anim,"./examples/dipole.gif",fps=30)
 
 # plot energies
-function showenergies(ψ,x,y,kx,ky,k2)
-    et,ei,ec = energydecomp(ψ,kx,ky',k2)
+function showenergies(ψ)
+    et,ei,ec = energydecomp(ψ)
     p1 = heatmap(x,y,log10.(ei),aspectratio=1)
     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
     title!("Incompressible")
@@ -86,14 +86,12 @@ function showenergies(ψ,x,y,kx,ky,k2)
     return p
 end
 
-X,K,dX,dK = makearrays(L,N)
-ksq = k2(K)
-kx,ky = K
-dx,dy = dX
+K2 = k2(K)
 
 anim = @animate for i=1:Nt
     ψ = xspace(solv[i],sim)
-    showenergies(ψ,x,y,K...,k2(K))
+    psi = XField(ψ,X,K,K2)
+    showenergies(psi)
 end
 
 gif(anim,"./examples/dipoleenergies.gif",fps=30)
@@ -123,7 +121,8 @@ Natoms = zero(t)
 for (i,t) in enumerate(t)
     ϕ = solv[i]
     ψ = xspace(ϕ,sim)
-    et,ei,ec = energydecomp(ψ,kx,ky',ksq)
+    psi = XField(ψ,X,K,K2)
+    et,ei,ec = energydecomp(psi)
     Ei[i] = sum(ei)*dx*dy |> real
     Ec[i] = sum(ec)*dx*dy |> real
     Natoms[i] = sum(abs2.(ψ))*dx*dy
@@ -142,7 +141,7 @@ plot!(t,relerror.(Natoms,Natoms[1]),label = L"relerr(N)")
 
 
 # if we need to save data:
-@save "./examples/dipoledecay.jld2" solv.u sim
+# @save "./examples/dipoledecay.jld2" solv.u sim
 
 # another example for saving data as individual files
 # using a call back in OrdinaryDiffEq
