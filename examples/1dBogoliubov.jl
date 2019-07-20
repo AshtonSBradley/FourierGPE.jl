@@ -45,7 +45,7 @@ alg = Vern7()
 @time sol = runsim(sim)
 # ===================================
 
-y = abs2.(xspace(sol[end-1],sim));plot(x,y)
+y = abs2.(xspace(sol[end-1],sim)); plot(x,y)
 
 #make a movie?
 anim = @animate for i=1:Nt
