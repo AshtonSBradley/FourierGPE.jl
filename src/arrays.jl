@@ -5,9 +5,9 @@ xvec(L,N) = LinRange(-L/2,L/2,N+1)[2:end] |> collect
 
 function kvec(λ,N)
     @assert iseven(N)
-    nkx = 0:Int(N/2)
-    kx = [nkx[1:end-1];-reverse(nkx[2:end])]*2*π/λ
-return kx
+    nk = 0:Int(N/2)
+    k = [nk[1:end-1];-reverse(nk[2:end])]*2*π/λ
+return k
 end
 
 function xvecs(L,N)
@@ -38,8 +38,8 @@ function makearrays(L,N)
     K = kvecs(L,N)
     dX = Float64[]; dK = Float64[]
     for j ∈ eachindex(X)
-        x=X[j]; k=K[j]
-        dx = x[2]-x[1];dk = k[2]-k[1]
+        x = X[j]; k = K[j]
+        dx = x[2]-x[1]; dk = k[2]-k[1]
         push!(dX,dx)
         push!(dK,dk)
     end

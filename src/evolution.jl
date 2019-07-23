@@ -44,7 +44,7 @@ function nlin!(dϕ,ϕ,sim::Sim{3},t)
     y = y'; z = reshape(z,(1,1,length(z)))
     dϕ .= ϕ
     xspace!(dϕ,sim)
-    @. dϕ *= V0 + V(x,y,z,t) + g*abs2(ϕ)
+    @. dϕ *= V0 + V(x,y,z,t) + g*abs2(dϕ)
     kspace!(dϕ,sim)
     return nothing
 end

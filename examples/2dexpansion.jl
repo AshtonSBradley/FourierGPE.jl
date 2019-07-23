@@ -13,7 +13,7 @@ N = (256,256)
 μ = 15.0
 
 # ========= Initialize simulation ======
-sim = Sim(L,N,par)
+sim = Sim(L,N)
 @pack! sim = μ
 @unpack_Sim sim
 # ===================================
@@ -23,7 +23,7 @@ import FourierGPE.V
 V(x,y,t) = 0.5*(x^2 + y^2)
 
 # useful TF state
-ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
+ψtf(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 
 x,y = X
 #make initial state
@@ -41,9 +41,13 @@ sol = runsim(sim)
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
 
-# turn off the potential
-V(x,y,t) = 0.0
+R(w) = sqrt(2*μ/w^2)
+R(1)
+plot(x, abs2.(ψ0.(x,0.,μ,g)))
+plot!(x, abs2.(ψg[:,128]))
 
+# ==== new potential
+V(x,y,t) = 0.0
 
 # ==== set simulation parameters ====
 γ = 0.0

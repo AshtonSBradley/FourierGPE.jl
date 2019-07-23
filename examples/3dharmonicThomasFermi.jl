@@ -1,4 +1,4 @@
-using Pkg, Revise
+using Pkg
 
 using FourierGPE
 
@@ -9,12 +9,12 @@ import FourierGPE.V
 V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2)
 
 # ==== set simulation parameters ====
-L = (15.,15.,15.)
+L = (20.,20.,20.)
 N = (64,64,64)
 γ = 0.5
-μ = 25.0
+μ = 15.0
 tf = 0.3 # 1.5/γ
-Nt = 200
+Nt = 150
 t = LinRange(0.,tf,Nt)
 
 # ==== Initialize simulation
@@ -28,10 +28,13 @@ healing(x,y,z,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,z,μ,g)))
 
 # ==== initial state
 x,y,z = X
-ψi = ψ0.(x,y',reshape(z,1,1,length(z)),μ,g)
-# ψi = randn(N)+im*randn(N)
+y = y'; z = reshape(z,1,1,length(z))
+ψi = ψ0.(x,y,z,μ,g)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi,γ,tf,t
+
+plot(x,abs2.(ψ0.(x,0.,0.,μ,g)))
+plot!(x,abs2.(ψi[:,32,32]))
 
 sim
 
@@ -44,8 +47,17 @@ gr(titlefontsize=12,size=(500,300),colorbar=false)
 # ==== ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
-zmid = findfirst(z .≈ 0)
-showpsi(x,y,ψg[:,:,zmid])
+showpsi(x,y',ψg[:,:,32])
+
+R(w) = sqrt(2*μ/w^2)
+R(1)
+R(2)
+
+plot(x,abs2.(ψ0.(x,0.,0.,μ,g)))
+plot!(x,abs2.(ψg[:,32,32]))
+μ/g
+
+abs2.(ψg[32,32,32])
 
 # animate a slice
 anim = @animate for i=1:Nt
