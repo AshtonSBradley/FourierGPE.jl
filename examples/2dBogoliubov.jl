@@ -16,6 +16,9 @@ t = LinRange(ti,tf,Nt)
 sim = Sim(L,N)
 @pack! sim = μ,g,γ,t,tf,Nt
 @unpack_Sim sim
+
+sim
+
 # ===================================
 # Bogoliubov state
 x,y = X

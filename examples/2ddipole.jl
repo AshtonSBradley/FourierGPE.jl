@@ -14,7 +14,7 @@ N = (512,512)
 g = 0.01
 γ = 0.0
 ti = 0.0
-tf = 2pi
+tf = .3pi
 Nt = 150
 t = LinRange(ti,tf,Nt)
 
