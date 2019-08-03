@@ -1,4 +1,6 @@
-using Test, Plots, Parameters
+using Test, Plots, Parameters, LaTeXStrings
+# transform to cartesian => polar coordinates for angular integrals
+# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2858241/
 
 Nx = 500
 xm = 10.
@@ -68,9 +70,11 @@ function filterH(psi,x,N)
     return psiF
 end
 
+# filter data by projecting onto n oscillator modes
 n = 30
 psiF = filterH(psi,x,n)
 heatmap(x,y,abs2.(psiF))
+xlabel!(L"x");ylabel!(L"y")
 
 # coversion to polar coords
 function polar(psi,x,N)
@@ -87,17 +91,20 @@ function polar(psi,x,N)
     return psiP
 end
 
+# convert to polar coords
 r = LinRange(0,last(x),Nx/2 |> Int)
 θ = LinRange(0,2*pi,2*Nx)'
 psiP = polar(psi,x,30)
 
 # plot in polar coordinates
 heatmap(θ',r,abs2.(psiP))
+xlabel!(L"\theta");ylabel!(L"r")
 dθ = θ[2]-θ[1]
 dr = r[2]-r[1]
 dx = x[2]-x[1]
 psiPth = sum(psiP,dims=2)*dθ
 plot(r,psiPth.*r)
+xlabel!(L"r")
 
 # check total integral preserved (< 1%)
 sum(psiPth.*r)*dr
