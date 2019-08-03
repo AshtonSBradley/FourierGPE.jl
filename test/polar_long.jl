@@ -102,3 +102,28 @@ plot(r,psiPth.*r)
 # check total integral preserved (< 1%)
 sum(psiPth.*r)*dr
 sum(psiF)*dx^2
+
+# ======== ideas for cfields
+# CField:
+
+#= something like this?
+function transform(b::Oscillator)
+    x,w = gausshermite(b.n)
+    T = b(x)
+    return x,w,T
+end
+
+xk,wk,Tk = transform(b1)
+c = randn(n)
+f = Tk*c
+@test sum(@. wk*exp(xk^2)*abs2(f)) ≈ sum(abs2.(c))
+
+abstract type CField end
+struct YField{N} <: CField
+    basis::Basis
+    psi::Array{Complex{Float64},N}
+end
+
+f1 = YField(b1,randn(b1.n)+im*randn(b1.n))
+
+=#
