@@ -100,7 +100,8 @@ function runsim(sim,ϕ=sim.ϕi;info=true,tplot=false,nfiles=false)
         i = findfirst(x->x== ψ[2],sim.t)
         padi = lpad(string(i),ndigits(length(sim.t)),"0")
         info && println("⭆ Save $i at t = $(trunc(ψ[2];digits=3))")
-        tofile = path*"/"*filename*padi*".jld2";
+        # tofile = path*"/"*filename*padi*".jld2"
+        tofile = joinpath(path,filename*padi*".jld2")
         save(tofile,"ψ",ψ[1],"t",ψ[2])
     end
 

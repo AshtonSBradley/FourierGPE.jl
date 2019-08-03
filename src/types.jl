@@ -54,7 +54,7 @@ end
     reltol::Float64 = 1e-6 # default tolerance; may need to use 1e-7 for corner cases
     flags::UInt32 = FFTW.MEASURE # choose a plan. PATIENT, NO_TIMELIMIT, EXHAUSTIVE
     nfiles::Bool = false
-    path::String = nfiles ? "data" : "./"
+    path::String = nfiles ? joinpath(@__DIR__,"data") : @__DIR__
     filename::String = "save"
     # =======================================
     # arrays, transforms, spectral operators
