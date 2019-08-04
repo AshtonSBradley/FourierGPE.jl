@@ -59,16 +59,16 @@ end
 hermitebasis(x,n) = hermitebasis(x,n,1.)
 
 # test that we can create the basis, or any one of oscillator modes
-Nv = 1:20
+Nv = 1:30
 @time hermite.(x,Nv')
 plot(x,hermite.(x,Nv'),legend=false,grid=false)
-n = 20
+n = 30
 b1 = Oscillator(n)
 @time b1(x)
 plot(x,b1(x),legend=false,grid=false)
 
 # broadcast over any input parameters
-plot(x,hermite.(x,1,[1. .5 .2 .1]),legend=false,grid=false)
+plot(x,hermite.(x,3,[1. .5 .2 .1]),legend=false,grid=false)
 
 # filtering cartesian data
 function filterH(psi,x,N)
