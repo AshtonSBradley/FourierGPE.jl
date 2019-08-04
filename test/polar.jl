@@ -2,24 +2,25 @@ using Test, Plots, Parameters, LaTeXStrings
 # transform to cartesian => polar coordinates for angular integrals
 # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2858241/
 
-Nx = 500
+Nx = 200
 xm = 10.
 x = LinRange(-xm,xm,Nx); y = x
 
 # create some test data
-psi = @. 10*exp(-.1*(x^2+y'^2)) + 15*exp(-((x-5)^2+y'^2)) # + randn()+im*randn()
-heatmap(x,y,abs2.(psi))
+psi = @. 10*exp(-.1*(x^2+y'^2)) + 15*exp(-(x^2+(y-5)'^2)) # + randn()+im*randn()
+heatmap(x,y,abs2.(psi),transpose=true)
+xlabel!(L"x");ylabel!(L"y")
 
 abstract type Basis end
 struct Oscillator <: Basis
-    ω::Float64
     n::Int64
+    ω::Float64
 end
-Oscillator(n::Int64) = Oscillator(1.0,n)
+Oscillator(n::Int64) = Oscillator(n,1.0)
 function (b::Oscillator)(x)
     @unpack ω,n = b
     T = x * ones(1, n) |> zero
-    T[:,1] = @. exp(-(√ω * x)^2 / 2) * (ω / π)^(1 / 4)
+    T[:,1] = @. hermite(x,1,ω)
     n >= 2 && (T[:,2] = @. sqrt(2 * ω) * x * T[:,1])
     for j ∈ index(b)[3:end]
         m = qnumbers(b)[j]
@@ -39,13 +40,23 @@ function hermite(x,n)
     n == 2 && (return h2)
     h3 = 0.0
     for j ∈ 3:n
-        m = j - 1
-        h3 = sqrt(2/m) * x * h2 - sqrt((m-1)/m) * h1
+        h3 = sqrt(2/(j - 1)) * x * h2 - sqrt((j-2)/(j-1)) * h1
         h1 = h2; h2 = h3
     end
     n > 2 && (return h3)
 end
 hermite(x,n,ω) = hermite(√ω * x,n) * ω ^ ( 1 / 4 )
+
+function hermitebasis(x,n,ω)
+    T = zeros(size(x)...,n)
+    T[:,:,1] = @. hermite(x,1,ω)
+    n >= 2 && (T[:,:,2] = @. sqrt(2 * ω) * x * T[:,:,1])
+    for j in 3:n
+        T[:,:,j] = @. sqrt(2 / (j-1)) * (√ω * x) * T[:,:,j-1] - sqrt((j-2) / (j-1)) * T[:,:,j-2]
+    end
+    return T
+end
+hermitebasis(x,n) = hermitebasis(x,n,1.)
 
 # test that we can create the basis, or any one of oscillator modes
 Nv = 1:20
@@ -56,11 +67,12 @@ b1 = Oscillator(n)
 @time b1(x)
 plot(x,b1(x),legend=false,grid=false)
 
-plot(x,hermite.(x,1,[1. .5 .2 .1]))
+# broadcast over any input parameters
+plot(x,hermite.(x,1,[1. .5 .2 .1]),legend=false,grid=false)
 
 # filtering cartesian data
 function filterH(psi,x,N)
-    H = Oscillator(1.0,N)(x)
+    H = Oscillator(N)(x)
     T = inv(H'*H)
     F̂ = T*H'*psi*H*T
     psiF = zero(psi)
@@ -70,40 +82,78 @@ function filterH(psi,x,N)
     return psiF
 end
 
+
 # filter data by projecting onto n oscillator modes
 n = 30
-psiF = filterH(psi,x,n)
-heatmap(x,y,abs2.(psiF))
+@time psiF = filterH(psi,x,n)
+heatmap(x,y,abs2.(psiF),transpose=true)
 xlabel!(L"x");ylabel!(L"y")
 
 # coversion to polar coords
 function polar(psi,x,N)
-    Nx = length(x)
-    H = Oscillator(1.0,N)(x)
+    H = Oscillator(N)(x)
     T = inv(H'*H)
     F̂ = T*H'*psi*H*T
-    r = LinRange(0,last(x),Nx/2 |> Int)
-    θ = LinRange(0,2*pi,2*Nx)'
-    psiP = zero(r*θ)
+
+    Nx = length(x)
+    θ = LinRange(0,2*pi,2*Nx)
+    r = LinRange(0,last(x),Nx/2 |> Int)'
+
+    psiP = zero(θ*r)
     for m = 1:N, n = 1:(N + 1 - m)
-        @. psiP += hermite(r*cos(θ),n) * F̂[m,n] * hermite(r*sin(θ),m)
+        @. psiP += hermite(r*cos(θ),m) * F̂[m,n] * hermite(r*sin(θ),n)
     end
     return psiP
 end
 
+function init_polar(x,N)
+    θ = LinRange(0,2*pi,2*Nx)
+    r = LinRange(0,last(x),Nx/2 |> Int)'
+    hx = hermitebasis((@. r*cos(θ)),N)
+    hy = hermitebasis((@. r*sin(θ)),N)
+    return hx,hy
+end
+
+@time hx,hy = init_polar(x,n)
+
+function fastpolar(psi,x,hx,hy)
+    N = size(hx)[3]
+    H = Oscillator(N)(x)
+    T = inv(H'*H)
+    F̂ = T*H'*psi*H*T
+
+    Nx = length(x)
+    θ = LinRange(0,2*pi,2*Nx)
+    r = LinRange(0,last(x),Nx/2 |> Int)'
+
+    psiFP = zero(θ*r)
+    for m = 1:N, n = 1:(N + 1 - m)
+        Hx = @view hx[:,:,m]
+        Hy = @view hy[:,:,n]
+        @. psiFP += Hx * F̂[m,n] * Hy
+    end
+    return psiFP
+end
+
 # convert to polar coords
-r = LinRange(0,last(x),Nx/2 |> Int)
-θ = LinRange(0,2*pi,2*Nx)'
-psiP = polar(psi,x,30)
+r = LinRange(0,last(x),Nx/2 |> Int)'
+θ = LinRange(0,2*pi,2*Nx)
+
+@time psiP = polar(psi,x,30)
+@time psifp = fastpolar(psi,x,hx,hy)
 
 # plot in polar coordinates
-heatmap(θ',r,abs2.(psiP))
+heatmap(θ,r',abs2.(psiP),transpose=true)
 xlabel!(L"\theta");ylabel!(L"r")
+
+heatmap(θ,r',abs2.(psifp),transpose=true)
+xlabel!(L"\theta");ylabel!(L"r")
+
 dθ = θ[2]-θ[1]
 dr = r[2]-r[1]
 dx = x[2]-x[1]
-psiPth = sum(psiP,dims=2)*dθ
-plot(r,psiPth.*r)
+psiPth = sum(psiP,dims=1)*dθ
+plot(r',psiPth'.*r')
 xlabel!(L"r")
 
 # check total integral preserved (< 1%)
