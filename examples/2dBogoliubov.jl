@@ -1,9 +1,19 @@
 using Plots, LaTeXStrings, Pkg, Revise, FourierGPE
 gr(colorbar=false,size=(600,150),legend=false,grid=false,xticks=true,yticks=true,axis=true)
 
-# ==== set simulation parameters ====
+# ==== set simulation parameters
+# an example of saving individual data files for each time
 L = (60.0,60.)
 N = (512,512)
+nfiles = true
+filename = "test"
+savedir = "data"
+path = joinpath(@__DIR__,savedir)
+sim = Sim(L,N)
+
+sim = Sim(sim,filename=filename,nfiles=nfiles,path=path)
+@unpack_Sim sim
+
 μ = 1.0
 g = 0.01
 γ = 0.0
@@ -12,12 +22,10 @@ Nt = 150
 ti = 0.0
 t = LinRange(ti,tf,Nt)
 
-# ====== Initialize simulation ======
-sim = Sim(L,N)
-@pack! sim = μ,g,γ,t,tf,Nt
-@unpack_Sim sim
 
-sim
+
+# ====== Initialize simulation ======
+
 
 # ===================================
 # Bogoliubov state
