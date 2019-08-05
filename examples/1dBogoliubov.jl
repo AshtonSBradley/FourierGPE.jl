@@ -50,7 +50,7 @@ y = abs2.(xspace(sol[end-1],sim)); plot(x,y)
 #make a movie?
 anim = @animate for i=1:Nt
     ψ = xspace(sol[i],sim)
-    y=abs2.(ψ)
+    y = abs2.(ψ)
     plot(x,y,fill=(0,0.3,:blue))
     ylims!(0,120)
 end
