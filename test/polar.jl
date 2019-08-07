@@ -37,7 +37,7 @@ function hermite(x,n)
 end
 hermite(x,n,ω) = hermite(√ω * x,n) * ω ^ ( 1 / 4 )
 
-function (b::Oscillator)(x)
+function (b::Oscillator)(x::Array{Float64,1})
     @unpack ω,n = b
     T = x * ones(1, n) |> zero
     T[:,1] = @. hermite(x,1,ω)
@@ -48,6 +48,7 @@ function (b::Oscillator)(x)
     end
     return T
 end
+(b::Oscillator)(x::Float64,n::Int64) = hermite(x,n,b.ω)
 
 function hermite_polar(x,n,ω)
     T = zeros(size(x)...,n)
@@ -62,7 +63,7 @@ hermite_polar(x,n) = hermite_polar(x,n,1.)
 
 # test that we can create the basis, or any one of oscillator modes
 Nv = 1:30
-@time hermite.(x,Nv')
+@time b1.(x,Nv')
 plot(x,hermite.(x,Nv'),legend=false,grid=false)
 n = 30
 b1 = Oscillator(n)
