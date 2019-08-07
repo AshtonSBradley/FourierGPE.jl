@@ -17,19 +17,7 @@ struct Oscillator <: Basis
     ω::Float64
 end
 
-b1 = Oscillator(10,2.0)
 Oscillator(n::Int64) = Oscillator(n,1.0)
-function (b::Oscillator)(x)
-    @unpack ω,n = b
-    T = x * ones(1, n) |> zero
-    T[:,1] = @. hermite(x,1,ω)
-    n >= 2 && (T[:,2] = @. sqrt(2 * ω) * x * T[:,1])
-    for j ∈ index(b)[3:end]
-        m = qnumbers(b)[j]
-        T[:,j] = @. sqrt(2 / m) * (√ω * x) * T[:,j-1] - sqrt((m-1) / m) * T[:,j-2]
-    end
-    return T
-end
 index(b::Oscillator) = 1:b.n
 spectrum(b::Oscillator) = (0:b.n-1)*b.ω
 qnumbers(b::Oscillator) = 0:b.n-1
@@ -49,7 +37,19 @@ function hermite(x,n)
 end
 hermite(x,n,ω) = hermite(√ω * x,n) * ω ^ ( 1 / 4 )
 
-function hermitebasis(x,n,ω)
+function (b::Oscillator)(x)
+    @unpack ω,n = b
+    T = x * ones(1, n) |> zero
+    T[:,1] = @. hermite(x,1,ω)
+    n >= 2 && (T[:,2] = @. sqrt(2 * ω) * x * T[:,1])
+    for j ∈ index(b)[3:end]
+        m = qnumbers(b)[j]
+        T[:,j] = @. sqrt(2 / m) * (√ω * x) * T[:,j-1] - sqrt((m-1) / m) * T[:,j-2]
+    end
+    return T
+end
+
+function hermite_polar(x,n,ω)
     T = zeros(size(x)...,n)
     T[:,:,1] = @. hermite(x,1,ω)
     n >= 2 && (T[:,:,2] = @. sqrt(2 * ω) * x * T[:,:,1])
@@ -58,7 +58,7 @@ function hermitebasis(x,n,ω)
     end
     return T
 end
-hermitebasis(x,n) = hermitebasis(x,n,1.)
+hermite_polar(x,n) = hermite_polar(x,n,1.)
 
 # test that we can create the basis, or any one of oscillator modes
 Nv = 1:30
@@ -70,7 +70,7 @@ b1 = Oscillator(n)
 plot(x,b1(x),legend=false,grid=false)
 
 # broadcast over any input parameters
-plot(x,hermite.(x,12,[1. .5 .2 .1]),legend=false,grid=false)
+plot(x,hermite.(x,2,[1. .5 .2 .1]),legend=false,grid=false)
 
 # filtering cartesian data
 function filterH(psi,x,N)
@@ -92,7 +92,7 @@ heatmap(x,y,abs2.(psiF),transpose=true)
 xlabel!(L"x");ylabel!(L"y")
 
 # coversion to polar coords
-function polar(psi,x,N)
+function slowpolar(psi,x,N)
     H = Oscillator(N)(x)
     T = inv(H'*H)
     F̂ = T*H'*psi*H*T
@@ -111,14 +111,14 @@ end
 function init_polar(x,N)
     θ = LinRange(0,2*pi,2*Nx)
     r = LinRange(0,last(x),Nx/2 |> Int)'
-    hx = hermitebasis((@. r*cos(θ)),N)
-    hy = hermitebasis((@. r*sin(θ)),N)
+    hx = hermite_polar((@. r*cos(θ)),N)
+    hy = hermite_polar((@. r*sin(θ)),N)
     return hx,hy
 end
 
 @time hx,hy = init_polar(x,n)
 
-function fastpolar(psi,x,hx,hy)
+function polar(psi,x,hx,hy)
     N = size(hx)[3]
     H = Oscillator(N)(x)
     T = inv(H'*H)
@@ -141,8 +141,8 @@ end
 r = LinRange(0,last(x),Nx/2 |> Int)'
 θ = LinRange(0,2*pi,2*Nx)
 
-@time psiP = polar(psi,x,30)
-@time psifp = fastpolar(psi,x,hx,hy)
+@time psiP = slowpolar(psi,x,30)
+@time psifp = polar(psi,x,hx,hy)
 
 # plot in polar coordinates
 heatmap(θ,r',abs2.(psiP),transpose=true)
