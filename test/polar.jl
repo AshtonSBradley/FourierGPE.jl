@@ -48,6 +48,7 @@ function (b::Oscillator)(x::Array{Float64,1})
     end
     return T
 end
+
 (b::Oscillator)(x::Float64,n::Int64) = hermite(x,n,b.ω)
 
 function hermite_polar(x,n,ω)
