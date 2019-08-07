@@ -2,12 +2,12 @@ using Plots, LaTeXStrings, Pkg, Revise, FourierGPE
 gr(colorbar=false,size=(300,300),legend=false,grid=false)
 
 # ==== set simulation parameters
-# an example of saving individual data files for each time
 L = (60.0,60.)
 N = (512,512)
 sim = Sim(L,N)
 @unpack_Sim sim
 
+# an example of saving individual data files for each time
 # nfiles = true
 # filename = "test"
 # savedir = "data"
