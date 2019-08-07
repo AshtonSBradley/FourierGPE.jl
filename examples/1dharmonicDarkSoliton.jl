@@ -1,47 +1,43 @@
 using Plots, LaTeXStrings, Pkg, Revise
 gr(grid=false,legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+c1 =:mediumseagreen
 
 using FourierGPE
 
 # ==== set simulation parameters ====
 L = (40.0,)
 N = (512,)
-μ = 25.0
-
 sim = Sim(L,N)
-@pack! sim = μ
 @unpack_Sim sim
 
-# ===================================
-
-# declare the potential function
+μ = 25.0
+# ==== potential
 import FourierGPE.V
 V(x,t) = 0.5*x^2
 
-# useful TF state
+# ==== TF state
 ψ0(x,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,0.0)/μ,0.0)+im*0.0)
 
-#make initial state
+# ==== initial state
 x = X[1]
 ψi = ψ0.(x,μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-# ====== Evolve in k space ==========
+# ==== imaginary time to find ground state
 sol = runsim(sim)
-# ===================================
 
-# pull out the ground state:
+# ==== pull out and check the ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
-plot(x,g*abs2.(ψg),fill=(0,0.2),size=(600,200))
-plot!(x,one.(x)*μ)
-plot!(x,V.(x,0.0))
+plot(x,one.(x)*μ,ls=:solid,c=:gray,w=1)
+plot!(x,V.(x,0.0),c=:red,w=4,alpha=0.4)
+plot!(x,g*abs2.(ψg),c=c1,w=2,fill=(0,0.4,c1),size=(600,200))
 xlims!(-10,10); ylims!(0,1.3*μ)
 title!(L"\textrm{local}\; \mu(x)")
 xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
 
-# Imprint dark soliton
+# ==== imprint dark soliton
 ψf = xspace(sol[end],sim)
 c = sqrt(μ)
 ξ = 1/c
@@ -53,15 +49,17 @@ f = sqrt(1-(v/c)^2)
 showpsi(x,ψs)
 xlims!(-10,10)
 
-# ==== set simulation parameters ====
+# ==== set simulation parameters
 γ = 0.0
 tf = 8*pi/sqrt(2); t = LinRange(ti,tf,Nt)
+
+# define new simulation using previous parameters
 simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
 ϕi = kspace(ψs,simSoliton)
 @pack! simSoliton = ϕi
 
 #update all variables in current global workspace
-@unpack_Sim simSoliton
+# @unpack_Sim simSoliton
 # ===================================
 
 # ====== Evolve in k space ==========
@@ -75,10 +73,10 @@ showpsi(x,ψf)
 anim = @animate for i in 1:length(t)-3
     ψ = xspace(sols[i],simSoliton)
     y = g*abs2.(ψ)
-    plot(x,y,fill=(0,0.2),size=(600,300),grid=false)
+    plot(x,y,c=c1,w=2,fill=(0,0.4,c1),size=(600,300),grid=false)
     xlims!(-10,10); ylims!(0,1.3*μ)
     title!(L"\textrm{local}\; \mu(x)")
     xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
 end
 
-gif(anim,"./examples/soliton.gif",fps=30)
+gif(anim,"./examples/soliton.gif",fps=25)

@@ -1,18 +1,17 @@
 using Plots, LaTeXStrings, Pkg, Revise, FourierGPE
-gr(colorbar=false,size=(600,150),legend=false,grid=false,xticks=true,yticks=true,axis=true)
+gr(colorbar=false,size=(300,300),legend=false,grid=false)
 
 # ==== set simulation parameters
 # an example of saving individual data files for each time
 L = (60.0,60.)
 N = (512,512)
-nfiles = true
-filename = "test"
-savedir = "data"
-path = joinpath(@__DIR__,savedir)
 sim = Sim(L,N)
-
-sim = Sim(sim,filename=filename,nfiles=nfiles,path=path)
 @unpack_Sim sim
+
+# nfiles = true
+# filename = "test"
+# savedir = "data"
+# path = joinpath(@__DIR__,savedir)
 
 μ = 1.0
 g = 0.01
@@ -22,13 +21,7 @@ Nt = 150
 ti = 0.0
 t = LinRange(ti,tf,Nt)
 
-
-
-# ====== Initialize simulation ======
-
-
-# ===================================
-# Bogoliubov state
+# ==== Bogoliubov state
 x,y = X
 kx,ky = K
 
@@ -45,23 +38,23 @@ kb = kx[20]
 
 # Set time evolution and pack
 # reltol = 1e-7
-alg = Vern7()
+# alg = Vern7()
 
 @pack_Sim! sim
 
 # ==== Evolve in k space
 @time sol = runsim(sim)
-# ===================================
 
 z = abs2.(xspace(sol[end-1],sim)); heatmap(x,y,z)
 
-# ==== 2d movie?
+# ==== movie?
 anim = @animate for i in eachindex(t)
     ψ = xspace(sol[i],sim)
     z = abs2.(ψ)
-    heatmap(x,y,z,aspectratio=1)
+    heatmap(x,y,z,aspectratio=1,transpose=true)
     xlims!(-L[1]/2,L[1]/2)
     ylims!(-L[2]/2,L[2]/2)
+    xlabel!(L"x/\xi"); ylabel!(L"y/\xi")
 end
 
 gif(anim, "./examples/2dBogoliubov.gif", fps = 25)
@@ -82,10 +75,10 @@ gif(anim, "./examples/2dBogoliubovSlice.gif", fps = 25)
 
 function showenergies(ψ)
     et,ei,ec = energydecomp(ψ)
-    p1 = heatmap(x,y,log10.(ei),aspectratio=1)
+    p1 = heatmap(x,y,log10.(ei),aspectratio=1,transpose=true)
     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
     title!("Incompressible")
-    p2 = heatmap(x,y,log10.(ec),aspectratio=1)
+    p2 = heatmap(x,y,log10.(ec),aspectratio=1,transpose=true)
     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
     title!("Compressible")
     p = plot(p1,p2,size=(600,300))
@@ -100,9 +93,9 @@ anim = @animate for i in eachindex(t)
     showenergies(psi)
 end
 
-gif(anim,"./examples/2dbogenergies.gif",fps=30)
+gif(anim,"./examples/2dbogenergies.gif",fps = 25)
 
-# energy totals
+# ==== energy totals
 function xenergy(ϕ,sim,t)
     @unpack g,X = sim; x,y = X
     ψ = xspace(ϕ,sim)
@@ -111,31 +104,51 @@ function xenergy(ϕ,sim,t)
 end
 
 function gpenergy(ϕ,sim,t)
-    @unpack μ,γ,espec = sim
-    chi = xenergy(ϕ,sim,t)
-    H = @. espec*abs2(ϕ) + conj(ϕ)*chi
-    return sum(H)*dx*dy |> real
+    @unpack μ,γ,espec,K = sim; kx,ky = K
+    dkx,dky = kx[2]-kx[1],ky[2]-ky[1]
+    χ = xenergy(ϕ,sim,t)
+    H = @. espec*abs2(ϕ) + conj(ϕ)*χ
+    return sum(H)*dkx*dky |> real
+end
+
+function qpressure(ϕ,sim)
+    @unpack g,X,K,espec = sim; x,y = X; kx,ky = K
+    dkx,dky = kx[2]-kx[1],ky[2]-ky[1]
+    ψ = xspace(ϕ,sim)
+    sqrtn = abs.(ψ)
+    sqrtnk = kspace(sqrtn,sim)
+    Eqp = @. espec*abs2(sqrtnk)
+    return sum(Eqp)*dkx*dky |> real
 end
 
 H = zero(t)
+Ex = zero(t)
 Ei = zero(t)
 Ec = zero(t)
+Eqp = zero(t)
+Et = zero(t)
 Natoms = zero(t)
 dx = diff(x)[1]; dy = diff(y)[1]
-
+dkx = diff(kx)[1]; dky = diff(ky)[1]
 for (i,t) in enumerate(t)
     ϕ = sol[i]
     ψ = xspace(ϕ,sim)
     psi = XField(ψ,X,K,K2)
     et,ei,ec = energydecomp(psi)
+    Ex[i] = sum(conj(ϕ).*xenergy(ϕ,sim,t))*dkx*dky |> real
     Ei[i] = sum(ei)*dx*dy |> real
     Ec[i] = sum(ec)*dx*dy |> real
+    Eqp[i] = qpressure(ϕ,sim)
+    Et[i] = Ei[i] + Ec[i] + Eqp[i] + Ex[i]
     Natoms[i] = sum(abs2.(ψ))*dx*dy
     H[i] = gpenergy(ϕ,sim,t)
 end
 
 # ==== compressible energy conservation
-plot(t,Ei./Natoms,label=L"E_i",legend=:bottomright)
+plot(t,Et./Natoms,label=L"E_t",size=(400,200),legend=true)
+plot!(t,Ei./Natoms,label=L"E_i",legend=:bottomright)
 plot!(t,Ec./Natoms,label=L"E_c")
-# plot!(t,H./Natoms,label=L"H")
-# xlabel!(L"t")
+plot!(t,H./Natoms,label=L"H")
+plot!(t,Eqp./Natoms,label=L"E_{qp}")
+plot!(t,Ex./Natoms,label=L"E_{x}")
+xlabel!(L"t")

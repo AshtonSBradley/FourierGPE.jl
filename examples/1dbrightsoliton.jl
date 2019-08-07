@@ -1,11 +1,17 @@
 using Plots, LaTeXStrings, Pkg, Revise
 gr(colorbar=false,size=(600,150),legend=false,grid=false,xticks=false,yticks=false,axis=false)
+c1 =:mediumseagreen
 
 using FourierGPE
 
-# ==== set simulation parameters ====
+
+# ==== Initialize simulation
 L = (60.0,)
 N = (512,)
+sim = Sim(L,N)
+@unpack_Sim sim
+
+# ==== set simulation parameters
 μ = 25.0
 g = -0.01
 γ = 0.0
@@ -17,19 +23,13 @@ Nt = 150
 ti = 0.0
 t = LinRange(ti,tf,Nt)
 
-# ====== Initialize simulation ======
-sim = Sim(L,N)
-@pack! sim = μ,g,γ,t,tf,Nt
-@unpack_Sim sim
-# ===================================
-
-#soliton wavefunction
+# ==== soliton wavefunction
 x = X[1]
 ψs(x) = sqrt(Ns/2ξs)*sech(x/ξs)*exp(im*us*x)
 ψi = ψs.(x)
 ϕi = kspace(ψi,sim)
 
-# Set all fields
+# ==== Set all fields
 @pack_Sim! sim
 
 # ====== Evolve in k space ==========
@@ -41,8 +41,8 @@ plot(x,y,fill=(0, 0.2))
 
 anim = @animate for i=1:Nt-8
     ψ = xspace(sol[i],sim)
-    y=abs2.(ψ)
-    plot(x,y,fill=(0, 0.2))
+    y = abs2.(ψ)
+    plot(x,y,c=c1,fill=(0, 0.4,c1))
 end
 
 gif(anim, "./examples/brightsoliton.gif", fps = 25)

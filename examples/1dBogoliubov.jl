@@ -1,11 +1,16 @@
 using Plots, LaTeXStrings, Pkg, Revise
-gr(colorbar=false,size=(600,150),legend=false,grid=false,xticks=true,yticks=true,axis=true)
+gr(size=(600,300),colorbar=false,legend=false,grid=false)
+c1 =:mediumseagreen
 
 using FourierGPE
 
-# ==== set simulation parameters ====
+
 L = (60.0,)
 N = (512,)
+sim = Sim(L,N)
+@unpack_Sim sim
+
+# ==== set simulation parameters
 μ = 1.0
 g = 0.01
 γ = 0.0
@@ -14,12 +19,7 @@ Nt = 150
 ti = 0.0
 t = LinRange(ti,tf,Nt)
 
-# ====== Initialize simulation ======
-sim = Sim(L,N)
-@pack! sim = μ,g,γ,t,tf,Nt
-@unpack_Sim sim
-# ===================================
-# Bogoliubov state
+# ==== Bogoliubov state
 x = X[1]
 k = K[1]
 
@@ -31,28 +31,30 @@ lam = 0.01
 bog(x,k) = u(k)*exp(im*k*x) - conj(v(k))*exp(-im*k*x)
 ψb(x,k) = sqrt(μ/g)*(complex(1) + lam*bog(x,k))
 
+# ==== choose an allowed k for periodic system
 kb = k[20]
 ψi = ψb.(x,kb)
 ϕi = kspace(ψi,sim)
 
 # Set time evolution and pack
-reltol = 1e-7
-alg = Vern7()
+# reltol = 1e-7
+# alg = Vern7()
 
 @pack_Sim! sim
 
-# ====== Evolve in k space ==========
+# ==== Evolve in k space
 @time sol = runsim(sim)
-# ===================================
-
 y = abs2.(xspace(sol[end-1],sim)); plot(x,y)
 
-#make a movie?
+# ==== density movie
 anim = @animate for i=1:Nt
     ψ = xspace(sol[i],sim)
-    y = abs2.(ψ)
-    plot(x,y,fill=(0,0.3,:blue))
-    ylims!(0,120)
+    y = g*abs2.(ψ)
+    plot(x,y,c=c1,fill=(0,0.3,c1))
+    plot!(x,one.(x)*μ,c=:black,alpha=0.3)
+    ylims!(0,1.1)
+    xlims!(first(x),last(x))
+    xlabel!(L"x/\xi"); ylabel!(L"gn(x)/\mu")
 end
 
-gif(anim, "./examples/bogoliubov.gif", fps = 25)
+gif(anim, "./examples/bogoliubov_density.gif", fps = 20)
