@@ -16,6 +16,8 @@ struct Oscillator <: Basis
     n::Int64
     ω::Float64
 end
+
+b1 = Oscillator(10,2.0)
 Oscillator(n::Int64) = Oscillator(n,1.0)
 function (b::Oscillator)(x)
     @unpack ω,n = b
@@ -68,7 +70,7 @@ b1 = Oscillator(n)
 plot(x,b1(x),legend=false,grid=false)
 
 # broadcast over any input parameters
-plot(x,hermite.(x,3,[1. .5 .2 .1]),legend=false,grid=false)
+plot(x,hermite.(x,12,[1. .5 .2 .1]),legend=false,grid=false)
 
 # filtering cartesian data
 function filterH(psi,x,N)
