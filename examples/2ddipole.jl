@@ -1,27 +1,37 @@
 using Test, Plots, LaTeXStrings, Revise, FourierGPE
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
-# ==== Units: ========================
+function psimovie(sol,sim)
+    @unpack X,t = sim; x,y = X
+    anim = @animate for i in eachindex(t)
+        ψ = xspace(sol[i],sim)
+        showpsi(x,y,ψ)
+    end
+    return anim
+end
+
+# ==== Units
 # Units of ξ for length, 1/μ for time
 # related by μ ≡ ħ²/mξ² = mc^2 where
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-# ==== set simulation parameters
+
+
+# ==== Initialize simulation
 L = (400.,400.)
-N = (512,512)
+N = (256,256)
+sim = Sim(L,N)
+@unpack_Sim sim
+
+# ==== set simulation parameters
 μ = 1.0
 g = 0.01
-γ = 0.0
+γ = 0.5
 ti = 0.0
 tf = .3pi
 Nt = 150
 t = LinRange(ti,tf,Nt)
-
-# ==== Initialize simulation
-sim = Sim(L,N)
-@pack! sim = μ,g,γ,t,tf,Nt
-@unpack_Sim sim
 
 # ==== useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
@@ -33,56 +43,67 @@ x,y = X
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi,μ
 
-# # ====== Evolve in k space ==========
-# sol = runsim(sim)
-#
-# # ==== pull out the ground state
-# ϕg = sol[end]
-# ψg = xspace(ϕg,sim)
-# showpsi(x,y,ψg)
+# ====== evolve
+sol = runsim(sim)
 
-# make an initial dipole
+# ==== pull out the ground state
+ϕg = sol[end]
+ψg = xspace(ϕg,sim)
+showpsi(x,y,ψg)
+
+# ==== initial dipole
 using VortexDistributions
 
-ψv = copy(ψi)
-d = 10
+ψv = copy(ψg)
+d = 30
 ξv = healinglength(0.,0.,μ,g)
-@test ξv == 1.0
-dipole = [0.0 d/2 1; 0.0 -d/2 -1]
-makeallvortices!(ψv,dipole,x,y,ξv)
+# can use default healing length = 1
+pv = PointVortex(0.,d/2,1)
+nv = PointVortex(0,-d/2,-1)
 
-# ==== set simulation parameters ====
+dipole = [nv;pv]
+psi = Torus(ψv,x,y)
+vortex!(psi,dipole)
+ψv = psi.ψ
+
+# ==== set simulation parameters
 c = sqrt(μ)
-# γ = 0.01
 tf = L[1]/c/2
+γ = 0.1
 
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)
-# reltol = 1e-7 #uniform requires slightly smaller tolerance
-# alg = Vern7()
+reltol = 1e-7 #uniform requires slightly smaller tolerance
+alg = Vern7()
 
-@pack! sim = tf,t,γ,ϕi #,reltol,alg
+@pack_Sim! sim
 
-# ==== Evolve in k space
+# ==== evolve
 solv = runsim(sim)
 
 # ==== plot
-@unpack_Sim sim
-
 ψd = xspace(solv[end],sim)
 showpsi(x,y,ψd)
 
-function psimovie(sol,sim)
-    @unpack X,t = sim; x,y = X
-    anim = @animate for i in eachindex(t)
-        ψ = xspace(sol[i],sim)
-        showpsi(x,y,ψ)
-    end
-    return anim
-end
-
 anim = psimovie(solv,sim)
-gif(anim,"./examples/dipole.gif",fps=25)
+gif(anim,"./examples/dipole_damping.gif",fps=25)
+
+# ==== Hamiltonian evolution
+γ = 0.0
+tf = L[1]/c
+t = LinRange(ti,tf,Nt)
+ϕi = kspace(ψd,sim)
+@pack_Sim! sim
+
+# ==== evolve
+solh = runsim(sim)
+
+# ==== plot
+ψdh = xspace(solh[end],sim)
+showpsi(x,y,ψdh)
+
+anim = psimovie(solh,sim)
+gif(anim,"./examples/dipole_hamiltonian.gif",fps=25)
 
 # energy densities
 function showenergies(ψ)
@@ -118,10 +139,11 @@ function xenergy(ϕ,sim,t)
 end
 
 function gpenergy(ϕ,sim,t)
-    @unpack μ,γ,espec = sim
+    @unpack μ,γ,K,espec = sim; kx,ky=K
+    dkx,dky = kx[2]-kx[1],ky[2]-ky[1]
     chi = xenergy(ϕ,sim,t)
     H = @. espec*abs2(ϕ) + conj(ϕ)*chi
-    return sum(H)*dx*dy |> real
+    return sum(H)*dkx*dky |> real
 end
 
 H = zero(t)
@@ -144,7 +166,7 @@ end
 plot(t,Ei./Natoms,label=L"E_i",legend=:bottomright)
 plot!(t,Ec./Natoms,label=L"E_c")
 xlabel!(L"t")
-# plot!(t,H./Natoms,label=L"H")
+plot!(t,H./Natoms,label=L"H")
 
 
 relerror(x,x0) = (x - x0)/x0 |> abs
