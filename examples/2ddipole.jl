@@ -16,8 +16,6 @@ end
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-
-
 # ==== Initialize simulation
 L = (400.,400.)
 N = (256,256)

@@ -1,8 +1,6 @@
-using Pkg, Revise
-
 using FourierGPE
 
-# ==== Units: ========================
+# ==== Units 
 # oscillator
 
 import FourierGPE.V
