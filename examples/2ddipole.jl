@@ -182,7 +182,7 @@ function energies(sol)
     Et[i] = Ekall[i] + Ev[i] + Eint[i]
     Natoms[i] = sum(abs2.(ψ))*dx*dy
     end
-    return Ei,Ec,Ek,Eqp,Ev,Eint,Et,Ekall,Natoms
+    return Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms
 end
 
 @time Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms = energies(solh)
@@ -192,6 +192,7 @@ end
 plot(t,Et./Natoms,label=L"E_t",legend=:left)
 plot!(t,Eint./Natoms,label=L"E_{int}")
 plot!(t,Ekall./Natoms,label=L"E_{kall}")
+ylims!(0,1.1*Et[1]./Natoms[1])
 xlabel!(L"t")
 
 # ==== decomposition
