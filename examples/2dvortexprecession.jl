@@ -36,7 +36,7 @@ x,y = X
 showpsi(x,y,ψg)
 
 # ==== set simulation parameters
-γ = 0.3
+γ = 0.0
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψg,sim)
 # reltol = 1e-7
@@ -54,12 +54,24 @@ healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 vcore = Exact(ξ)
 pv = PointVortex(rv,0.,1)
 vi = ScalarVortex(vcore,pv)
-psi = Torus(ψg,x,y)
+psi = Torus(copy(ψg),x,y)
 vortex!(psi,vi)
-ψg = psi.ψ
-ϕi = kspace(ψg,sim)
+showpsi(x,y,psi.ψ)
+ψi .= psi.ψ
+ϕi = kspace(ψi,sim)
 
-ti = 0.; tf = 5.
+
+
+# ===== compare with Fetter JLTP 2010
+ξ = 1/sqrt(μ)
+Rtf = R(1)
+Ωm = 3*log(Rtf/ξ/sqrt(2))/2/Rtf^2
+Ωv = Ωm/(1-rv^2/Rtf^2)
+
+# or a precession period
+Tv = 2*pi/Ωv
+
+ti = 0.; tf = Tv
 t = LinRange(ti,tf,Nt)
 
 @pack_Sim! sim
