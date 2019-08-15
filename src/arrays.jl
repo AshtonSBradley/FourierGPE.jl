@@ -1,8 +1,18 @@
 # array methods
 linspace(a,b,n) = LinRange(a,b,n) |> collect
 
+"""
+    x = xvec(λ,N)
+
+Creates `x` values with correct periodicity for box specified by length `λ` for number of points `N`.
+"""
 xvec(L,N) = LinRange(-L/2,L/2,N+1)[2:end] |> collect
 
+"""
+    k = kvec(λ,N)
+
+Creates `k` values with correct periodicity for box specified by length `λ` for number of points `N`.
+"""
 function kvec(λ,N)
     @assert iseven(N)
     nk = 0:Int(N/2)
@@ -10,6 +20,11 @@ function kvec(λ,N)
 return k
 end
 
+"""
+    X = xvecs(L,N)
+
+Creates a tuple containing the spatial coordinate array for each spatial dimension.
+"""
 function xvecs(L,N)
     X = []
     for (λ,ν) in zip(L,N)
@@ -19,6 +34,11 @@ function xvecs(L,N)
     return X |> Tuple
 end
 
+"""
+    K = kvecs(L,N)
+
+Creates a tuple containing the spatial coordinate array for each spatial dimension.
+"""
 function kvecs(L,N)
     K = []
     for (λ,ν) in zip(L,N)
@@ -28,12 +48,24 @@ function kvecs(L,N)
     return K |> Tuple
 end
 
+"""
+    ksquared = k2(K)
+
+Creates the kinetic array `k²` on the array defined by tuple `K`.
+"""
 function k2(K)
     kind = Iterators.product(K...)
     return map(x-> sum(abs2.(x)),kind)
 end
 
+"""
+    X,K,dX,dK = makearrays(L,N)
+
+Creates all `x` and `k` arrays for box specified by tuples `L=(Lx,...)` and `N=(Nx,...)`.
+Differenetials `dX`, `dK` are also reaturned. `L` and `N` must be of equal length.
+"""
 function makearrays(L,N)
+    @assert length(L) == length(N)
     X = xvecs(L,N)
     K = kvecs(L,N)
     dX = Float64[]; dK = Float64[]
