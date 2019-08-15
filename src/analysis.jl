@@ -1,3 +1,8 @@
+"""
+	vx,... = velocity(psi::XField{D})
+
+Retruns the `D` velocity components of an `XField` of spatial dimension `D`. Velocities are `D`-dimensional arrays.
+"""
 function velocity(psi::XField{1})
 	@unpack psiX,K = psi; kx = K[1]; ψ = psiX
 	rho = abs2.(ψ)
@@ -31,6 +36,12 @@ function velocity(psi::XField{3})
 	return vx,vy,vz
 end
 
+"""
+	Wi,Wc = helmholtz(wx,wy,...,psi::XField{D})
+
+Computes a 2 or 3 dimensional Helmholtz decomposition of the vector field with components
+`wx`, `wy`, or `wx`, `wy`, `wz`. `psi` is passed to provide requisite arraysin `k` space.
+"""
 function helmholtz(wx, wy, psi::XField{2})
     @unpack K, K2 = psi; kx, ky = K
     wxk = fft(wx); wyk = fft(wy)
@@ -66,6 +77,12 @@ function helmholtz(W::NTuple{N,Array{Float64,N}}, psi::XField{N}) where N
     return helmholtz(W..., psi)
 end
 
+"""
+	et,ei,ec = energydecomp(psi::Xfield{D})
+
+Decomposes the kinetic energy of `psi`, returning the total `et`, incompressible `ei`,
+and compressible `ec` energy densities in position space. `D` can be 2 or 3 dimensions.
+"""
 function energydecomp(psi::XField{2})
     @unpack psiX = psi
     rho = abs2.(psiX)
