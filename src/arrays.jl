@@ -49,7 +49,7 @@ function kvecs(L,N)
 end
 
 """
-    ksquared = k2(K)
+    k² = k2(K)
 
 Creates the kinetic array `k²` on the array defined by tuple `K`.
 """

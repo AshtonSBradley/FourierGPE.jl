@@ -1,6 +1,9 @@
-# transform methods
+"""
+    Dx,Dk = dfft(x,k)
 
-"""Measures that make fft, ifft 2-norm preserving."""
+Measures that make fft, ifft 2-norm preserving.
+Correct measures for mapping between `x` and `k` space.
+"""
 function dfft(x,k)
     dx = diff(x)[1]; dk = diff(k)[1]
     Dx = dx/sqrt(2*pi)
@@ -8,6 +11,12 @@ function dfft(x,k)
     return Dx, Dk
 end
 
+"""
+    DX,DK = dfftall(X,K)
+
+Evalutes tuple of measures that preserve 2-norm for each
+`x` or `k` dimension.
+"""
 function dfftall(X,K)
     M = length(X)
     DX = zeros(M); DK = zeros(M)
@@ -17,28 +26,53 @@ function dfftall(X,K)
     return DX,DK
 end
 
-    function xspace(ψ,sim)
-        @unpack T = sim
-        return T.Tkx*ψ
-    end
+"""
+    ψ = xspace(ϕ,sim)
 
-    function xspace!(ψ,sim)
-        @unpack T = sim
-        T.Tkx!*ψ
-        return nothing
-    end
+Transform from `k` to `x` space using transforms packed into `sim`.
+"""
+function xspace(ϕ,sim)
+    @unpack T = sim
+    return T.Tkx*ϕ
+end
 
-    function kspace(ψ,sim)
-        @unpack T = sim
-        return T.Txk*ψ
-    end
+"""
+    xspace!(ϕ,sim)
 
-    function kspace!(ψ,sim)
-        @unpack T = sim
-        T.Txk!*ψ
-        return nothing
-    end
+Mutating transform from `k` to `x` space using transforms packed into `sim`.
+"""
+function xspace!(ψ,sim)
+    @unpack T = sim
+    T.Tkx!*ψ
+    return nothing
+end
 
+"""
+    kspace(ψ,sim)
+
+Transform from `x` to `k` space using transforms packed into `sim`.
+"""
+function kspace(ψ,sim)
+    @unpack T = sim
+    return T.Txk*ψ
+end
+
+"""
+    kspace!(ψ,sim)
+
+Mutating transform from `x` to `k` space using transforms packed into `sim`.
+"""
+function kspace!(ψ,sim)
+    @unpack T = sim
+    T.Txk!*ψ
+    return nothing
+end
+
+"""
+    definetransforms(funcs,args,meas,kwargs)
+
+Build all transforms for simulation.
+"""
 function definetransforms(funcs,args,meas,kwargs)
     trans = []
     for (i,fun) ∈ enumerate(funcs)
@@ -74,6 +108,11 @@ function makeT(X,K,j=1;flags=FFTW.MEASURE)
     return Transforms{dim,j}(Txk,Txk!,Tkx,Tkx!,Mxk,Mxk!,Mkx,Mkx!,crandnpartition(dim,j))
 end
 
+"""
+    T = makeTMixed(X,K,j)
+
+Build mixed transform library for the array tuples `X`, `K`. Defaults to a measure plan.
+"""
 function makeTMixed(X,K;flags=FFTW.MEASURE)
     FFTW.set_num_threads(Sys.CPU_THREADS)
     N = length.(X)
@@ -107,10 +146,13 @@ Mkx! = definetransforms(transkx!,args,measkx,flags)
 return Mxk,Mxk!,Mkx,Mkx!
 end
 
-function maketransarrays(L,N,j=1;flags=FFTW.MEASURE)
+"""
+    maketransarrays(L,N,j=1;flags=FFTW.MEASURE)
 
+Make all transforms and arrays in one call.
+"""
+function maketransarrays(L,N,j=1;flags=FFTW.MEASURE)
     X,K,dX,dK = makearrays(L,N)
     T = makeT(X,K,j,flags=flags)
-
-return X,K,dX,dK,DX,DK,T
+    return X,K,dX,dK,DX,DK,T
 end

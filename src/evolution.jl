@@ -1,4 +1,9 @@
-# initialize transforms and fields
+"""
+    initsim!(sim;flags=FFTW.MEASURE)
+
+Initialize all arrays, measures and transform libraries for a
+particular simulation.
+"""
 function initsim!(sim;flags=FFTW.MEASURE)
     @unpack L,N = sim
     X,K,dX,dK,DX,DK,T = makearraystransforms(L,N)
@@ -7,12 +12,20 @@ function initsim!(sim;flags=FFTW.MEASURE)
     return nothing
 end
 
-# default potential
+"""
+    V(x,t) = ...
+
+Define the system potential. Default is zero.
+"""
 V(x,t) = 0.0
 V(x,y,t) = 0.0
 V(x,y,z,t) = 0.0
 
-# nonlinearity
+"""
+    χ = nlin(ϕ,sim,t)
+
+Evalutes nonlinear terms in position space, returning to `k` spaces.
+"""
 function nlin(ϕ,sim,t)
     @unpack g,x,y = sim
     ψ = xspace(ϕ,sim)
@@ -20,6 +33,12 @@ function nlin(ϕ,sim,t)
     return kspace(ψ,sim)
 end
 
+"""
+    nlin!(ϕ,sim::Sim{D},t)
+
+Mutating evaluation of position space nonlinear terms.
+Dispatches on dimension `D`, using potential `V(x...,t)`.
+"""
 function nlin!(dϕ,ϕ,sim::Sim{1},t)
     @unpack g,X,V0 = sim; x = X[1]
     dϕ .= ϕ
@@ -56,6 +75,12 @@ function Lgp!(dϕ,ϕ,sim,t)
     return nothing
 end
 
+"""
+    χ = Lgp(ϕ,sim,t)
+
+Evaluate Gross-Pitaevskii equation defined by `nlin` and parameters in `sim`.
+Allows imaginary time `γ`, and evolves in rotating frame defined by chemical potential `μ`.
+"""
 function Lgp(ϕ,sim,t)
     @unpack μ,γ,espec = sim
     chi = nlin(ϕ,sim,t)
@@ -66,6 +91,11 @@ function internalnorm(u,t)
     return sum((abs2.(u) .> 1e-6*maximum(abs2.(u))).*abs2.(u))
 end
 
+"""
+    showpsi(x...,ψ)
+
+Simple plotting of wavefunction density and phase.
+"""
 function showpsi(x,ψ)
     p1 = plot(x,abs2.(ψ))
     xlabel!(L"x");ylabel!(L"|\psi|^2")
@@ -92,6 +122,11 @@ end
 showpsi(x,y,z,ψ) = showpsi(x,y,ψ[:,:,size(ψ)[end]/2 |> Int])
 #TODO: implement time plotting. Callback?
 
+"""
+    runsim(sim,ϕ;info,tplot,nfiles)
+
+Call DifferentialEquations to solve Gross-Pitaevskii equation.
+"""
 function runsim(sim,ϕ=sim.ϕi;info=true,tplot=false,nfiles=false)
     @unpack nfiles,path,filename = sim
 
