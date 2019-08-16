@@ -1,24 +1,21 @@
 using FourierGPE
 
-# ==== Units 
+# ==== Units
 # oscillator
+L = (15.,15.,15.)
+N = (64,64,64)
+sim = Sim(L,N)
+@unpack_Sim sim
 
+# ==== set simulation parameters ====
 import FourierGPE.V
 V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2)
 
-# ==== set simulation parameters ====
-L = (15.,15.,15.)
-N = (64,64,64)
 γ = 0.5
 μ = 25.0
 tf = 0.3 # 1.5/γ
 Nt = 200
 t = LinRange(0.,tf,Nt)
-
-# ==== Initialize simulation
-sim = Sim(L,N)
-@pack! sim = γ,tf,Nt,μ,t
-@unpack_Sim sim
 
 # ==== state functions
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
@@ -29,9 +26,8 @@ x,y,z = X
 ψi = ψ0.(x,y',reshape(z,1,1,length(z)),μ,g)
 # ψi = randn(N)+im*randn(N)
 ϕi = kspace(ψi,sim)
-@pack! sim = ϕi,γ,tf,t
 
-sim
+@pack_Sim! sim
 
 # ==== evolve in k space
 sol = runsim(sim)

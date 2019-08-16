@@ -1,46 +1,37 @@
-using Pkg, Revise
-
-using FourierGPE
+using Pkg, Revise, FourierGPE
+gr(titlefontsize=12,size=(500,300),colorbar=false)
 
 # ==== Units: ========================
 # Oscillator
+L = (15.,15.,15.)
+N = (64,64,64)
+sim = Sim(L,N)
+@unpack_Sim sim
 
 import FourierGPE.V
 V(x,y,z,t) = 0.5*(x^2 + y^2 + z^2)
 
 # ==== set simulation parameters ====
-L = (15.,15.,15.)
-N = (64,64,64)
 γ = 0.5
 tf = 2/γ
 Nt = 200
 t = LinRange(0.,tf,Nt)
 
-# ========= Initialize simulation ======
-# flags = FFTW.PATIENT
-sim = Sim(L,N)
-@pack! sim = γ,tf,Nt,t
-@unpack_Sim sim
-sim
-
 # ========= useful state functions ========
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
 healing(x,y,z,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,z,μ,g)))
 
-#make initial state
+# ==== make initial state
 x,y,z = X
 ψi = ψ0.(x,y',reshape(z,1,1,length(z)),μ,g)
 ψi = randn(N)+im*randn(N)
 ϕi = kspace(ψi,sim)
-@pack! sim = ϕi,γ,tf,t
+
+@pack_Sim! sim
 
 # ====== Evolve in k space ==========
 sol = runsim(sim)
 # ===================================
-
-
-# ====== show slice using Plots ===
-gr(titlefontsize=12,size=(500,300),colorbar=false)
 
 # pull out the ground state
 ϕg = sol[end]
@@ -52,6 +43,7 @@ plot(x,y,abs2.(ψg[:,:,zmid]),linetype=:surface)
 
 # === Dynamics of Kohn mode =======================
 # kick it
+simk = Sim(L,N)
 
 ki = .7
 ϕk = copy(ϕg)
@@ -63,9 +55,7 @@ ki = .7
 tf = 2*pi
 t = LinRange(0.,tf,Nt)
 
-simk = Sim(L,N)
-@pack! simk = ϕi,γ,tf,Nt,t
-@unpack_Sim simk
+@pack_Sim! simk
 
 @time solk = runsim(simk)
 

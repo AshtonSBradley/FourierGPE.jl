@@ -1,26 +1,24 @@
 using Pkg, Revise
+gr(titlefontsize=12,size=(500,300),colorbar=false)
 
 using FourierGPE
 
 # ==== Units: ========================
 # oscillator
+L = (20.,20.,20.)
+N = (64,64,64)
+sim = Sim(L,N)
+@unpack_Sim sim
 
 import FourierGPE.V
 V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2)
 
 # ==== set simulation parameters ====
-L = (20.,20.,20.)
-N = (64,64,64)
 γ = 0.5
 μ = 15.0
 tf = 0.3 # 1.5/γ
 Nt = 150
 t = LinRange(0.,tf,Nt)
-
-# ==== Initialize simulation
-sim = Sim(L,N)
-@pack! sim = γ,tf,Nt,μ,t
-@unpack_Sim sim
 
 # ==== state functions
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
@@ -31,18 +29,15 @@ x,y,z = X
 y = y'; z = reshape(z,1,1,length(z))
 ψi = ψ0.(x,y,z,μ,g)
 ϕi = kspace(ψi,sim)
-@pack! sim = ϕi,γ,tf,t
+
+@pack_Sim! sim
 
 plot(x,abs2.(ψ0.(x,0.,0.,μ,g)))
 plot!(x,abs2.(ψi[:,32,32]))
 
-sim
-
 # ==== evolve in k space
 sol = runsim(sim)
 
-# ==== show slice using Plots
-gr(titlefontsize=12,size=(500,300),colorbar=false)
 
 # ==== ground state
 ϕg = sol[end]
