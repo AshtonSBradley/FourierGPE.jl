@@ -170,7 +170,6 @@ sum(psiF)*dx^2
 # ===================================
 # ==== Now a more realistic example for trapped BEC
 using FourierGPE, VortexDistributions
-
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 # ==== Initialize simulation
@@ -196,6 +195,7 @@ x,y = X
 # ==== evolve
 @time sol = runsim(sim)
 
+# speed regression after here?
 # ==== ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
