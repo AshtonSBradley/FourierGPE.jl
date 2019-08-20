@@ -51,7 +51,6 @@ end
 
 (b::Oscillator)(x::LinRange{Float64}) = b(x |> collect)
 (b::Oscillator)(x::Float64,n::Int64) = hermite(x,n,b.ω)
-(b::Oscillator)(x::Float64) = b(x,b.n)
 
 function hermite_polar(x,n,ω)
     T = zeros(size(x)...,n)
@@ -67,7 +66,7 @@ hermite_polar(x,n) = hermite_polar(x,n,1.)
 # test that we can create the basis, or any one of oscillator modes
 N = 30
 Nv = 1:N
-b1 = Oscillator(N)
+b1 = Oscillator(N,2.)
 @time b1.(x,Nv')
 plot(x,hermite.(x,Nv'),legend=false,grid=false)
 n = 30
