@@ -1,5 +1,20 @@
-using Revise, FourierGPE
+using Revise, FourierGPE, ColorSchemes
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+turbo = cgrad(ColorSchemes.turbo.colors)
+import FourierGPE.showpsi
+
+function showpsi(x,y,ψ)
+    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1,c=turbo)
+    xlims!(x[1],x[end]);ylims!(y[1],y[end])
+    xlabel!(L"x");ylabel!(L"y")
+    title!(L"|\psi|^2")
+    p2 = heatmap(x,y,angle.(ψ),aspectratio=1,c=turbo)
+    xlims!(x[1],x[end]);ylims!(y[1],y[end])
+    xlabel!(L"x");ylabel!(L"y")
+    title!(L"\textrm{phase} (\psi)")
+    p = plot(p1,p2,size=(600,300))
+    return p
+end
 
 # ==== Initialize simulation
 L = (25.0,25.0)
@@ -60,8 +75,6 @@ showpsi(x,y,psi.ψ)
 ψi .= psi.ψ
 ϕi = kspace(ψi,sim)
 
-
-
 # ===== compare with Fetter JLTP 2010
 ξ = 1/sqrt(μ)
 Rtf = R(1)
@@ -79,15 +92,15 @@ t = LinRange(ti,tf,Nt)
 # ==== evolve
 solv = runsim(sim)
 
-# ===================================
+# ==== analyse
 ϕf = solv[end]
 ψf = xspace(ϕf,sim)
 showpsi(x,y,ψf)
-
 
 anim = @animate for i in eachindex(t)
     ψ = xspace(solv[i],sim)
     showpsi(x,y,ψ)
 end
 
-gif(anim,"./examples/vortexprecession.gif",fps=25)
+saveto = joinpath(@__DIR__,"vortexprecession.gif")
+gif(anim,saveto,fps=25)
