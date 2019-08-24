@@ -23,7 +23,7 @@ sim = Sim(L,N)
 @unpack_Sim sim
 
 # ==== set simulation parameters
-μ = 25.0
+μ = 12.0
 
 # Time dependent potential function (here trivial t dep)
 import FourierGPE.V
