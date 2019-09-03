@@ -2,6 +2,7 @@
 tf = 10.0
 t = LinRange(0.,tf,Nt)
 sim2 = Sim(sim;γ = 0.0,tf=tf,t=t)
+
 #make initial state
 ϕi = sol[end]
 @pack! sim2 = ϕi

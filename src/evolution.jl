@@ -68,6 +68,12 @@ function nlin!(dϕ,ϕ,sim::Sim{3},t)
     return nothing
 end
 
+"""
+    χ = Lgp!(dϕ,ϕ,sim,t)
+
+In-place evaluation of Gross-Pitaevskii equation defined by `nlin!` and parameters in `sim`.
+Allows imaginary time `γ`, and evolves in rotating frame defined by chemical potential `μ`.
+"""
 function Lgp!(dϕ,ϕ,sim,t)
     @unpack γ,μ,espec = sim
     nlin!(dϕ,ϕ,sim,t)
