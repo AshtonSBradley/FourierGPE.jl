@@ -57,6 +57,7 @@ t = LinRange(ti,tf,Nt)
 # reltol = 1e-7
 # alg = DP5()
 
+#---
 using VortexDistributions
 R(w) = sqrt(2*μ/w^2)
 R(1)
@@ -64,8 +65,8 @@ rv = 3.
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ0 = healinglength.(0.,0.,μ,g)
 ξ = healinglength(rv,0.,μ,g)
+#---
 
-# vcore = Exact(VortexDistributions.ψi,ξ)
 vcore = Exact(ξ)
 pv = PointVortex(rv,0.,1)
 vi = ScalarVortex(vcore,pv)
@@ -74,7 +75,17 @@ vortex!(psi,vi)
 showpsi(x,y,psi.ψ)
 ψi .= psi.ψ
 ϕi = kspace(ψi,sim)
+showpsi(x,y,psi.ψ)
 
+# diploe
+# pv = PointVortex(rv,0.,1)
+# nv = PointVortex(-rv,0.,-1)
+# dipole = [pv;nv]
+# di = ScalarVortex.([vcore],dipole) #TODO missing method!
+# psi = Torus(copy(ψg),x,y)
+# vortex!(psi,di)
+
+#---
 # ===== compare with Fetter JLTP 2010
 ξ = 1/sqrt(μ)
 Rtf = R(1)
@@ -88,7 +99,7 @@ ti = 0.; tf = Tv
 t = LinRange(ti,tf,Nt)
 
 @pack_Sim! sim
-
+#---
 # ==== evolve
 solv = runsim(sim)
 
