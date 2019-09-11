@@ -9,6 +9,10 @@ using Reexport
 @reexport using FileIO
 @reexport using Plots
 @reexport using LaTeXStrings
+@reexport using ColorSchemes
+
+const turbo = cgrad(ColorSchemes.turbo.colors)
+const bone = cgrad(ColorSchemes.bone.colors)
 
 include("types.jl")
 include("arrays.jl")

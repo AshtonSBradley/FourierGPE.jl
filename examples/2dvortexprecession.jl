@@ -1,20 +1,4 @@
-using Revise, FourierGPE, ColorSchemes
-gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
-turbo = cgrad(ColorSchemes.turbo.colors)
-import FourierGPE.showpsi
-
-function showpsi(x,y,ψ)
-    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1,c=turbo)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψ),aspectratio=1,c=turbo)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"\textrm{phase} (\psi)")
-    p = plot(p1,p2,size=(600,300))
-    return p
-end
+using Revise, FourierGPE
 
 # ==== Initialize simulation
 L = (25.0,25.0)
@@ -67,9 +51,8 @@ healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ = healinglength(rv,0.,μ,g)
 #---
 
-vcore = Exact(ξ)
 pv = PointVortex(rv,0.,1)
-vi = ScalarVortex(vcore,pv)
+vi = ScalarVortex(ξ,pv)
 psi = Torus(copy(ψg),x,y)
 vortex!(psi,vi)
 showpsi(x,y,psi.ψ)
@@ -77,14 +60,32 @@ showpsi(x,y,psi.ψ)
 ϕi = kspace(ψi,sim)
 showpsi(x,y,psi.ψ)
 
-# diploe
+# import VortexDistributions:ScalarVortex,vortex!
+#
+# ScalarVortex(ξ::Float64,pv) = ScalarVortex.([Exact(ξ)],pv)
+# ScalarVortex(ξ::Array{Float64,1},pv) = @. ScalarVortex(Exact(ξ),pv)
+#
+# ξa = [ξ;2*ξ]
+#
+# Exact.(ξa)
+# # dipole test
 # pv = PointVortex(rv,0.,1)
 # nv = PointVortex(-rv,0.,-1)
 # dipole = [pv;nv]
-# di = ScalarVortex.([vcore],dipole) #TODO missing method!
+#
+# ScalarVortex(ξ,dipole)
+# ScalarVortex(ξa,dipole)
+
+# di = ScalarVortex(ξ,dipole) #TODO missing method!
+# di = ScalarVortex([ξ1;ξ2],dipole)
+# vortex!(psi <: Array{Complex{Float64},2},nx3 array of coordinates) return an array
+
+# di = ScalarVortex.([vcore(ξ)],dipole) #TODO missing method!
+# di = ScalarVortex.([vcore(ξ1);vcore(ξ2)],dipole)
+
 # psi = Torus(copy(ψg),x,y)
 # vortex!(psi,di)
-
+showpsi(x,y,psi.ψ)
 #---
 # ===== compare with Fetter JLTP 2010
 ξ = 1/sqrt(μ)
@@ -101,7 +102,7 @@ t = LinRange(ti,tf,Nt)
 @pack_Sim! sim
 #---
 # ==== evolve
-solv = runsim(sim)
+@time solv = runsim(sim)
 
 # ==== analyse
 ϕf = solv[end]
