@@ -52,35 +52,7 @@ vortex!(psi,vi)
 showpsi(x,y,psi.ψ)
 ψi .= psi.ψ
 ϕi = kspace(ψi,sim)
-showpsi(x,y,psi.ψ)
 
-# import VortexDistributions:ScalarVortex,vortex!
-#
-# ScalarVortex(ξ::Float64,pv) = ScalarVortex.([Exact(ξ)],pv)
-# ScalarVortex(ξ::Array{Float64,1},pv) = @. ScalarVortex(Exact(ξ),pv)
-#
-# ξa = [ξ;2*ξ]
-#
-# Exact.(ξa)
-# # dipole test
-# pv = PointVortex(rv,0.,1)
-# nv = PointVortex(-rv,0.,-1)
-# dipole = [pv;nv]
-#
-# ScalarVortex(ξ,dipole)
-# ScalarVortex(ξa,dipole)
-
-# di = ScalarVortex(ξ,dipole) #TODO missing method!
-# di = ScalarVortex([ξ1;ξ2],dipole)
-# vortex!(psi <: Array{Complex{Float64},2},nx3 array of coordinates) return an array
-
-# di = ScalarVortex.([vcore(ξ)],dipole) #TODO missing method!
-# di = ScalarVortex.([vcore(ξ1);vcore(ξ2)],dipole)
-
-# psi = Torus(copy(ψg),x,y)
-# vortex!(psi,di)
-showpsi(x,y,psi.ψ)
-#---
 # ===== compare with Fetter JLTP 2010
 ξ = 1/sqrt(μ)
 Rtf = R(1)
