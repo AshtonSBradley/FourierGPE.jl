@@ -14,12 +14,6 @@ import FourierGPE.V
 V(x,y,t) = 0.5*(x^2 + y^2)
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 
-# Or, as a static Potential
-# x,y = X
-# Vs(x,y) = 0.5*(x^2 + y^2)
-# ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-Vs(x,y)/μ,0.0)+im*0.0)
-# sim = Sim(sim,V0=Vs.(x,y'))
-
 # ==== make initial state
 x,y = X
 ψi = ψ0.(x,y',μ,g)
