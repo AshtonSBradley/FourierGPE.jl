@@ -1,8 +1,8 @@
 using Revise, FourierGPE
 
 # ==== Initialize simulation
-L = (25.0,25.0)
-N = (256,256)
+L = (18.0,18.0)
+N = (128,128)
 sim = Sim(L,N)
 @unpack_Sim sim
 
