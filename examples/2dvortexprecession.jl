@@ -47,9 +47,12 @@ healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
 pv = PointVortex(rv,0.,1)
 vi = ScalarVortex(ξ,pv)
+
+
 psi = Torus(copy(ψg),x,y)
 vortex!(psi,vi)
 showpsi(x,y,psi.ψ)
+
 ψi .= psi.ψ
 ϕi = kspace(ψi,sim)
 
