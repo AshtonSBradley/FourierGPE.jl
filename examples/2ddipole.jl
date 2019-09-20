@@ -1,5 +1,24 @@
+#--- load packages
 using Test, Plots, LaTeXStrings, Revise, FourierGPE, VortexDistributions
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+
+using ColorSchemes
+c1 = cgrad(ColorSchemes.linear_blue_5_95_c73_n256.colors)
+c2 = cgrad(ColorSchemes.turbo.colors)
+import FourierGPE:showpsi
+
+function showpsi(x,y,ψ)
+    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1,c=c1,titlefontsize=12,transpose=true,colorbar=false)
+    xlims!(x[1],x[end]);ylims!(y[1],y[end])
+    xlabel!(L"x");ylabel!(L"y")
+    title!(L"|\psi|^2")
+    p2 = heatmap(x,y,angle.(ψ),aspectratio=1,c=c2,titlefontsize=12,transpose=true,colorbar=false)
+    xlims!(x[1],x[end]);ylims!(y[1],y[end])
+    xlabel!(L"x");ylabel!(L"y")
+    title!(L"\textrm{phase} (\psi)")
+    p = plot(p1,p2,size=(600,300))
+    return p
+end
 
 function psimovie(sol,sim)
     @unpack X,t = sim; x,y = X
@@ -9,20 +28,21 @@ function psimovie(sol,sim)
     end
     return anim
 end
+#---
 
-# ==== Units
+#--- Set up parameters and ground state
 # Units of ξ for length, 1/μ for time
 # related by μ ≡ ħ²/mξ² = mc^2 where
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-# ==== Initialize simulation
-L = (400.,400.)
-N = (256,256)
+# Initialize simulation
+L = (200.,200.)
+N = (512,512)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-# ==== set simulation parameters
+# set simulation parameters
 μ = 1.0
 g = 0.01
 γ = 0.5
@@ -31,62 +51,126 @@ tf = .3pi
 Nt = 150
 t = LinRange(ti,tf,Nt)
 
-# ==== useful state functions
+# Useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
-# ==== make initial state
+# Make initial state
 x,y = X
 kx,ky = K
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-# ====== evolve
+# evolve
 sol = runsim(sim)
 
-# ==== pull out the ground state
+# pull out the ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
+#---
 
-# ==== initial dipole
+#--- periodic dipole phase
+# Methods
+H(x) = x > 0. ? 1.0 : 0.0
+shift(x,xi) = x - xi
+tans(x,xk) = tan((shift(x,xk) - π)*0.5)
+tanhs(x,xk,j) = tanh((shift(x,xk) + 2*π*j)*0.5)
+
+function kernel(x,y,xp,yp,xn,yn,j)
+    return atan(tanhs(y,yn,j)*tans(x,xn)) -
+    atan(tanhs(y,yp,j)*tans(x,xp))
+end
+
+# Dimensionless form
+function θd(x,y,dip)
+    vp,vn = dip
+    xp,yp,_ = rawData(vp)
+    xn,yn,_ = rawData(vn)
+    s = 0.0
+    for j = -5:5
+        s += kernel(x,y,xp,yp,xn,yn,j)
+    end
+    return s + π*(H(shift(x,xp)) - H(shift(x,xn))) - y*(xp - xn)/(2*π)
+end
+# arbitrary domains and dipole sizes:
+function thetad(x,y,xp,yp,xn,yn)
+    s = 0.0
+    for j = -5:5
+        s += kernel(x,y,xp,yp,xn,yn,j)
+    end
+    s += π*(H(shift(x,xp)) - H(shift(x,xn))) - y*(xp - xn)/(2*π)
+    return s - x*H(abs(yp - yn) - π) + y*H(abs(xp - xn) - π)
+end
+
+function Thetad(x,y,xp,yp,xn,yn)
+    Lx = x[end]-x[1]
+    Ly = y[end]-y[1]
+    return @. angle(exp(im*thetad.(x*2*pi/Lx,y'*2*pi/Ly,xp*2*pi/Lx,yp*2*pi/Ly,xn*2*pi/Lx,yn*2*pi/Ly)))
+end
+#---
+
+
+#--- initial dipole, with periodic phase
 ψv = copy(ψg)
-d = 30
+d = 14
 ξv = healinglength(0.,0.,μ,g)
 # can use default ξ = 1
-pv = PointVortex(0.,d/2,1)
-nv = PointVortex(0,-d/2,-1)
+xp,yp = -50.,d/2
+xn,yn = -50.,-d/2
+pv = PointVortex(xp,yp,1)
+nv = PointVortex(xn,yn,-1)
 
 dipole = [nv;pv]
 psi = Torus(ψv,x,y) # set field topology for VortexDistributions
 vortex!(psi,dipole) # make dipole
-ψv = psi.ψ # pull out the field
+ψv = abs.(psi.ψ).*exp.(im*Thetad(x,y,xp,yp,xn,yn))
 showpsi(x,y,ψv)
+#---
 
-# ==== set simulation parameters
+#--- make sure phase is periodic
+using Test
+testphase = angle.(ψv)
+@test testphase[:,1] ≈ testphase[:,end]
+@test testphase[1,:] ≈ testphase[end,:]
+#---
+
+
+#--- evolve dipole with weak damping
+# Set simulation parameters
 c = sqrt(μ)
-tf = L[1]/c/4
-γ = 0.1
+tf = 4*L[1]/c
+γ = 0.03
 
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)
-reltol = 1e-7 #uniform requires slightly smaller tolerance
 alg = Vern7()
 
 @pack_Sim! sim
 
-# ==== remove boundary artifacts with small γ
+# remove boundary artifacts with small γ
 solv = runsim(sim)
-
-# ==== plot
-ψd = xspace(solv[end],sim)
+#---
+#--- plot and animate
+ψd =
 showpsi(x,y,ψd)
 
 anim = psimovie(solv,sim)
 gif(anim,"./examples/dipole_damping.gif",fps=25)
+#---
+#--- Vortex detection
+Nt = 100
+d = zeros(Nt)
 
-# ==== Hamiltonian evolution
+for i=1:100
+    psi = Torus(xspace(solv[i],sim),x,y)
+    vort = findvortices(psi) |> rawData
+    d[i] = abs(vort[2,2]-vort[1,2])
+end
+
+plot(t[1:Nt],d)
+#--- Hamiltonian evolution
 γ = 0.0
 tf = L[1]/c
 t = LinRange(ti,tf,Nt)
