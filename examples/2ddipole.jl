@@ -140,7 +140,7 @@ testphase = angle.(ψv)
 #--- evolve dipole with weak damping
 # Set simulation parameters
 c = sqrt(μ)
-tf = 4*L[1]/c
+tf = L[1]/c/2 # a short run for testing evolutoin and detection
 γ = 0.03
 
 t = LinRange(ti,tf,Nt)
@@ -153,23 +153,24 @@ alg = Vern7()
 solv = runsim(sim)
 #---
 #--- plot and animate
-ψd =
+ψd = xspace(solv[end],sim)
 showpsi(x,y,ψd)
 
 anim = psimovie(solv,sim)
 gif(anim,"./examples/dipole_damping.gif",fps=25)
 #---
-#--- Vortex detection
-Nt = 100
+#--- Vortex detection test
+Nt = length(t)
 d = zeros(Nt)
 
-for i=1:100
+for i=1:Nt
     psi = Torus(xspace(solv[i],sim),x,y)
     vort = findvortices(psi) |> rawData
     d[i] = abs(vort[2,2]-vort[1,2])
 end
 
 plot(t[1:Nt],d)
+#---
 #--- Hamiltonian evolution
 γ = 0.0
 tf = L[1]/c
