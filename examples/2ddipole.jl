@@ -72,6 +72,7 @@ showpsi(x,y,ψg)
 #---
 
 #--- periodic dipole phase
+# Billam et al, PRL 112, 145301 (2014), Supplemental
 # Methods
 H(x) = x > 0. ? 1.0 : 0.0
 shift(x,xi) = x - xi
@@ -140,7 +141,7 @@ testphase = angle.(ψv)
 #--- evolve dipole with weak damping
 # Set simulation parameters
 c = sqrt(μ)
-tf = L[1]/c/2 # a short run for testing evolutoin and detection
+tf = 3*L[1]/c # a short run for testing evolutoin and detection
 γ = 0.03
 
 t = LinRange(ti,tf,Nt)
@@ -150,7 +151,7 @@ alg = Vern7()
 @pack_Sim! sim
 
 # remove boundary artifacts with small γ
-solv = runsim(sim)
+@time solv = runsim(sim)
 #---
 #--- plot and animate
 ψd = xspace(solv[end],sim)
@@ -160,7 +161,7 @@ anim = psimovie(solv,sim)
 gif(anim,"./examples/dipole_damping.gif",fps=25)
 #---
 #--- Vortex detection test
-Nt = length(t)
+Nt = 100
 d = zeros(Nt)
 
 for i=1:Nt
@@ -173,22 +174,21 @@ plot(t[1:Nt],d)
 #---
 #--- Hamiltonian evolution
 γ = 0.0
-tf = L[1]/c
+tf = L[1]/c/5
 t = LinRange(ti,tf,Nt)
-ϕi = kspace(ψd,sim)
+ϕi = kspace(ψv,sim)
 @pack_Sim! sim
 
-# ==== evolve
 solh = runsim(sim)
-
-# ==== plot
+#---
+#--- plot
 ψdh = xspace(solh[end],sim)
 showpsi(x,y,ψdh)
 
 anim = psimovie(solh,sim)
 gif(anim,"./examples/dipole_hamiltonian.gif",fps=25)
-
-# energy densities
+#---
+#--- energy densities
 function showenergies(ψ)
     et,ei,ec = energydecomp(ψ)
     p1 = heatmap(x,y,log10.(ei),aspectratio=1)
@@ -204,14 +204,14 @@ end
 K2 = k2(K)
 
 anim = @animate for i in eachindex(t)
-    ψ = xspace(solv[i],sim)
+    ψ = xspace(solh[i],sim)
     psi = XField(ψ,X,K,K2)
     showenergies(psi)
 end
 
 gif(anim,"./examples/dipoleenergies.gif",fps=30)
-
-# ==== energy totals
+#---
+#--- energy totals
 
 function venergy(ϕ,sim,t)
     @unpack g,X = sim; x,y = X
@@ -269,18 +269,19 @@ function energies(sol)
     end
     return Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms
 end
+#---
 
 @time Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms = energies(solh)
 
-# ==== plot energies
-# ==== simple breakdown
+#--- plot energies
+# simple breakdown
 plot(t,Et./Natoms,label=L"E_t",legend=:left)
 plot!(t,Eint./Natoms,label=L"E_{int}")
 plot!(t,Ekall./Natoms,label=L"E_{kall}")
 ylims!(0,1.1*Et[1]./Natoms[1])
 xlabel!(L"t")
 
-# ==== decomposition
+# decomposition
 plot(t,(Ekall .+ Eint)./Natoms,label=L"E_{kall}+E_{int}",w=5,c=:gray,alpha=0.3)
 plot!(t,Et./Natoms,label=L"E_t",legend=:left)
 plot!(t,Ei./Natoms,label=L"E_k^i")
@@ -289,7 +290,7 @@ plot!(t,Eint./Natoms,label=L"E_{int}")
 plot!(t,Eqp./Natoms,label=L"E_{qp}")
 plot!(t,Ekall./Natoms,label=L"E_{kall}")
 xlabel!(L"t")
-
+#---
 
 # if we need to save data:
 # @save "./examples/dipoledecay.jld2" solv.u sim
