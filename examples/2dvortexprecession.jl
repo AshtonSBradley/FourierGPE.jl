@@ -33,7 +33,7 @@ showpsi(x,y,ψg)
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψg,sim)
 # reltol = 1e-7
-# alg = DP5()ß
+# alg = DP5()
 
 #---
 using VortexDistributions
