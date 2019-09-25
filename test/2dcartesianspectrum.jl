@@ -38,7 +38,7 @@ showpsi(x,y,ψg)
 using VortexDistributions
 R(w) = sqrt(2*μ/w^2)
 R(1)
-rv = 2.
+rv = 1.
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ0 = healinglength.(0.,0.,μ,g)
 ξ = healinglength(rv,0.,μ,g)
@@ -59,14 +59,19 @@ x,y = X
 
 #--- construct polar spectrum
 # first convolve, then bessel
-A = -conv(conj.(ψi),ψi)
+ψc = zeros(eltype(ϕi),2*N[1]-1,2*N[1]-1)
+data_ind = 128:383
+ψc[data_ind,data_ind] = ψi
+ϕc = fft(ψc)
+A = ifft(abs2.(ϕc)) |> fftshift
+# A = -conv(conj.(ψi),ψi)
 heatmap(abs2.(ψi))
 heatmap(abs.(ϕi))
 heatmap(abs.(A))
 
-kmin = 0.; #0.5*2*pi/R(1)
-kmax = 2*pi/ξ0/3
-Np = 100
+kmin = 0.1 #0.5*2*pi/R(1)
+kmax = 2*2*pi/ξ0
+Np = 400
 ks = LinRange(kmin,kmax,Np)
 kp = @. log(exp(ks))
 
@@ -80,8 +85,16 @@ for i in eachindex(kp)
     k = kp[i]
     Ek[i] = 0.5*k^3*sum(@. besselj0(k*ρ)*A)*dx*dy |> real
 end
-plot(kp,Ek)
+plot(kp,Ek,scale=:log10)
+plot!(kp,kp.^3)
+plot!(kp,kp.^(-3))
+plot!(kp,kp.^(-1))
+
 #---
+
+
+
+
 
 #--- test incompressible spectrum
 k2field = k2(K)
