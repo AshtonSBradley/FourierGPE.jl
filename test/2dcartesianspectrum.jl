@@ -3,6 +3,7 @@ using LazyArrays, FillArrays
 using Revise, FourierGPE
 
 #--- Initialize simulation
+# harmonic oscillator units
 L = (18.0,18.0)
 N = (256,256)
 sim = Sim(L,N)
@@ -38,7 +39,7 @@ showpsi(x,y,ψg)
 using VortexDistributions
 R(w) = sqrt(2*μ/w^2)
 R(1)
-rv = 1.
+rv = 1.5
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ0 = healinglength.(0.,0.,μ,g)
 ξ = healinglength(rv,0.,μ,g)
@@ -91,9 +92,6 @@ for i in eachindex(kp)
 end
 
 plot(kp,Ek,scale=:log10)
-plot!(kp,kp.^3)
-plot!(kp,kp.^(-3))
-plot!(kp,kp.^(-1))
 
 #---
 
@@ -108,16 +106,33 @@ vx,vy = velocity(psi)
 rho = abs2.(ψi)
 wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
 Wi, Wc = helmholtz(wx,wy,psi)
+wix,wiy = Wi
 
 # convolutions
-Cix = -conv(conj.(Wi[1]),Wi[1])
-Ciy = -conv(conj.(Wi[2]),Wi[2])
+z0 = Zeros(wix[:,1:Npad])
+Wix = Hcat(z0,wix,z0)
+Wiy = Hcat(z0,wiy,z0)
+z0 = Zeros(Wix[1:Npad,:])
+Wix = Vcat(z0,Wix,z0) |> Matrix
+Wiy = Vcat(z0,Wiy,z0) |> Matrix
+Wixk = fft(Wix)
+Wiyk = fft(Wiy)
+Cix = ifft(abs2.(Wixk)) |> fftshift
+Ciy = ifft(abs2.(Wiyk)) |> fftshift
 Ci = Cix .+ Ciy
 heatmap(abs.(Ci))
 
+
+kR = 0.5*2*pi/R(1)
+kξ = 2*pi
+kmin = 0.02
+kmax = 1.5*kξ
+Np = 400
+ks = LinRange(kmin,kmax,Np)
+kp = @. log(exp(ks))
 Ei = zero(kp)
 Nx = 2*N[1]
-xp = LinRange(-L[1],L[1],Nx)[1:Nx-1]
+xp = LinRange(-L[1],L[1],Nx+1)[1:Nx]
 yp = xp
 ρ = @. sqrt(xp^2 + yp'^2)
 
@@ -125,4 +140,12 @@ for i in eachindex(kp)
     k = kp[i]
     Ei[i] = 0.5*k*sum(@. besselj0(k*ρ)*Ci)*dx*dy |> real
 end
-plot(kp,Ei)
+
+plot(kp,Ei,scale=:log10,grid=false,label=L"E_i(k)",legend=:topright)
+plot!(kp,2e7kp.^(-3),label=L"k^{-3}")
+plot!(kp,2e6kp,label=L"k")
+ylims!(10^2,10^7.5)
+vline!([kR],ls=:dash,label=L"k_R")
+vline!([kξ],ls=:dash,label=L"k_\xi")
+xlabel!(L"k")
+ylabel!(L"E_i(k)")
