@@ -38,7 +38,11 @@ showpsi(x,y,ψg)
 using VortexDistributions
 R(w) = sqrt(2*μ/w^2)
 R(1)
+<<<<<<< HEAD
 rv = 1.
+=======
+rv = 0.
+>>>>>>> 3c67d19bee82ac6cc823100beebc5d510b2ed3f4
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ0 = healinglength.(0.,0.,μ,g)
 ξ = healinglength(rv,0.,μ,g)
@@ -103,6 +107,7 @@ vx,vy = velocity(psi)
 rho = abs2.(ψi)
 wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
 Wi, Wc = helmholtz(wx,wy,psi)
+
 # convolutions
 Cix = -conv(conj.(Wi[1]),Wi[1])
 Ciy = -conv(conj.(Wi[2]),Wi[2])
