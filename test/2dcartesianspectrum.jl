@@ -1,4 +1,5 @@
 using DSP, Test, SpecialFunctions, VortexDistributions
+using PaddedViews
 using Revise, FourierGPE
 
 #--- Initialize simulation
@@ -38,7 +39,7 @@ showpsi(x,y,ψg)
 using VortexDistributions
 R(w) = sqrt(2*μ/w^2)
 R(1)
-rv = 1.
+rv = 2.
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ0 = healinglength.(0.,0.,μ,g)
 ξ = healinglength(rv,0.,μ,g)
@@ -59,9 +60,13 @@ x,y = X
 
 #--- construct polar spectrum
 # first convolve, then bessel
-ψc = zeros(eltype(ϕi),2*N[1]-1,2*N[1]-1)
-data_ind = 128:383
-ψc[data_ind,data_ind] = ψi
+# ψc = zeros(eltype(ϕi),2*N[1]-1,2*N[1]-1)
+# data_ind = 128:383
+# ψc[data_ind,data_ind] = ψi
+
+Npad = 2*N[1]-1
+Nstart = N[1]/2 |> Int ; Nstart +=1
+ψc = PaddedView(complex(0.),ψi,(Npad,Npad),(Nstart,Nstart))
 ϕc = fft(ψc)
 A = ifft(abs2.(ϕc)) |> fftshift
 
