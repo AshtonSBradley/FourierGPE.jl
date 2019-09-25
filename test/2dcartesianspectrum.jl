@@ -38,7 +38,7 @@ showpsi(x,y,ψg)
 using VortexDistributions
 R(w) = sqrt(2*μ/w^2)
 R(1)
-rv = 2.
+rv = 0.
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ0 = healinglength.(0.,0.,μ,g)
 ξ = healinglength(rv,0.,μ,g)
@@ -59,13 +59,13 @@ x,y = X
 
 #--- construct polar spectrum
 # first convolve, then bessel
-A = -conv(conj.(ψi),ψi)
+A = -conv(ψi,conj.(ψi))
 heatmap(abs2.(ψi))
 heatmap(abs.(ϕi))
 heatmap(abs.(A))
 
-kmin = 0.; #0.5*2*pi/R(1)
-kmax = 2*pi/ξ0/3
+kmin = 0.1;#0.5*2*pi/R(1)
+kmax = 2*pi/ξ0/2
 Np = 100
 ks = LinRange(kmin,kmax,Np)
 kp = @. log(exp(ks))
@@ -80,7 +80,9 @@ for i in eachindex(kp)
     k = kp[i]
     Ek[i] = 0.5*k^3*sum(@. besselj0(k*ρ)*A)*dx*dy |> real
 end
-plot(kp,Ek)
+
+
+plot(kp,Ek .+ eps.() .+ abs(minimum(Ek)),yscale=:log10,xscale=:log10)
 #---
 
 #--- test incompressible spectrum
@@ -90,6 +92,7 @@ vx,vy = velocity(psi)
 rho = abs2.(ψi)
 wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
 Wi, Wc = helmholtz(wx,wy,psi)
+
 # convolutions
 Cix = -conv(conj.(Wi[1]),Wi[1])
 Ciy = -conv(conj.(Wi[2]),Wi[2])
