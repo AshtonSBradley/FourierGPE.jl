@@ -209,7 +209,7 @@ Wiyk = fft(Wiy)*prod(DX)
 # convolutions
 Cix = ifft(abs2.(Wixk))*prod(DK) |> fftshift
 Ciy = ifft(abs2.(Wiyk))*prod(DK) |> fftshift
-Ci = Cix .+ Ciy
+Ci = Cix .+ Ciy›
 
 kL = 2*pi/L[1]
 kξ = 2*pi
