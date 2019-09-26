@@ -9,6 +9,7 @@ L = (100.,100.)
 N = (512,512)
 sim = Sim(L,N)
 @unpack_Sim sim
+
 #--- set simulation parameters
 μ = 1.0
 g = 0.01
@@ -17,9 +18,11 @@ ti = 0.0
 tf = .3pi
 Nt = 150
 t = LinRange(ti,tf,Nt)
+
 #--- Useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
+
 #--- Make initial state
 x,y = X
 kx,ky = K
@@ -37,7 +40,6 @@ showpsi(x,y,ψg)
 
 #--- periodic dipole phase
 # Billam et al, PRL 112, 145301 (2014), Supplemental
-# Methods
 H(x) = x > 0. ? 1.0 : 0.0
 shift(x,xi) = x - xi
 tans(x,xk) = tan((shift(x,xk) - π)*0.5)
@@ -59,6 +61,7 @@ function θd(x,y,dip)
     end
     return s + π*(H(shift(x,xp)) - H(shift(x,xn))) - y*(xp - xn)/(2*π)
 end
+
 # arbitrary domains and dipole sizes:
 function thetad(x,y,xp,yp,xn,yn)
     s = 0.0
@@ -74,6 +77,7 @@ function Thetad(x,y,xp,yp,xn,yn)
     Ly = y[end]-y[1]
     return @. angle(exp(im*thetad.(x*2*pi/Lx,y'*2*pi/Ly,xp*2*pi/Lx,yp*2*pi/Ly,xn*2*pi/Lx,yn*2*pi/Ly)))
 end
+
 #--- initial dipole, with periodic phase
 ψv = copy(ψg)
 d = 14
@@ -209,7 +213,7 @@ Wiyk = fft(Wiy)*prod(DX)
 # convolutions
 Cix = ifft(abs2.(Wixk))*prod(DK) |> fftshift
 Ciy = ifft(abs2.(Wiyk))*prod(DK) |> fftshift
-Ci = Cix .+ Ciy›
+Ci = Cix .+ Ciy
 
 kL = 2*pi/L[1]
 kξ = 2*pi
@@ -230,7 +234,7 @@ plot!(kp,2kp.^(-3),label=L"k^{-3}")
 plot!(kp,200*kp,label=L"k")
 ylims!(5e-4,1e2)
 # xlims!(0.02,10)
-vline!([kR],ls=:dash,label=L"k_L")
+vline!([kL],ls=:dash,label=L"k_L")
 vline!([kd],ls=:dash,label=L"k_d")
 vline!([kξ],ls=:dash,label=L"k_\xi")
 xlabel!(L"k\xi")
