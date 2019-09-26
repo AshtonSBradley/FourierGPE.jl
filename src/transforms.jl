@@ -14,7 +14,7 @@ end
 """
     DX,DK = dfftall(X,K)
 
-Evalutes tuple of measures that preserve 2-norm for each
+Evalutes tuple of measures that make fft,ifft 2-norm preserving for each
 `x` or `k` dimension.
 """
 function dfftall(X,K)

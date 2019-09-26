@@ -11,8 +11,8 @@ using Reexport
 @reexport using LaTeXStrings
 @reexport using ColorSchemes
 
-const turbo = cgrad(ColorSchemes.turbo.colors)
-const bone = cgrad(ColorSchemes.bone.colors)
+const c2 = cgrad(ColorSchemes.turbo.colors)
+const c1 = cgrad(ColorSchemes.linear_blue_5_95_c73_n256.colors)
 
 include("types.jl")
 include("arrays.jl")

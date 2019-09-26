@@ -2,45 +2,6 @@ using Test, SpecialFunctions, VortexDistributions
 using LazyArrays, FillArrays
 using Revise, FourierGPE
 
-using Plots, ColorSchemes
-c1 = cgrad(ColorSchemes.linear_blue_5_95_c73_n256.colors)
-c2 = cgrad(ColorSchemes.turbo.colors)
-
-import FourierGPE: showpsi
-function showpsi(x, y, ψ)
-    p1 = heatmap(
-        x,
-        y,
-        abs2.(ψ),
-        aspectratio = 1,
-        c = c1,
-        titlefontsize = 12,
-        transpose = true,
-        colorbar = false,
-    )
-    xlims!(x[1], x[end])
-    ylims!(y[1], y[end])
-    xlabel!(L"x")
-    ylabel!(L"y")
-    title!(L"|\psi|^2")
-    p2 = heatmap(
-        x,
-        y,
-        angle.(ψ),
-        aspectratio = 1,
-        c = c2,
-        titlefontsize = 12,
-        transpose = true,
-        colorbar = false,
-    )
-    xlims!(x[1], x[end])
-    ylims!(y[1], y[end])
-    xlabel!(L"x")
-    ylabel!(L"y")
-    title!(L"\textrm{phase} (\psi)")
-    p = plot(p1, p2, size = (600, 300))
-    return p
-end
 
 #--- Initialize simulation
 # harmonic oscillator units
@@ -115,43 +76,52 @@ x,y = X
 # heatmap(abs.(ϕi))
 # heatmap(abs.(A))
 
-kmin = 0.1 #0.5*2*pi/R(1)
-kmax = 2*pi/ξ0
-Np = 200
-ks = LinRange(kmin,kmax,Np)
-kp = @. log(exp(ks))
+#--- method to pad 2d array to twice size with zeros.
 
-# Ek = zero(kp)
-# Nx = 2*N[1]
-# xp = LinRange(-L[1],L[1],Nx+1)[1:Nx]
-# yp = xp
-# ρ = @. sqrt(xp^2 + yp'^2)
+function zeropad(a)
+    s = size(a)
+    (isodd.(s) |> any) && error("Array dims must be divisible by 2")
+    S = @. 2 * s
+    t = @. s / 2 |> Int
+    z = Zeros{eltype(a)}(t...)
+    M = Hcat([z; z], a, [z; z])
+    return Vcat([z z z z], M, [z z z z]) |> Matrix
+end
 
-function kspectrum(kp,ψ,x,y)
+function log10range(a,b,n)
+    x = LinRange(log10(a),log10(b),n)
+    return @. 10^x
+end
+
+function kespectrum(kp,ψ,x,y)
     dx,dy = diff(x)[1],diff(y)[1]
-    N = length(x)
-    L = last(x)-first(x) + dx
-    Npad = N/2 |> Int
-    z0 = Zeros(ψ[:,1:Npad])
-    ψc = Hcat(z0,view(ψ,:,:),z0)
-    z0 = Zeros(ψc[1:Npad,:])
-    ψc = Vcat(z0,ψc,z0) |> Matrix
+    Nx = 2*length(x)
+    Lx = x[end]-x[1] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp
+    ρ = @. sqrt(xp^2 + yp'^2)
+    ψc = zeropad(ψ)
     ϕc = fft(ψc)
     A = ifft(abs2.(ϕc)) |> fftshift
 
     Ek = zero(kp)
     for i in eachindex(kp)
         k = kp[i]
-        Nx = 2*N
-        xp = LinRange(-L,L,Nx+1)[1:Nx]
-        yp = xp
-        ρ = @. sqrt(xp^2 + yp'^2)
-        Ek[i] = 0.5*k^3*sum(@. besselj0(k*ρ)*A)*dx*dy |> real
+        Ek[i]  = 0.5*k^3*sum(@. besselj0(k*ρ)*A)*dx*dy |> real
     end
     return Ek
 end
 
-Ek = kspectrum(kp,ψi,x,y)
+ψc = zeropad(ψi)
+ϕc = fft(ψc)
+A = ifft(abs2.(ϕc)) |> fftshift
+
+kmin = 0.1 #0.5*2*pi/R(1)
+kmax = 2*pi/ξ0
+Np = 200
+kp = log10range(kmin,kmax,Np)
+
+Ek = kespectrum(kp,ψi,x,y)
 plot(kp,Ek,scale=:log10)
 
 #---
@@ -170,23 +140,16 @@ Wi, Wc = helmholtz(wx,wy,psi)
 wix,wiy = Wi
 
 # convolutions
-z0 = Zeros(wix[:,1:Npad])
-Wix = Hcat(z0,wix,z0)
-Wiy = Hcat(z0,wiy,z0)
-z0 = Zeros(Wix[1:Npad,:])
-Wix = Vcat(z0,Wix,z0) |> Matrix
-Wiy = Vcat(z0,Wiy,z0) |> Matrix
-Wixk = fft(Wix)
-Wiyk = fft(Wiy)
-Cix = ifft(abs2.(Wixk)) |> fftshift
-Ciy = ifft(abs2.(Wiyk)) |> fftshift
+Wix = zeropad(wix)
+Wiy = zeropad(wiy)
+wixk = fft(Wix)
+wiyk = fft(Wiy)
+Cix = ifft(abs2.(wixk)) |> fftshift
+Ciy = ifft(abs2.(wiyk)) |> fftshift
 Ci = Cix .+ Ciy
 heatmap(abs.(Ci))
 
-function log10range(a,b,n)
-    x = LinRange(log10(a),log10(b),n)
-    return @. 10^x
-end
+
 
 d = 2*rv
 kR = 2*pi/R(1)
@@ -198,19 +161,26 @@ kmax = 2kξ
 Np = 300
 kp = log10range(kmin,kmax,Np)
 
-Ei = zero(kp)
-Nx = 2*N[1]
-xp = LinRange(-L[1],L[1],Nx+1)[1:Nx]
-yp = xp
-ρ = @. sqrt(xp^2 + yp'^2)
+function ikspectrum(kp,wconv,x,y)
+    dx,dy = diff(x)[1],diff(y)[1]
+    Nx = 2*length(x)
+    Lx = x[end]-x[1] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp
+    ρ = @. sqrt(xp^2 + yp'^2)
 
-for i in eachindex(kp)
-    k = kp[i]
-    Ei[i] = 0.5*k*sum(@. besselj0(k*ρ)*Ci)*dx*dy |> real
+    Eki = zero(kp)
+    for i in eachindex(kp)
+        k = kp[i]
+        Eki[i]  = 0.5*k*sum(@. besselj0(k*ρ)*wconv)*dx*dy |> real
+    end
+    return Eki
 end
 
+Eki = ikspectrum(kp,Ci,x,y)
+
 kxi = kp*ka/kξ
-plot(kxi,Ei,scale=:log10,grid=false,label=L"E_i(k)",legend=:topright)
+plot(kxi,Eki,scale=:log10,grid=false,label=L"E_i(k)",legend=:topright)
 plot!(kxi,2e7*kxi.^(-3),label=L"k^{-3}")
 plot!(kxi,2e6*kxi,label=L"k")
 ylims!(10^2,10^8)
