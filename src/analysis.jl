@@ -108,3 +108,140 @@ function energydecomp(psi::XField{3})
     ec = @. abs2(wxc) + abs2(wyc) + abs2(wzc); ec *= 0.5
     return et, ei, ec
 end
+
+@doc raw"""
+	A = zeropad(a)
+
+Zero-pad the 2D array `a` to twice the size with the same element type as `a`.
+"""
+function zeropad(a)
+    s = size(a)
+    (isodd.(s) |> any) && error("Array dims must be divisible by 2")
+    S = @. 2 * s
+    t = @. s / 2 |> Int
+    z = Zeros{eltype(a)}(t...)
+    M = Hcat([z; z], a, [z; z])
+    return Vcat([z z z z], M, [z z z z]) |> Matrix
+end
+
+@doc raw"""
+	x = log10range(a,b,n)
+
+Create a logarithmically spaced vector. `x` is linear in log space, containing `n` values bracketed by `a` and `b`.
+"""
+function log10range(a,b,n)
+    x = LinRange(log10(a),log10(b),n)
+    return @. 10^x
+end
+
+@doc raw"""
+	A = convolve(ψ1,ψ2,X,K)
+
+Computes the convolution of two complex fields according to
+
+``
+A(\rho) = \int d^2r\;\psi_1(r-\rho)\psi_2(r)
+``
+
+using FFTW.
+"""
+function convolve(ψ1,ψ2,X,K)
+	DX,DK = dfftall(X,K)
+	ϕ1 = zeropad(ψ1)
+	ϕ2 = zeropad(ψ2)
+	χ1 = fft(ϕ1)*prod(DX)
+	χ2 = fft(ϕ2)*prod(DX)
+	return ifft(χ1.*χ2)*prod(DK) |> fftshift
+end
+
+@doc raw"""
+	A = autocorrelate(ψ,X,K)
+
+Evaluates the autocorrelation integral of a complex field ``\psi``.
+
+``
+A(\rho)=\int d^2r\;\psi^*(r-\rho)\psi(r)
+``
+
+defined on a cartesian grid on a cartesian grid using FFTW. `X` and `K` are tuples of vectors for `x`,`y`,`kx`, `ky`.
+
+This method is useful for evaluating spectra from cartesian data.
+"""
+function autocorrelate(ψ,X,K)
+	DX,DK = dfftall(X,K)
+	ϕ = zeropad(ψ)
+	χ = fft(ϕ)*prod(DX)
+	return ifft(abs2.(χ))*prod(DK) |> fftshift
+end
+
+@doc raw"""
+	Ek = kespectrum(k,ψ,X,K)
+
+Caculates the kinetic enery spectrum for wavefunction `\psi`.
+"""
+function kespectrum(k,ψ,X,K)
+	x,y = X; kx,ky = K
+    dx,dy = diff(x)[1],diff(y)[1]
+	DX,DK = dfftall(X,K)
+    Nx = 2*length(x)
+    Lx = x[end]-x[1] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp
+    ρ = @. sqrt(xp^2 + yp'^2)
+    # ψc = zeropad(ψ)
+    # ϕc = fft(ψc)*prod(DX)
+    # A = ifft(abs2.(ϕc))*prod(DK) |> fftshift
+	A = autocorrelate(ψ,X,K)
+
+    Ek = zero(k)
+    for i in eachindex(k)
+        κ = k[i]
+        Ek[i]  = 0.5*κ^3*sum(@. besselj0(κ*ρ)*A)*dx*dy |> real
+    end
+    return Ek
+end
+
+@doc raw"""
+	Ek = ikespectrum(k,ψ,X,K)
+
+Caculates the incompressible kinetic enery spectrum for wavefunction `\psi`, using Helmholtz decomposition.
+"""
+function ikespectrum(k,ψ,X,K)
+    x,y = X; kx,ky = K
+ 	dx,dy = diff(x)[1],diff(y)[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+    rho = abs2.(ψ)
+    wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
+    Wi, Wc = helmholtz(wx,wy,psi)
+    wix,wiy = Wi
+
+    # transforms
+    # Wix = zeropad(wix)
+    # Wiy = zeropad(wiy)
+    # Wixk = fft(Wix)*prod(DX)
+    # Wiyk = fft(Wiy)*prod(DX)
+    # @test sum(abs2.(Wix))*dx*dy ≈ sum(abs2.(Wixk))*(dkx/2)*(dky/2)
+
+    # convolutions
+    # Cix = ifft(abs2.(Wixk))*prod(DK) |> fftshift
+    # Ciy = ifft(abs2.(Wiyk))*prod(DK) |> fftshift
+	cwix = autocorrelate(wix,X,K)
+	cwiy = autocorrelate(wiy,X,K)
+    Ci = cwix .+ cwiy
+
+    Nx = 2*length(x)
+    Lx = x[end]-x[1] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp
+    ρ = @. sqrt(xp^2 + yp'^2)
+
+    Eki = zero(k)
+    for i in eachindex(k)
+        κ = k[i]
+        Eki[i]  = 0.5*κ*sum(@. besselj0(κ*ρ)*Ci)*dx*dy |> real
+    end
+    return Eki
+end

@@ -1,6 +1,9 @@
 module FourierGPE
 
 using Reexport
+@reexport using SpecialFunctions
+@reexport using LazyArrays
+@reexport using FillArrays
 @reexport using DifferentialEquations
 @reexport using RecursiveArrayTools
 @reexport using FFTW
@@ -30,4 +33,5 @@ export Sim, @pack_Sim!, @unpack_Sim, showpsi, testsim
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, makeTMixed, definetransforms
 export Field, XField, KField, velocity, energydecomp, helmholtz
+export log10range, zeropad, autocorrelate, convolve, kespectrum, ikespectrum
 end # module

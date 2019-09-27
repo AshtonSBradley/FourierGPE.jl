@@ -87,8 +87,8 @@ xp,yp = 0.,d/2
 xn,yn = 0.,-d/2
 pv = PointVortex(xp,yp,1)
 nv = PointVortex(xn,yn,-1)
-
 dipole = [nv;pv]
+
 psi = Torus(ψv,x,y) # set field topology for VortexDistributions
 vortex!(psi,dipole) # make dipole
 ψv = abs.(psi.ψ).*exp.(im*Thetad(x,y,xp,yp,xn,yn))
@@ -97,7 +97,7 @@ showpsi(x,y,ψv)
 #--- evolve dipole with weak damping
 # Set simulation parameters
 c = sqrt(μ)
-tf = L[1]/c # a short run for testing evolutoin and detection
+tf = L[1]/c # a short run for testing evolution and detection
 γ = 0.03
 
 t = LinRange(ti,tf,Nt)
@@ -109,57 +109,10 @@ alg = Vern7()
 # remove boundary artifacts with small γ
 @time solv = runsim(sim)
 
-#--- pull out final state
 ψd = xspace(solv[end],sim)
 showpsi(x,y,ψd)
 
-#--- construct polar spectrum
-function zeropad(a)
-    s = size(a)
-    (isodd.(s) |> any) && error("Array dims must be divisible by 2")
-    S = @. 2 * s
-    t = @. s / 2 |> Int
-    z = Zeros{eltype(a)}(t...)
-    M = Hcat([z; z], a, [z; z])
-    return Vcat([z z z z], M, [z z z z]) |> Matrix
-end
-
-function log10range(a,b,n)
-    x = LinRange(log10(a),log10(b),n)
-    return @. 10^x
-end
-
-function kespectrum(kp,ψ,x,y)
-    dx,dy = diff(x)[1],diff(y)[1]
-    Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
-    yp = xp
-    ρ = @. sqrt(xp^2 + yp'^2)
-    ψc = zeropad(ψ)
-    ϕc = fft(ψc)
-    A = ifft(abs2.(ϕc)) |> fftshift
-
-    Ek = zero(kp)
-    for i in eachindex(kp)
-        k = kp[i]
-        Ek[i]  = 0.5*k^3*sum(@. besselj0(k*ρ)*A)*dx*dy |> real
-    end
-    return Ek
-end
-
-# measures for unpadded fields
-dx,dy = diff(x)[1],diff(y)[1]
-dkx,dky = diff(kx)[1],diff(ky)[1]
-DX,DK = dfftall(X,K)
-ϕd = fft(ψd)*prod(DX)
-@test sum(abs2.(ψd))*dx*dy ≈ sum(abs2.(ϕd))*dkx*dky
-
-
-ψc = zeropad(ψd)
-ϕc = fft(ψc)
-A = ifft(abs2.(ϕc)) |> fftshift
-
+#--- test new methods
 kL = 0.1*2*pi/L[1]
 kξ =   2*pi
 kmin = kL
@@ -168,52 +121,19 @@ kmax = kξ
 Np = 200
 kp = log10range(kmin,kmax,Np)
 
-Ek = kespectrum(kp,ψi,x,y)
+Ek = kespectrum(kp,ψi,X,K)
 plot(kp,Ek,scale=:log10)
 
 # heatmap(log.(abs2.(A |> fftshift) .+ eps.()))
 
 #--- test incompressible spectrum
-k2field = k2(K)
-psi = XField(ψd,X,K,k2field)
-vx,vy = velocity(psi)
-rho = abs2.(ψd)
-wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
-Wi, Wc = helmholtz(wx,wy,psi)
-wix,wiy = Wi
 
-function ikespectrum(kp,wconv,x,y)
-    dx,dy = diff(x)[1],diff(y)[1]
-    Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
-    yp = xp
-    ρ = @. sqrt(xp^2 + yp'^2)
 
-    Eki = zero(kp)
-    for i in eachindex(kp)
-        k = kp[i]
-        Eki[i]  = 0.5*k*sum(@. besselj0(k*ρ)*wconv)*dx*dy |> real
-    end
-    return Eki
-end
+
 
 #--- convolutions
 # measures for zero padded fields
-DX,DK = dfftall(X,K)
-# no change to measures!
 
-# transforms
-Wix = zeropad(wix)
-Wiy = zeropad(wiy)
-Wixk = fft(Wix)*prod(DX)
-Wiyk = fft(Wiy)*prod(DX)
-@test sum(abs2.(Wix))*dx*dy ≈ sum(abs2.(Wixk))*(dkx/2)*(dky/2)
-
-# convolutions
-Cix = ifft(abs2.(Wixk))*prod(DK) |> fftshift
-Ciy = ifft(abs2.(Wiyk))*prod(DK) |> fftshift
-Ci = Cix .+ Ciy
 
 kL = 2*pi/L[1]
 kξ = 2*pi
@@ -224,9 +144,9 @@ kmax = 1.3kξ
 Np = 400
 kp = log10range(kmin,kmax,Np)
 
-Eki = ikespectrum(kp,Ci,x,y)
+Eki = ikespectrum(kp,ψd,X,K)
 
-#--- power law plot in logspace
+#--- power-law plot in logspace
 n0 = abs2.(ψd[1,1])
 E0 = π*n0
 p1 = plot(kp,Eki/E0,scale=:log10,grid=false,label=L"E_i(k)",legend=:bottomleft)
@@ -240,7 +160,8 @@ vline!([kξ],ls=:dash,label=L"k_\xi")
 xlabel!(L"k\xi")
 ylabel!(L"E_i(k)")
 
-# test against analytic form to get norm of convolution right
+#--- test against analytic form
+# use the numerical dipole distance since system has evolved
 vort = findvortices(Torus(ψd,x,y)) |> rawData
 d = vort[:,2] |> diff
 Λ = 0.8249
@@ -248,5 +169,4 @@ f(x) = x*(besselk(1,x)*besseli(0,x)-besselk(0,x)*besseli(1,x))
 F(x,Λ) = f(x/(2Λ))^2/x
 F(x) = F(x,Λ)
 Ed(k,d) = 2*F(k)*(1-besselj0(k*d))
-
 plot!(kp,Ed.(kp,d),label=L"{\cal E}_i^a(k)")
