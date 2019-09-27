@@ -18,34 +18,6 @@ kx,ky = K
 ψg = ψ0.(x,y',μ,g)
 showpsi(x,y,ψg)
 
-# #--- periodic dipole phase
-# # Billam et al, PRL 112, 145301 (2014), Supplemental
-# H(x) = x > 0. ? 1.0 : 0.0
-# shift(x,xi) = x - xi
-# tans(x,xk) = tan((shift(x,xk) - π)*0.5)
-# tanhs(x,xk,j) = tanh((shift(x,xk) + 2*π*j)*0.5)
-#
-# function kernel(x,y,xp,yp,xn,yn,j)
-#     return atan(tanhs(y,yn,j)*tans(x,xn)) -
-#     atan(tanhs(y,yp,j)*tans(x,xp))
-# end
-#
-# # arbitrary domains and dipole sizes:
-# function thetad(x,y,xp,yp,xn,yn)
-#     s = 0.0
-#     for j = -5:5
-#         s += kernel(x,y,xp,yp,xn,yn,j)
-#     end
-#     s += π*(H(shift(x,xp)) - H(shift(x,xn))) - y*(xp - xn)/(2*π)
-#     return s - x*H(abs(yp - yn) - π) + y*H(abs(xp - xn) - π)
-# end
-#
-# function Thetad(x,y,xp,yp,xn,yn)
-#     Lx = x[end]-x[1]
-#     Ly = y[end]-y[1]
-#     return @. thetad.(x*2*pi/Lx,y'*2*pi/Ly,xp*2*pi/Lx,yp*2*pi/Ly,xn*2*pi/Lx,yn*2*pi/Ly)
-# end
-
 #--- initial dipole, with periodic phase
 ψd = copy(ψg)
 d = 12
@@ -72,7 +44,7 @@ kmax = kξ
 Np = 200
 k = log10range(kmin,kmax,Np)
 
-Ek = kespectrum(kp,ψi,X,K)
+Ek = kespectrum(k,ψi,X,K)
 plot(k,Ek,scale=:log10)
 
 # heatmap(log.(abs2.(A |> fftshift) .+ eps.()))
