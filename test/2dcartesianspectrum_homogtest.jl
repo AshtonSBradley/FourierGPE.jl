@@ -1,6 +1,7 @@
 using VortexDistributions
 using Revise, FourierGPE
 
+
 #--- Initialize simulation
 # units of healing length, chemical potential
 L = (100.,100.)
