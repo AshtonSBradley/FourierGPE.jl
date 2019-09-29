@@ -14,8 +14,8 @@ using Reexport
 @reexport using LaTeXStrings
 @reexport using ColorSchemes
 
+const c1 = cgrad(ColorSchemes.turbo.colors)
 const c2 = cgrad(ColorSchemes.RdBu_11.colors)
-const c1 = cgrad(ColorSchemes.linear_blue_5_95_c73_n256.colors)
 
 include("types.jl")
 include("arrays.jl")

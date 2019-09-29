@@ -1,12 +1,30 @@
 using Revise, FourierGPE
 
-# ==== Initialize simulation
+using ColorSchemes
+import FourierGPE: showpsi
+const c1 = cgrad(ColorSchemes.turbo.colors)
+const c2 = cgrad(ColorSchemes.RdBu_11.colors)
+
+function showpsi(x,y,ψ)
+    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1,c=c1,titlefontsize=12,transpose=true,colorbar=false)
+    xlims!(x[1],x[end]);ylims!(y[1],y[end])
+    xlabel!(L"x");ylabel!(L"y")
+    title!(L"|\psi|^2")
+    p2 = heatmap(x,y,angle.(ψ),aspectratio=1,c=c2,titlefontsize=12,transpose=true,colorbar=false)
+    xlims!(x[1],x[end]);ylims!(y[1],y[end])
+    xlabel!(L"x");ylabel!(L"y")
+    title!(L"\textrm{phase} (\psi)")
+    p = plot(p1,p2,size=(600,300))
+    return p
+end
+
+#--- Initialize simulation
 L = (18.0,18.0)
 N = (128,128)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-# ==== set simulation parameters
+#--- set simulation parameters
 μ = 12.0
 
 # Time dependent potential function (here trivial t dep)
@@ -14,28 +32,28 @@ import FourierGPE.V
 V(x,y,t) = 0.5*(x^2 + y^2)
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 
-# ==== make initial state
+#--- make initial state
 x,y = X
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-# ==== evolve
+#--- evolve
 @time sol = runsim(sim)
 
-# ==== ground state
+#--- ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
 
-# ==== set simulation parameters
+#--- set simulation parameters
 γ = 0.0
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψg,sim)
 # reltol = 1e-7
 # alg = DP5()
 
-#---
+#--- vortex
 using VortexDistributions
 R(w) = sqrt(2*μ/w^2)
 R(1)
@@ -43,7 +61,6 @@ rv = 3.
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ0 = healinglength.(0.,0.,μ,g)
 ξ = healinglength(rv,0.,μ,g)
-#---
 
 pv = PointVortex(rv,0.,1)
 vi = ScalarVortex(ξ,pv)
@@ -51,12 +68,11 @@ vi = ScalarVortex(ξ,pv)
 
 psi = Torus(copy(ψg),x,y)
 vortex!(psi,vi)
-showpsi(x,y,psi.ψ)
 
 ψi .= psi.ψ
 ϕi = kspace(ψi,sim)
-
-# ===== compare with Fetter JLTP 2010
+showpsi(x,y,psi.ψ)
+#--- compare precession with Fetter JLTP 2010
 ξ = 1/sqrt(μ)
 Rtf = R(1)
 Ωm = 3*log(Rtf/ξ/sqrt(2))/2/Rtf^2
@@ -69,13 +85,12 @@ ti = 0.; tf = Tv
 t = LinRange(ti,tf,Nt)
 
 @pack_Sim! sim
-#---
-# ==== evolve
 @time solv = runsim(sim)
 
-# ==== analyse
+#--- analyse
 ϕf = solv[end]
 ψf = xspace(ϕf,sim)
+
 showpsi(x,y,ψf)
 
 anim = @animate for i in eachindex(t)
