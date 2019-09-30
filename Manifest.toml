@@ -26,9 +26,9 @@ version = "1.2.1"
 
 [[BandedMatrices]]
 deps = ["FillArrays", "LazyArrays", "LinearAlgebra", "MatrixFactorizations", "Random", "SparseArrays"]
-git-tree-sha1 = "887159a41e0bf6d5d9fe9dd98ca7a48f6b8780d4"
+git-tree-sha1 = "1fd0676c958fe070c0edbffe3197edfdfcced523"
 uuid = "aae01518-5342-5314-be14-df237901396f"
-version = "0.11.1"
+version = "0.12.0"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -53,9 +53,9 @@ version = "0.10.0"
 
 [[BlockBandedMatrices]]
 deps = ["BandedMatrices", "BlockArrays", "Distributed", "FillArrays", "LazyArrays", "LinearAlgebra", "MatrixFactorizations", "Pkg", "Profile", "Random", "SharedArrays", "SparseArrays", "Statistics", "Test"]
-git-tree-sha1 = "f18a3f8314dd313a30e1bb30c0f3ba8446d342ef"
+git-tree-sha1 = "160fc541f01304ab823d1aff1959e84f28a63faf"
 uuid = "ffab5731-97b5-5995-9138-79e8c1846df0"
-version = "0.5.0"
+version = "0.5.1"
 
 [[BoundaryValueDiffEq]]
 deps = ["BandedMatrices", "DiffEqBase", "DiffEqDiffTools", "ForwardDiff", "LinearAlgebra", "NLsolve", "Reexport", "SparseArrays"]
@@ -341,9 +341,9 @@ version = "1.0.3"
 
 [[LazyArrays]]
 deps = ["FillArrays", "LinearAlgebra", "MacroTools", "StaticArrays"]
-git-tree-sha1 = "631379228b52050c9c925d34db7d60b9073f2989"
+git-tree-sha1 = "fbbf7e52929f74ed4f4d2fff4419f76807a443ef"
 uuid = "5078a376-72f3-5289-bfd5-ec5146d43c02"
-version = "0.11.0"
+version = "0.12.0"
 
 [[LibGit2]]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
@@ -569,9 +569,9 @@ version = "0.3.1"
 
 [[SimpleTraits]]
 deps = ["InteractiveUtils", "MacroTools"]
-git-tree-sha1 = "05bbf4484b975782e5e54bb0750f21f7f2f66171"
+git-tree-sha1 = "2bdf3b6300a9d66fe29ee8bb51ba100c4df9ecbc"
 uuid = "699a6c99-e7fa-54fc-8d76-47d257e15c1d"
-version = "0.9.0"
+version = "0.9.1"
 
 [[Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"

@@ -32,6 +32,7 @@ dipole = [nv;pv]
 
 psi = Torus(ψd,x,y) # set field topology for VortexDistributions
 vortex!(psi,dipole) # make dipole
+# periodic phase correction
 ψd = abs.(psi.ψ).*exp.(im*Thetad(x,y,xp,yp,xn,yn))
 showpsi(x,y,ψd)
 
@@ -45,7 +46,7 @@ kmax = kξ
 Np = 200
 k = log10range(kmin,kmax,Np)
 
-Ek = kespectrum(k,ψi,X,K)
+Ek = kespectrum(k,ψd,X,K)
 plot(k,Ek,scale=:log10)
 
 # heatmap(log.(abs2.(A |> fftshift) .+ eps.()))
@@ -68,7 +69,7 @@ E0 = π*n0
 p1 = plot(k,Eki/E0,scale=:log10,grid=false,label=L"E_i(k)",legend=:bottomleft)
 plot!(k,2k.^(-3),label=L"k^{-3}")
 plot!(k,200*k,label=L"k")
-ylims!(5e-4,1e2)
+ylims!(2e-3,1e2)
 # xlims!(0.02,10)
 vline!([kL],ls=:dash,label=L"k_L")
 vline!([kd],ls=:dash,label=L"k_d")
