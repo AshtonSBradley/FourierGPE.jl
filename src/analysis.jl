@@ -178,6 +178,7 @@ end
 	Ek = kespectrum(k,ψ,X,K)
 
 Caculates the kinetic enery spectrum for wavefunction `\psi`.
+Arrays `X`, `K` should be computed using `makearrays`.
 """
 function kespectrum(k,ψ,X,K)
 	x,y = X; kx,ky = K
@@ -205,6 +206,7 @@ end
 	Ek = ikespectrum(k,ψ,X,K)
 
 Caculates the incompressible kinetic enery spectrum for wavefunction `\psi`, using Helmholtz decomposition.
+Arrays `X`, `K` should be computed using `makearrays`.
 """
 function ikespectrum(k,ψ,X,K)
     x,y = X; kx,ky = K
