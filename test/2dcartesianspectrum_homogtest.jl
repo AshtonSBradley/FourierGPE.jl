@@ -46,7 +46,7 @@ kmax = kξ
 Np = 200
 k = log10range(kmin,kmax,Np)
 
-Ek = kespectrum(k,ψd,X,K)
+@time Ek = kespectrum(k,ψd,X,K)
 plot(k,Ek,scale=:log10)
 
 # heatmap(log.(abs2.(A |> fftshift) .+ eps.()))
