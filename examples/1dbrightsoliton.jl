@@ -5,13 +5,13 @@ c1 =:mediumseagreen
 using FourierGPE
 
 
-# ==== Initialize simulation
+#--- Initialize simulation
 L = (60.0,)
 N = (512,)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-# ==== set simulation parameters
+#--- set simulation parameters
 μ = 25.0
 g = -0.01
 γ = 0.0
@@ -23,18 +23,19 @@ Nt = 150
 ti = 0.0
 t = LinRange(ti,tf,Nt)
 
-# ==== soliton wavefunction
+#--- soliton wavefunction
 x = X[1]
 ψs(x) = sqrt(Ns/2ξs)*sech(x/ξs)*exp(im*us*x)
 ψi = ψs.(x)
 ϕi = kspace(ψi,sim)
 
-# ==== Set all fields
+#--- Set all fields
 @pack_Sim! sim
 
-# ====== Evolve in k space ==========
+#--- Evolve in k space
 sol = runsim(sim)
-# ===================================
+
+#--- plot
 
 y = abs2.(xspace(sol[Nt-76],sim))
 plot(x,y,fill=(0, 0.2))

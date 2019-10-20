@@ -3,8 +3,7 @@ gr(titlefontsize=12,size=(500,300),colorbar=false)
 
 using FourierGPE
 
-# ==== Units: ========================
-# oscillator
+# Units: oscillator
 L = (20.,20.,20.)
 N = (64,64,64)
 sim = Sim(L,N)
@@ -13,18 +12,18 @@ sim = Sim(L,N)
 import FourierGPE.V
 V(x,y,z,t) = 0.5*(x^2 + y^2 + 4*z^2)
 
-# ==== set simulation parameters ====
+#--- set simulation parameters ====
 γ = 0.5
 μ = 15.0
 tf = 0.3 # 1.5/γ
 Nt = 150
 t = LinRange(0.,tf,Nt)
 
-# ==== state functions
+#--- state functions
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
 healing(x,y,z,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,z,μ,g)))
 
-# ==== initial state
+#--- initial state
 x,y,z = X
 y = y'; z = reshape(z,1,1,length(z))
 ψi = ψ0.(x,y,z,μ,g)
@@ -35,11 +34,11 @@ y = y'; z = reshape(z,1,1,length(z))
 plot(x,abs2.(ψ0.(x,0.,0.,μ,g)))
 plot!(x,abs2.(ψi[:,32,32]))
 
-# ==== evolve in k space
+#--- evolve in k space
 sol = runsim(sim)
 
 
-# ==== ground state
+#--- ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y',ψg[:,:,32])
@@ -63,7 +62,7 @@ anim = @animate for i=1:Nt
 end
 gif(anim,"./examples/3dquench.gif",fps=30)
 
-# ========== animate isosurface in Makie ========
+#--- animate isosurface in Makie 
 using Makie, AbstractPlotting
 
 function dense(phi)

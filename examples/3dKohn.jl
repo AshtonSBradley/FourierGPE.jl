@@ -1,8 +1,7 @@
 using Pkg, Revise, FourierGPE
 gr(titlefontsize=12,size=(500,300),colorbar=false)
 
-# ==== Units: ========================
-# Oscillator
+# Units: Oscillator
 L = (15.,15.,15.)
 N = (64,64,64)
 sim = Sim(L,N)
@@ -11,17 +10,17 @@ sim = Sim(L,N)
 import FourierGPE.V
 V(x,y,z,t) = 0.5*(x^2 + y^2 + z^2)
 
-# ==== set simulation parameters ====
+#--- set simulation parameters
 γ = 0.5
 tf = 2/γ
 Nt = 200
 t = LinRange(0.,tf,Nt)
 
-# ========= useful state functions ========
+#--- useful state functions
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
 healing(x,y,z,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,z,μ,g)))
 
-# ==== make initial state
+#--- make initial state
 x,y,z = X
 ψi = ψ0.(x,y',reshape(z,1,1,length(z)),μ,g)
 ψi = randn(N)+im*randn(N)
@@ -29,9 +28,9 @@ x,y,z = X
 
 @pack_Sim! sim
 
-# ====== Evolve in k space ==========
+#--- Evolve in k space
 sol = runsim(sim)
-# ===================================
+#---
 
 # pull out the ground state
 ϕg = sol[end]
@@ -41,7 +40,7 @@ showpsi(x,y,ψg[:,:,zmid])
 
 plot(x,y,abs2.(ψg[:,:,zmid]),linetype=:surface)
 
-# === Dynamics of Kohn mode =======================
+#--- Dynamics of Kohn mode
 # kick it
 simk = Sim(L,N)
 
@@ -59,7 +58,7 @@ t = LinRange(0.,tf,Nt)
 
 @time solk = runsim(simk)
 
-# animate a slice
+#--- animate a slice
 anim = @animate for i=1:Nt
     ϕ = solk[i]
     zmid = findfirst(z .≈ 0)
@@ -82,7 +81,7 @@ gif(anim,"./examples/3dKohnSurface.mov",fps=30)
 
 simk
 
-# ========== animate isosurface in Makie ========
+#--- animate isosurface in Makie 
 using Makie, AbstractPlotting
 
 function dense(phi)

@@ -1,38 +1,38 @@
 using FourierGPE
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
-# ==== Units
+# Units
 # this example works in oscillator units
 
-# ==== Initialize simulation
+#--- Initialize simulation
 
 L = (40.0,40.0)
 N = (256,256)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-# ==== simulation parameters
+#--- simulation parameters
 μ = 15.0
 
 
-# ==== potential
+# potential
 import FourierGPE.V
 V(x,y,t) = 0.5*(x^2 + y^2)
 
-# ==== TF state
+# TF state
 ψtf(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 
+# make initial state
 x,y = X
-# ==== make initial state
 ψi = ψtf.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 
 @pack_Sim! sim
 
-# ==== evolve
+#--- evolve
 sol = runsim(sim)
 
-# ==== pull out the ground state
+#--- pull out the ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
@@ -42,10 +42,10 @@ R(1)
 plot(x, abs2.(ψtf.(x,0.,μ,g)))
 plot!(x, abs2.(ψg[:,128]))
 
-# ==== free expansion
+#--- free expansion
 V(x,y,t) = 0.0
 
-# ==== sim parameters
+# sim parameters
 γ = 0.0
 tf = 10.0
 t = LinRange(ti,tf,Nt)
@@ -54,7 +54,7 @@ t = LinRange(ti,tf,Nt)
 sime = Sim(L,N)
 @pack! sime = tf,t,γ,ϕi
 
-# ==== evolve
+#--- evolve
 sole = runsim(sime)
 
 ϕf = sole[end]

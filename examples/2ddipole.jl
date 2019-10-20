@@ -28,7 +28,6 @@ function psimovie(sol,sim)
     end
     return anim
 end
-#---
 
 #--- Set up parameters and ground state
 # Units of ξ for length, 1/μ for time
@@ -55,21 +54,20 @@ t = LinRange(ti,tf,Nt)
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
-# Make initial state
+#--- Make initial state
 x,y = X
 kx,ky = K
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-# evolve
+#--- evolve
 sol = runsim(sim)
 
-# pull out the ground state
+#--- plot ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
-#---
 
 #--- periodic dipole phase
 # Billam et al, PRL 112, 145301 (2014), Supplemental
@@ -110,8 +108,6 @@ function Thetad(x,y,xp,yp,xn,yn)
     Ly = y[end]-y[1]
     return @. angle(exp(im*thetad.(x*2*pi/Lx,y'*2*pi/Ly,xp*2*pi/Lx,yp*2*pi/Ly,xn*2*pi/Lx,yn*2*pi/Ly)))
 end
-#---
-
 
 #--- initial dipole, with periodic phase
 ψv = copy(ψg)
@@ -128,15 +124,12 @@ psi = Torus(ψv,x,y) # set field topology for VortexDistributions
 vortex!(psi,dipole) # make dipole
 ψv = abs.(psi.ψ).*exp.(im*Thetad(x,y,xp,yp,xn,yn))
 showpsi(x,y,ψv)
-#---
 
 #--- make sure phase is periodic
 using Test
 testphase = angle.(ψv)
 @test testphase[:,1] ≈ testphase[:,end]
 @test testphase[1,:] ≈ testphase[end,:]
-#---
-
 
 #--- evolve dipole with weak damping
 # Set simulation parameters
@@ -152,14 +145,14 @@ alg = Vern7()
 
 # remove boundary artifacts with small γ
 @time solv = runsim(sim)
-#---
+
 #--- plot and animate
 ψd = xspace(solv[end],sim)
 showpsi(x,y,ψd)
 
 anim = psimovie(solv,sim)
 gif(anim,"./examples/dipole_damping.gif",fps=25)
-#---
+
 #--- Vortex detection test
 Nt = 100
 d = zeros(Nt)
@@ -171,7 +164,7 @@ for i=1:Nt
 end
 
 plot(t[1:Nt],d)
-#---
+
 #--- Hamiltonian evolution
 γ = 0.0
 tf = L[1]/c/5
@@ -180,14 +173,14 @@ t = LinRange(ti,tf,Nt)
 @pack_Sim! sim
 
 solh = runsim(sim)
-#---
+
 #--- plot
 ψdh = xspace(solh[end],sim)
 showpsi(x,y,ψdh)
 
 anim = psimovie(solh,sim)
 gif(anim,"./examples/dipole_hamiltonian.gif",fps=25)
-#---
+
 #--- energy densities
 function showenergies(ψ)
     et,ei,ec = energydecomp(ψ)
@@ -210,7 +203,7 @@ anim = @animate for i in eachindex(t)
 end
 
 gif(anim,"./examples/dipoleenergies.gif",fps=30)
-#---
+
 #--- energy totals
 
 function venergy(ϕ,sim,t)
@@ -269,7 +262,6 @@ function energies(sol)
     end
     return Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms
 end
-#---
 
 @time Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms = energies(solh)
 
@@ -290,7 +282,6 @@ plot!(t,Eint./Natoms,label=L"E_{int}")
 plot!(t,Eqp./Natoms,label=L"E_{qp}")
 plot!(t,Ekall./Natoms,label=L"E_{kall}")
 xlabel!(L"t")
-#---
 
 # if we need to save data:
 # @save "./examples/dipoledecay.jld2" solv.u sim

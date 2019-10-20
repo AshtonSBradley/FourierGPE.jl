@@ -4,30 +4,30 @@ c1 =:mediumseagreen
 
 using FourierGPE
 
-# ==== set simulation parameters ====
+#--- set simulation parameters ====
 L = (40.0,)
 N = (512,)
 sim = Sim(L,N)
 @unpack_Sim sim
 
 μ = 25.0
-# ==== potential
+#--- potential
 import FourierGPE.V
 V(x,t) = 0.5*x^2
 
-# ==== TF state
+#--- TF state
 ψ0(x,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,0.0)/μ,0.0)+im*0.0)
 
-# ==== initial state
+#--- initial state
 x = X[1]
 ψi = ψ0.(x,μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-# ==== imaginary time to find ground state
+#--- imaginary time to find ground state
 sol = runsim(sim)
 
-# ==== pull out and check the ground state
+#--- pull out and check the ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 plot(x,one.(x)*μ,ls=:solid,c=:gray,w=1)
@@ -37,7 +37,7 @@ xlims!(-10,10); ylims!(0,1.3*μ)
 title!(L"\textrm{local}\; \mu(x)")
 xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
 
-# ==== imprint dark soliton
+#--- imprint dark soliton
 ψf = xspace(sol[end],sim)
 c = sqrt(μ)
 ξ = 1/c
@@ -49,7 +49,7 @@ f = sqrt(1-(v/c)^2)
 showpsi(x,ψs)
 xlims!(-10,10)
 
-# ==== set simulation parameters
+#--- set simulation parameters
 γ = 0.0
 tf = 8*pi/sqrt(2); t = LinRange(ti,tf,Nt)
 
@@ -58,13 +58,10 @@ simSoliton = Sim(sim;γ=γ,tf=tf,t=t)
 ϕi = kspace(ψs,simSoliton)
 @pack! simSoliton = ϕi
 
-#update all variables in current global workspace
-# @unpack_Sim simSoliton
-# ===================================
-
-# ====== Evolve in k space ==========
+#--- evolve in k space
 sols = runsim(simSoliton)
-# ===================================
+
+#--- plot
 
 ϕf = sols[end-3]
 ψf = xspace(ϕf,simSoliton)
