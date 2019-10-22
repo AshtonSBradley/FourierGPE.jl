@@ -80,4 +80,4 @@ anim = @animate for i=1:Nt-6
     showpsi(x,y,ψ)
 end
 
-gif(anim,"./examples/jr.gif",fps=30)
+gif(anim,"./examples/jr.gif"),fps=30)
