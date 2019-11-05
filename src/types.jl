@@ -53,11 +53,11 @@ end
     alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Tsit5() # default solver
     reltol::Float64 = 1e-6 # default tolerance; may need to use 1e-7 for corner cases
     flags::UInt32 = FFTW.MEASURE # choose a plan. PATIENT, NO_TIMELIMIT, EXHAUSTIVE
+    # === saving
     nfiles::Bool = false
     path::String = nfiles ? joinpath(@__DIR__,"data") : @__DIR__
     filename::String = "save"
-    # =======================================
-    # arrays, transforms, spectral operators
+    # === arrays, transforms, spectral operators
     X::NTuple{D,Array{Float64,1}} = xvecs(L,N)
     K::NTuple{D,Array{Float64,1}} = kvecs(L,N)
     espec::Array{Complex{Float64},D} = 0.5*k2(K)
