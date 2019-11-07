@@ -6,7 +6,6 @@ Simple GPE solver using FFTW
 - Establish some useful defaults and runnable examples for time evolution using `DifferentialEquations.jl`
 - Arbitrary spatial dimensions.
 - Not de-aliased (projective methods available elsewhere)
-- See [FGPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl) for tutorials to get started.
 
 ## Installing
 
@@ -15,37 +14,4 @@ Simple GPE solver using FFTW
 using FourierGPE
 ```
 
-## Modifying the potential
-Write your potential as a scalar function so that it can be broadcast via a dot-call, e.g.
-
-```julia
-import FourierGPE.V
-V(x,y,t) = (x^2 + y^2))*pi+cos(0.1*t)
-```
-
-The potential will be called as `V.(x,y',t)`, using the column vectors `x,y` and any other parameters you add to `sim`.
-
-## Adding parameters
-You can add additional parameters by editing the definition of `Par` in `/src/helpers.jl`,
-which will require you to supply a default, and optionally a type (if it differs from `Float64`).
-
-Modified parameters for a particular simulation will be correctly saved and made available using, e.g.
-
-```julia
-sim = Par() # initialize default simulation
-a = 0.1 # modified value
-@pack! sim = a #pack it into sim
-initsim!(sim)  # create initial arrays and transforms
-@unpack_Par sim # provde all variables in the current workspace
-```
-which should be called prior to evolving your specified initial condition `psi` in `kspace` using
-
-```julia
-phi = kspace(psi,sim)
-sol = runsim(sim,phi)
-```
-
-## Default solver
-Currently uses `alg=Tsit5()`, an adaptive RK routine. The default `reltol` is not quite small enough for some applications, so it is set to `reltol = 1e-7`. See `src/evolution.jl` for details.
-
-For more info see the runnable examples at [FGPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl)
+To get started see runnable examples in the `/examples` directory, or for more information see [FGPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl)
