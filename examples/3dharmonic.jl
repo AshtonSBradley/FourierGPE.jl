@@ -1,3 +1,5 @@
+
+
 using FourierGPE
 
 # Units: oscillator
@@ -49,7 +51,7 @@ anim = @animate for i=1:Nt
 end
 gif(anim,"./examples/3dquench.gif",fps=30)
 
-#--- animate isosurface in Makie 
+#--- animate isosurface in Makie
 using Makie, AbstractPlotting
 
 function dense(phi)
@@ -65,7 +67,7 @@ function densityfilm(sol,Nt;file="3dquench.gif")
     tindex = Node(1)
     scene = volume(lift(i -> dense(sol[i]), tindex),
     algorithm = :iso,
-    color = (:mediumseagreen,0.25),
+    color = (c3,0.25),
     show_axis=false,
     isovalue=3f0(.15))
 

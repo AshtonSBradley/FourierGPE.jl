@@ -1,5 +1,6 @@
-using Pkg, Revise
+using Plots
 gr(titlefontsize=12,size=(500,300),colorbar=false)
+
 
 using FourierGPE
 
@@ -37,7 +38,6 @@ plot!(x,abs2.(ψi[:,32,32]))
 #--- evolve in k space
 sol = runsim(sim)
 
-
 #--- ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
@@ -57,12 +57,12 @@ abs2.(ψg[32,32,32])
 anim = @animate for i=1:Nt
     ϕ = sol[i]
     zmid = findfirst(z .≈ 0)
-    ψ = xspace(ϕ,sim)[:,:,zmid]
-    showpsi(x,y,ψ)
+    ψ = xspace(ϕ,sim)
+    showpsi(x,y,ψ[:,:,zmid])
 end
 gif(anim,"./examples/3dquench.gif",fps=30)
-
-#--- animate isosurface in Makie 
+#TODO debug
+#--- animate isosurface in Makie
 using Makie, AbstractPlotting
 
 function dense(phi)
@@ -78,7 +78,7 @@ function densityfilm(sol,Nt;file="3dquench.gif")
     tindex = Node(1)
     scene = volume(lift(i -> dense(sol[i]), tindex),
     algorithm = :iso,
-    color = (:mediumseagreen,0.25),
+    color = (c3,0.25),
     show_axis=false,
     isovalue=3f0(.15))
 

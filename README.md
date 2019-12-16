@@ -13,7 +13,15 @@ Simple GPE solver using FFTW
 ]add https://github.com/AshtonSBradley/FourierGPE.jl.git
 using FourierGPE
 ```
+## Enabling MKL
+```julia
+using Pkg;
+ENV["JULIA_FFTW_PROVIDER"]="MKL"
+Pkg.build("FFTW")
+```
+Note that MKL for FFTW is provided independently of the package [MKL.jl](https://github.com/JuliaComputing/MKL.jl).
 
+## Getting started
 To get started see runnable examples in the `/examples` directory, or for more information see [FGPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl)
 
 <img src="https://github.com/AshtonSBradley/FGPEexamples.jl/blob/master/media/3dquenchslab.gif" width="900">

@@ -1,4 +1,6 @@
-using Plots, FourierGPE
+using Plots
+
+using FourierGPE
 #--- Initialize simulation
 L = (18.0,18.0)
 N = (128,128)

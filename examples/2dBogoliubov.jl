@@ -1,5 +1,7 @@
-using Plots, LaTeXStrings, Pkg, Revise, FourierGPE
+using Plots, LaTeXStrings, Pkg, Revise
 gr(colorbar=false,size=(300,300),legend=false,grid=false)
+
+using FourierGPE
 
 #--- setup
 L = (60.0,60.)

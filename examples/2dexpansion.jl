@@ -1,6 +1,7 @@
-using FourierGPE
+using Plots
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
+using FourierGPE
 # Units
 # this example works in oscillator units
 

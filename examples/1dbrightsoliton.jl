@@ -1,6 +1,5 @@
 using Plots, LaTeXStrings, Pkg, Revise
 gr(colorbar=false,size=(600,150),legend=false,grid=false,xticks=false,yticks=false,axis=false)
-c1 =:mediumseagreen
 
 using FourierGPE
 
@@ -43,7 +42,7 @@ plot(x,y,fill=(0, 0.2))
 anim = @animate for i=1:Nt-8
     ψ = xspace(sol[i],sim)
     y = abs2.(ψ)
-    plot(x,y,c=c1,fill=(0, 0.4,c1))
+    plot(x,y,c=c3,fill=(0, 0.4,c3))
 end
 
 gif(anim, "./examples/brightsoliton.gif", fps = 25)

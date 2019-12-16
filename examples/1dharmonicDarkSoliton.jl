@@ -1,6 +1,5 @@
 using Plots, LaTeXStrings, Pkg, Revise
 gr(grid=false,legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
-c1 =:mediumseagreen
 
 using FourierGPE
 
@@ -32,7 +31,7 @@ sol = runsim(sim)
 ψg = xspace(ϕg,sim)
 plot(x,one.(x)*μ,ls=:solid,c=:gray,w=1)
 plot!(x,V.(x,0.0),c=:red,w=4,alpha=0.4)
-plot!(x,g*abs2.(ψg),c=c1,w=2,fill=(0,0.4,c1),size=(600,200))
+plot!(x,g*abs2.(ψg),c=c3,w=2,fill=(0,0.4,c3),size=(600,200))
 xlims!(-10,10); ylims!(0,1.3*μ)
 title!(L"\textrm{local}\; \mu(x)")
 xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")
@@ -70,7 +69,7 @@ showpsi(x,ψf)
 anim = @animate for i in 1:length(t)-3
     ψ = xspace(sols[i],simSoliton)
     y = g*abs2.(ψ)
-    plot(x,y,c=c1,w=2,fill=(0,0.4,c1),size=(600,300),grid=false)
+    plot(x,y,c=c3,w=2,fill=(0,0.4,c3),size=(600,300),grid=false)
     xlims!(-10,10); ylims!(0,1.3*μ)
     title!(L"\textrm{local}\; \mu(x)")
     xlabel!(L"x/a_x"); ylabel!(L"\mu(x)/\hbar\omega_x")

@@ -1,5 +1,7 @@
-using Test, Plots, LaTeXStrings, Revise, FourierGPE, VortexDistributions
+using Test, Plots, LaTeXStrings, VortexDistributions
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
+
+using FourierGPE
 
 function psimovie(sol,sim)
     @unpack X,t = sim; x,y = X
@@ -54,6 +56,7 @@ showpsi(x,y,ψg)
 ψv = copy(ψg)
 d = 30
 ξv = healinglength(0.,0.,μ,g)
+
 # can use default ξ = 1
 pv = PointVortex(0.,d/2,1)
 nv = PointVortex(0,-d/2,-1)
