@@ -1,5 +1,8 @@
-using Pkg, Revise, FourierGPE
+using Plots
 gr(titlefontsize=12,size=(500,300),colorbar=false)
+
+using Pkg;Pkg.activate(".")
+using FourierGPE
 
 # Units: Oscillator
 L = (15.,15.,15.)
@@ -81,7 +84,7 @@ gif(anim,"./examples/3dKohnSurface.mov",fps=30)
 
 simk
 
-#--- animate isosurface in Makie 
+#--- animate isosurface in Makie
 using Makie, AbstractPlotting
 
 function dense(phi)

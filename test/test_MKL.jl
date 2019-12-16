@@ -1,4 +1,6 @@
 # Test MKL plans
+using Pkg
+Pkg.activate(".")
 using FourierGPE, Test
 
 #transform tests

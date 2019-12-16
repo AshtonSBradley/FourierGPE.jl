@@ -103,9 +103,9 @@ function makeT(X,K,j=1;flags=FFTW.MEASURE)
 
     # flags != FFTW.MEASURE && @info "Planning FFTs ..."
     Txk,Txk!,Tkx,Tkx! = definetransforms(trans,args,meas,flags)
-    Mxk,Mxk!,Mkx,Mkx! = makeTMixed(X,K,flags=flags)
+    # Mxk,Mxk!,Mkx,Mkx! = makeTMixed(X,K,flags=flags)
     # @info "...Plans created."
-    return Transforms{dim,j}(Txk,Txk!,Tkx,Tkx!,Mxk,Mxk!,Mkx,Mkx!,crandnpartition(dim,j))
+    return Transforms{dim,j}(Txk,Txk!,Tkx,Tkx!,crandnpartition(dim,j))
 end
 
 """

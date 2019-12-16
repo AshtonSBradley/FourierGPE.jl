@@ -1,10 +1,8 @@
 #--- load packages
-using Test, Plots, LaTeXStrings, Revise, FourierGPE, VortexDistributions
+using Test, Plots, LaTeXStrings, VortexDistributions
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
-using ColorSchemes
-c1 = cgrad(ColorSchemes.linear_blue_5_95_c73_n256.colors)
-c2 = cgrad(ColorSchemes.turbo.colors)
+
 import FourierGPE:showpsi
 
 function showpsi(x,y,ψ)

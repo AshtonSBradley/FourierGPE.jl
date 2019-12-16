@@ -3,7 +3,6 @@ gr(colorbar=false,size=(600,150),legend=false,grid=false)
 
 using FourierGPE
 
-
 #--- Initialize simulation
 L = (40.0,)
 N = (2048,)
@@ -36,7 +35,7 @@ sol = runsim(sim)
 #--- plot
 plot(x,abs2.(ψi),lw=3,c=:red)
 y = abs2.(xspace(sol[Nt],sim))
-plot!(x,y,lw=3,c=c1,fill=(0, 0.4,c1))
+plot!(x,y,lw=3,c=c3,fill=(0, 0.4,c3))
 xlims!(-5,5)
 
 #--- animate
@@ -44,7 +43,7 @@ anim = @animate for i=1:Nt
     ψ = xspace(sol[i],sim)
     y = abs2.(ψ)
     # plot(x,abs2.(ψi),lw=3,c=:red,alpha=0.4)
-    plot(x,y,c=c1,fill=(0, 0.4,c1),size=(400,300),xticks=false,yticks=false,axis=false)
+    plot(x,y,c=c3,fill=(0, 0.4,c3),size=(400,300),xticks=false,yticks=false,axis=false)
     xlims!(-2.2,2.2)
     ylims!(0,220)
 end

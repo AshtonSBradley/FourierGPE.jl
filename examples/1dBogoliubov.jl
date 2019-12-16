@@ -1,9 +1,7 @@
 using Plots, LaTeXStrings, Pkg, Revise
 gr(size=(600,300),colorbar=false,legend=false,grid=false)
-c1 =:mediumseagreen
 
 using FourierGPE
-
 
 L = (60.0,)
 N = (512,)
@@ -50,7 +48,7 @@ y = abs2.(xspace(sol[end-1],sim)); plot(x,y)
 anim = @animate for i=1:Nt
     ψ = xspace(sol[i],sim)
     y = g*abs2.(ψ)
-    plot(x,y,c=c1,fill=(0,0.3,c1))
+    plot(x,y,c=c3,fill=(0,0.5,c3))
     plot!(x,one.(x)*μ,c=:black,alpha=0.3)
     ylims!(0,1.1)
     xlims!(first(x),last(x))
