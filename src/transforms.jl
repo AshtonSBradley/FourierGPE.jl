@@ -75,8 +75,8 @@ Build all transforms for simulation.
 """
 function definetransforms(funcs,args,meas,kwargs)
     trans = []
-    for (i,fun) ∈ enumerate(funcs)
-        push!(trans, fun(args[i]...,flags=kwargs))
+    for (fun,arg) in zip(funcs,args)
+        push!(trans, fun(arg...,flags=kwargs))
     end
     return meas.*trans
 end
@@ -137,8 +137,9 @@ for i = 1:dim
     push!(transkx!, plan_ifft!)
     push!(measxk, DX[i])
     push!(measkx, DK[i])
-
 end
+
+#TODO fails in MKL
 Mxk = definetransforms(transxk,args,measxk,flags)
 Mxk! = definetransforms(transxk!,args,measxk,flags)
 Mkx = definetransforms(transkx,args,measkx,flags)
