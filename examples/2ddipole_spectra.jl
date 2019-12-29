@@ -1,4 +1,4 @@
-using Test, Plots, LaTeXStrings, VortexDistributions
+using Plots, LaTeXStrings, VortexDistributions
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 using FourierGPE
@@ -44,7 +44,7 @@ kx,ky = K
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-#---== evolve
+#--- evolve
 sol = runsim(sim)
 
 #--- pull out the ground state

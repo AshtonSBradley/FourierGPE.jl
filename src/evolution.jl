@@ -15,7 +15,8 @@ end
 """
     V(x,t) = ...
 
-Define the system potential. Default is zero.
+Define the system potential, with default zero. Should be defined as a scalar
+function (without `.`), suitable for broadcasting on spatial arrays via `V.(...)`.
 """
 V(x,t) = 0.0
 V(x,y,t) = 0.0
@@ -24,7 +25,7 @@ V(x,y,z,t) = 0.0
 """
     χ = nlin(ϕ,sim,t)
 
-Evalutes nonlinear terms in position space, returning to `k` spaces.
+Evalutes nonlinear terms in `x`-space, returning to `k`-space.
 """
 function nlin(ϕ,sim,t)
     @unpack g,x,y = sim
@@ -104,41 +105,41 @@ Simple plotting of wavefunction density and phase. Scales that are useful: :iden
 """
 function showpsi(x,ψ;scale=:identity)
     if scale == :log10
-        p1 = plot(x,log10.(abs2.(ψ) .+ eps.(abs2.(ψ))))
-        xlabel!(L"x");ylabel!(L"|\psi|^2")
-        p2 = plot(x,angle.(ψ))
-        xlabel!(L"x");ylabel!(L"\textrm{phase} (\psi)")
-        p = plot(p1,p2,layout=(2,1),size=(600,400))
+        p1 = Plots.plot(x,log10.(abs2.(ψ) .+ eps.(abs2.(ψ))))
+        Plots.xlabel!(L"x");Plots.ylabel!(L"|\psi|^2")
+        p2 = Plots.plot(x,angle.(ψ))
+        Plots.xlabel!(L"x");Plots.ylabel!(L"\textrm{phase} (\psi)")
+        p = Plots.plot(p1,p2,layout=(2,1),size=(600,400))
     elseif scale == :identity
-        p1 = plot(x,abs2.(ψ))
-        xlabel!(L"x");ylabel!(L"|\psi|^2")
-        p2 = plot(x,angle.(ψ))
-        xlabel!(L"x");ylabel!(L"\textrm{phase} (\psi)")
-        p = plot(p1,p2,layout=(2,1),size=(600,400))
+        p1 = Plots.plot(x,abs2.(ψ))
+        Plots.xlabel!(L"x");Plots.ylabel!(L"|\psi|^2")
+        p2 = Plots.plot(x,angle.(ψ))
+        Plots.xlabel!(L"x");Plots.ylabel!(L"\textrm{phase} (\psi)")
+        p = Plots.plot(p1,p2,layout=(2,1),size=(600,400))
     end
     return p
 end
 
 function showpsi(x,y,ψ;scale=:identity)
     if scale==:log10
-    p1 = heatmap(x,y,log10.(abs2.(ψ) .+ eps.(abs2.(ψ))),aspectratio=1,c=c1,titlefontsize=12,transpose=true,colorbar=false)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψ),aspectratio=1,c=c2,titlefontsize=12,transpose=true,colorbar=false)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"\textrm{phase} (\psi)")
-    p = plot(p1,p2,size=(600,300))
+    p1 = Plots.heatmap(x,y,log10.(abs2.(ψ) .+ eps.(abs2.(ψ))),aspectratio=1,c=c1,titlefontsize=12,transpose=true,colorbar=false)
+    Plots.xlims!(x[1],x[end]);Plots.ylims!(y[1],y[end])
+    Plots.xlabel!(L"x");Plots.ylabel!(L"y")
+    Plots.title!(L"|\psi|^2")
+    p2 = Plots.heatmap(x,y,angle.(ψ),aspectratio=1,c=c2,titlefontsize=12,transpose=true,colorbar=false)
+    Plots.xlims!(x[1],x[end]);Plots.ylims!(y[1],y[end])
+    Plots.xlabel!(L"x");Plots.ylabel!(L"y")
+    Plots.title!(L"\textrm{phase} (\psi)")
+    p = Plots.plot(p1,p2,size=(600,300))
 elseif scale==:identity
-    p1 = heatmap(x,y,abs2.(ψ),aspectratio=1,c=c1,titlefontsize=12,transpose=true,colorbar=false)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψ),aspectratio=1,c=c2,titlefontsize=12,transpose=true,colorbar=false)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"\textrm{phase} (\psi)")
+    p1 = Plots.heatmap(x,y,abs2.(ψ),aspectratio=1,c=c1,titlefontsize=12,transpose=true,colorbar=false)
+    Plots.xlims!(x[1],x[end]);Plots.ylims!(y[1],y[end])
+    Plots.xlabel!(L"x");Plots.ylabel!(L"y")
+    Plots.title!(L"|\psi|^2")
+    p2 = Plots.heatmap(x,y,angle.(ψ),aspectratio=1,c=c2,titlefontsize=12,transpose=true,colorbar=false)
+    Plots.xlims!(x[1],x[end]);Plots.ylims!(y[1],y[end])
+    Plots.xlabel!(L"x");Plots.ylabel!(L"y")
+    Plots.title!(L"\textrm{phase} (\psi)")
     p = plot(p1,p2,size=(600,300))
 end
     return p

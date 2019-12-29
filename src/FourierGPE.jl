@@ -1,21 +1,21 @@
 module FourierGPE
 
 using Reexport
-@reexport using SpecialFunctions
-@reexport using LazyArrays
-@reexport using FillArrays
-@reexport using DifferentialEquations
-@reexport using RecursiveArrayTools
-@reexport using FFTW
+using SpecialFunctions
+using LazyArrays
+using FillArrays
+using DifferentialEquations
+using RecursiveArrayTools
+using FFTW
+using LaTeXStrings
+using ColorSchemes
 @reexport using Parameters
 @reexport using JLD2
 @reexport using FileIO
-@reexport using Plots
-@reexport using LaTeXStrings
-@reexport using ColorSchemes
 
-const c1 = cgrad(ColorSchemes.inferno.colors)
-const c2 = cgrad(ColorSchemes.RdBu_11.colors)
+import Plots
+const c1 = Plots.cgrad(ColorSchemes.inferno.colors)
+const c2 = Plots.cgrad(ColorSchemes.RdBu_11.colors)
 const c3 =:mediumseagreen
 
 include("types.jl")
@@ -30,9 +30,10 @@ export maketransarrays, makearrays, xspace, xspace!, kspace, kspace!
 export nlin, nlin!, Lgp, Lgp!, V, Params
 export initsim!, runsim, internalnorm
 export Transforms, @pack_Transforms!, @unpack_Transforms
-export Sim, @pack_Sim!, @unpack_Sim, showpsi, testsim
+export Sim, @pack_Sim!, @unpack_Sim, testsim
+export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
-export Field, XField, KField, velocity, energydecomp, helmholtz, c1, c2, c3
+export Field, XField, KField, velocity, energydecomp, helmholtz
 export log10range, zeropad, autocorrelate, convolve, kespectrum, ikespectrum
 end # module

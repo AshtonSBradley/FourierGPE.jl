@@ -1,7 +1,6 @@
 using Plots
 gr(titlefontsize=12,size=(500,300),colorbar=false)
 
-using Pkg;Pkg.activate(".")
 using FourierGPE
 
 # Units: Oscillator
