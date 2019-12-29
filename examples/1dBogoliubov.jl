@@ -1,8 +1,9 @@
-using Plots, LaTeXStrings, Pkg, Revise
+using Plots, LaTeXStrings
 gr(size=(600,300),colorbar=false,legend=false,grid=false)
 
 using FourierGPE
 
+#--- initialize
 L = (60.0,)
 N = (512,)
 sim = Sim(L,N)

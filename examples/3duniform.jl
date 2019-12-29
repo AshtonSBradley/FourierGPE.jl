@@ -1,4 +1,4 @@
-using LaTeXStrings, Pkg, Revise, FourierGPE
+using Plots, LaTeXStrings, FourierGPE
 gr(titlefontsize=12,size=(500,300),colorbar=false)
 
 # Units:

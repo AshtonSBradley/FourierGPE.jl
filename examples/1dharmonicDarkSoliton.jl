@@ -1,4 +1,4 @@
-using Plots, LaTeXStrings, Pkg, Revise
+using Plots, LaTeXStrings 
 gr(grid=false,legend=false,titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
 using FourierGPE
