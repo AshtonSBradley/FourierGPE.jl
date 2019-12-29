@@ -1,8 +1,8 @@
 """
     Dx,Dk = dfft(x,k)
 
-Measures that make fft, ifft 2-norm preserving.
-Correct measures for mapping between `x` and `k` space.
+Measures that make `fft`, `ifft` 2-norm preserving.
+Correct measures for mapping between `x`- and `k`-space.
 """
 function dfft(x,k)
     dx = diff(x)[1]; dk = diff(k)[1]
@@ -14,7 +14,7 @@ end
 """
     DX,DK = dfftall(X,K)
 
-Evalutes tuple of measures that make fft,ifft 2-norm preserving for each
+Evalutes tuple of measures that make `fft`, `ifft` 2-norm preserving for each
 `x` or `k` dimension.
 """
 function dfftall(X,K)
@@ -29,7 +29,7 @@ end
 """
     ψ = xspace(ϕ,sim)
 
-Transform from `k` to `x` space using transforms packed into `sim`.
+Transform from `k`- to `x`-space using transforms packed into `sim`.
 """
 function xspace(ϕ,sim)
     @unpack T = sim
@@ -39,7 +39,7 @@ end
 """
     xspace!(ϕ,sim)
 
-Mutating transform from `k` to `x` space using transforms packed into `sim`.
+Mutating transform from `k`- to `x`-space using transforms packed into `sim`.
 """
 function xspace!(ψ,sim)
     @unpack T = sim
@@ -50,7 +50,7 @@ end
 """
     kspace(ψ,sim)
 
-Transform from `x` to `k` space using transforms packed into `sim`.
+Transform from `x`- to `k`-space using transforms packed into `sim`.
 """
 function kspace(ψ,sim)
     @unpack T = sim
@@ -60,7 +60,7 @@ end
 """
     kspace!(ψ,sim)
 
-Mutating transform from `x` to `k` space using transforms packed into `sim`.
+Mutating transform from `x`- to `k`-space using transforms packed into `sim`.
 """
 function kspace!(ψ,sim)
     @unpack T = sim
@@ -84,7 +84,7 @@ end
 """
     T = makeT(X,K,j)
 
-Build transform library for the array tuples `X`, `K`. Defaults to a measure plan.
+Build `FFTW` transform library for the array tuples `X`, `K`. Defaults to a measure plan.
 `j` is number of scratch fields to initialize for in-place evaluation.
 """
 function makeT(X,K,j=1;flags=FFTW.MEASURE)

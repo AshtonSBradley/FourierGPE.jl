@@ -15,7 +15,8 @@ end
 """
     V(x,t) = ...
 
-Define the system potential. Default is zero.
+Define the system potential, with default zero. Should be defined as a scalar
+function (without `.`), suitable for broadcasting on spatial arrays via `V.(...)`.
 """
 V(x,t) = 0.0
 V(x,y,t) = 0.0
@@ -24,7 +25,7 @@ V(x,y,z,t) = 0.0
 """
     χ = nlin(ϕ,sim,t)
 
-Evalutes nonlinear terms in position space, returning to `k` spaces.
+Evalutes nonlinear terms in `x`-space, returning to `k`-space.
 """
 function nlin(ϕ,sim,t)
     @unpack g,x,y = sim

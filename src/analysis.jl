@@ -1,7 +1,8 @@
 """
-	vx,... = velocity(psi::XField{D})
+	velocity(psi::XField{D})
 
-Retruns the `D` velocity components of an `XField` of spatial dimension `D`. Velocities are `D`-dimensional arrays.
+Compute the `D` velocity components of an `XField` of spatial dimension `D`.
+The `D` velocities returned are `D`-dimensional arrays.
 """
 function velocity(psi::XField{1})
 	@unpack psiX,K = psi; kx = K[1]; ψ = psiX
@@ -40,7 +41,8 @@ end
 	Wi,Wc = helmholtz(wx,wy,...,psi::XField{D})
 
 Computes a 2 or 3 dimensional Helmholtz decomposition of the vector field with components
-`wx`, `wy`, or `wx`, `wy`, `wz`. `psi` is passed to provide requisite arraysin `k` space.
+`wx`, `wy`, or `wx`, `wy`, `wz`. `psi` is passed to provide requisite arrays in `k`-space.
+Returned fields `Wi`, `Wc` are incompressible and compressible respectively.
 """
 function helmholtz(wx, wy, psi::XField{2})
     @unpack K, K2 = psi; kx, ky = K
@@ -51,8 +53,8 @@ function helmholtz(wx, wy, psi::XField{2})
     wxki = @. wxk - wxkc
     wyki = @. wyk - wykc
     wxc = ifft(wxkc); wyc = ifft(wykc)
-  		wxi = ifft(wxki); wyi = ifft(wyki)
-  		Wi = (wxi, wyi); Wc = (wxc, wyc)
+  	wxi = ifft(wxki); wyi = ifft(wyki)
+  	Wi = (wxi, wyi); Wc = (wxc, wyc)
     return Wi, Wc
 end
 
@@ -109,10 +111,10 @@ function energydecomp(psi::XField{3})
     return et, ei, ec
 end
 
-@doc raw"""
-	A = zeropad(a)
+"""
+	zeropad(A)
 
-Zero-pad the 2D array `a` to twice the size with the same element type as `a`.
+Zero-pad the 2D array `A` to twice the size with the same element type as `A`.
 """
 function zeropad(a)
     s = size(a)
@@ -124,10 +126,10 @@ function zeropad(a)
     return Vcat([z z z z], M, [z z z z]) |> Matrix
 end
 
-@doc raw"""
-	x = log10range(a,b,n)
+"""
+	log10range(a,b,n)
 
-Create a logarithmically spaced vector. `x` is linear in log space, containing `n` values bracketed by `a` and `b`.
+Create a vector that is linearly spaced in log space, containing `n` values bracketed by `a` and `b`.
 """
 function log10range(a,b,n)
     x = LinRange(log10(a),log10(b),n)
@@ -139,10 +141,9 @@ end
 
 Computes the convolution of two complex fields according to
 
-``
+```math
 A(\rho) = \int d^2r\;\psi_1(r-\rho)\psi_2(r)
-``
-
+```
 using FFTW.
 """
 function convolve(ψ1,ψ2,X,K)
@@ -155,15 +156,17 @@ function convolve(ψ1,ψ2,X,K)
 end
 
 @doc raw"""
-	A = autocorrelate(ψ,X,K)
+	autocorrelate(ψ,X,K)
 
-Evaluates the autocorrelation integral of a complex field ``\psi``.
+Return the autocorrelation integral of a complex field ``\psi``, ``A``, given by
 
-``
+```
 A(\rho)=\int d^2r\;\psi^*(r-\rho)\psi(r)
-``
+```
 
-defined on a cartesian grid on a cartesian grid using FFTW. `X` and `K` are tuples of vectors for `x`,`y`,`kx`, `ky`.
+defined on a cartesian grid on a cartesian grid using FFTW.
+
+`X` and `K` are tuples of vectors `x`,`y`,`kx`, `ky`.
 
 This method is useful for evaluating spectra from cartesian data.
 """
@@ -174,10 +177,10 @@ function autocorrelate(ψ,X,K)
 	return ifft(abs2.(χ))*prod(DK) |> fftshift
 end
 
-@doc raw"""
-	Ek = kespectrum(k,ψ,X,K)
+"""
+	kespectrum(k,ψ,X,K)
 
-Caculates the kinetic enery spectrum for wavefunction `\psi`.
+Calculates the kinetic enery spectrum for wavefunction ``\\psi``.
 Arrays `X`, `K` should be computed using `makearrays`.
 """
 function kespectrum(k,ψ,X,K)
@@ -202,11 +205,11 @@ function kespectrum(k,ψ,X,K)
     return Ek
 end
 
-@doc raw"""
-	Ek = ikespectrum(k,ψ,X,K)
+"""
+	ikespectrum(k,ψ,X,K)
 
-Caculates the incompressible kinetic enery spectrum for wavefunction `\psi`, using Helmholtz decomposition.
-Arrays `X`, `K` should be computed using `makearrays`.
+Caculate the incompressible kinetic enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
+Input arrays `X`, `K` must be computed using `makearrays`.
 """
 function ikespectrum(k,ψ,X,K)
     x,y = X; kx,ky = K

@@ -51,7 +51,7 @@ end
 """
     k² = k2(K)
 
-Creates the kinetic array `k²` on the array defined by tuple `K`.
+Creates the kinetic energy array `k²` on the `k`-grid defined by the tuple `K`.
 """
 function k2(K)
     kind = Iterators.product(K...)
