@@ -13,8 +13,8 @@ using ColorSchemes
 @reexport using JLD2
 @reexport using FileIO
 import Plots
-const c1 = Plots.cgrad(ColorSchemes.inferno.colors)
-const c2 = Plots.cgrad(ColorSchemes.RdBu_11.colors)
+const c1 = cgrad(ColorSchemes.inferno.colors)
+const c2 = cgrad(ColorSchemes.RdBu_11.colors)
 const c3 =:mediumseagreen
 
 include("types.jl")
