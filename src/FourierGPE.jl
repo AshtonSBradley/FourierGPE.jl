@@ -12,7 +12,7 @@ using ColorSchemes
 @reexport using Parameters
 @reexport using JLD2
 @reexport using FileIO
-import Plots
+using Plots
 const c1 = cgrad(ColorSchemes.inferno.colors)
 const c2 = cgrad(ColorSchemes.RdBu_11.colors)
 const c3 =:mediumseagreen
