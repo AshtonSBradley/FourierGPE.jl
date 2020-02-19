@@ -158,7 +158,7 @@ function runsim(sim,ϕ=sim.ϕi;info=true,tplot=false,nfiles=false)
     @unpack nfiles,path,filename = sim
 
     function savefunction(ψ...)
-        isdir(path) || mkdir(path)
+        isdir(path) || mkpath(path)
         i = findfirst(x->x== ψ[2],sim.t)
         padi = lpad(string(i),ndigits(length(sim.t)),"0")
         info && println("⭆ Save $i at t = $(trunc(ψ[2];digits=3))")
