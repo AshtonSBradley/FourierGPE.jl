@@ -1,3 +1,5 @@
+# using Test, FourierGPE
+
 # Velocity and Helmholtz tests
 N = 100
 X = xvecs((1,1),(N,N))
@@ -14,7 +16,7 @@ vx,vy = velocity(psix)
 @test vx ≈ ktest*one.(vx)
 @test vy ≈ zero.(vy)
 
-#Decomposition
+# Decomposition
 Vi,Vc = helmholtz(vx,vy,psix)
 
 # Orthogonality of Helmholtz decomposition

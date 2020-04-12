@@ -1,19 +1,18 @@
 using Pkg, Revise, FourierGPE
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
-# ==== set simulation parameters ====
+## set simulation parameters
 L = (25.0,25.0)
 N = (256,256)
 μ = 25.0
 
-# ========= Initialize simulation ======
+## Initialize simulation
 sim = Sim(L,N)
 @pack! sim = μ
 @unpack_Sim sim
 
 
-# ===================================
-# Two ways to set potential:
+## Two ways to set potential:
 
 # Time dependent potential function (here trivial t dep)
 import FourierGPE.V
@@ -26,21 +25,21 @@ V(x,y,t) = 0.5*(x^2 + y^2)
 # ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-Vs(x,y)/μ,0.0)+im*0.0)
 # sim = Sim(sim,V0=Vs.(x,y'))
 
-# ==== make initial state
+## make initial state
 x,y = X
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack! sim = ϕi,μ
 
-# ==== Evolve in k space
+## Evolve in k space
 @time sol = runsim(sim)
 
-# ==== ground state
+## ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
 
-# ==== set simulation parameters
+## set simulation parameters
 γ = 0.3
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψg,sim)
