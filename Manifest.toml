@@ -503,9 +503,9 @@ version = "0.7.0"
 
 [[RecursiveArrayTools]]
 deps = ["ArrayInterface", "RecipesBase", "Requires", "StaticArrays", "Statistics"]
-git-tree-sha1 = "cb0fcf68e2e19e76b84c892b22887f02f10f3d9a"
+git-tree-sha1 = "35a01ee8529e84d1ca4c7131fee30e7f61047fc8"
 uuid = "731186ca-8d62-57ce-b412-fbd966d074cd"
-version = "1.2.0"
+version = "1.2.1"
 
 [[RecursiveFactorization]]
 deps = ["LinearAlgebra"]
@@ -520,10 +520,10 @@ uuid = "189a3867-3050-52da-a836-e630ba90ab69"
 version = "0.2.0"
 
 [[Requires]]
-deps = ["Test"]
-git-tree-sha1 = "f6fbf4ba64d295e146e49e021207993b6b48c7d1"
+deps = ["UUIDs"]
+git-tree-sha1 = "999513b7dea8ac17359ed50ae8ea089e4464e35e"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
-version = "0.5.2"
+version = "1.0.0"
 
 [[ResettableStacks]]
 deps = ["StaticArrays"]
