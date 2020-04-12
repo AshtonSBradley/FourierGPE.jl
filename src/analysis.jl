@@ -132,6 +132,7 @@ end
 Create a vector that is linearly spaced in log space, containing `n` values bracketed by `a` and `b`.
 """
 function log10range(a,b,n)
+	@assert a>0
     x = LinRange(log10(a),log10(b),n)
     return @. 10^x
 end
