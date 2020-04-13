@@ -13,9 +13,7 @@ Simple GPE solver using FFTW
 ]add https://github.com/AshtonSBradley/FourierGPE.jl.git
 using FourierGPE
 ```
-Note
-- `FourierGPE` uses `FFTW#master` built with `MKL`, pinned to a recent release. For now this _should_ avoid conflicts with `FFTW` releases, and avoid breaking packages like `FastTransforms` that require non `MKL` `FFT`.
-- If you encounter an error during installation, try `]build FourierGPE`
+There is an option to build against MKL, but this will cause issues with 3D simulations. Hence, if you want MKL enhancements for 1D,2D, remove the comment  in `build.jl`, and rebuild. 
 
 ## Getting started
 To get started see runnable examples in the `/examples` directory, or for more information see [FGPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl)
