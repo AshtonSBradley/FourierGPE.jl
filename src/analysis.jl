@@ -192,7 +192,7 @@ function kespectrum(k,ψ,X,K)
     Lx = x[end]-x[1] + dx
     xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
     yp = xp
-    ρ = @. sqrt(xp^2 + yp'^2)
+    ρ = hypot.(xp,yp')
     # ψc = zeropad(ψ)
     # ϕc = fft(ψc)*prod(DX)
     # A = ifft(abs2.(ϕc))*prod(DK) |> fftshift
