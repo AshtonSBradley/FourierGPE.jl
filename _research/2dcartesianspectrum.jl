@@ -1,9 +1,10 @@
+##
 using Test, SpecialFunctions, VortexDistributions
 using LazyArrays, FillArrays
 using Revise, FourierGPE
 
 
-#--- Initialize simulation
+## Initialize simulation
 # harmonic oscillator units
 L = (18.0,18.0)
 N = (256,256)
@@ -13,12 +14,12 @@ sim = Sim(L,N)
 # set simulation parameters
 μ = 20.0
 
-# Time dependent potential function (here trivial t dep)
+## Time dependent potential function (here trivial t dep)
 import FourierGPE.V
 V(x,y,t) = 0.5*(x^2 + y^2)
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 
-# make initial state
+## make initial state
 x,y = X
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
@@ -26,7 +27,7 @@ x,y = X
 dx,dy = diff(x)[1],diff(y)[1]
 #---
 
-#--- evolve
+## evolve
 @time sol = runsim(sim)
 
 # ground state
@@ -36,7 +37,7 @@ showpsi(x,y,ψg)
 #---
 
 
-#---
+##
 R(w) = sqrt(2*μ/w^2)
 R(1)
 rv = .8
@@ -47,7 +48,7 @@ healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 pv = PointVortex(rv,0.,1)
 nv = PointVortex(-rv,0,-1)
 
-# dipole is a bit better behaved for testing
+## dipole is a bit better behaved for testing
 v1 = ScalarVortex(ξ,pv)
 v2 = ScalarVortex(ξ,nv)
 
@@ -59,9 +60,9 @@ showpsi(x,y,psi.ψ)
 ϕi = kspace(ψi,sim) |> fftshift
 kx,ky = K .|> fftshift
 x,y = X
-#---
+ 
 
-#--- construct polar spectrum
+## construct polar spectrum
 # convolve, then bessel
 
 # Npad = N[1]/2 |> Int
@@ -76,41 +77,9 @@ x,y = X
 # heatmap(abs.(ϕi))
 # heatmap(abs.(A))
 
-#--- method to pad 2d array to twice size with zeros.
+## method to pad 2d array to twice size with zeros.
 
-function zeropad(a)
-    s = size(a)
-    (isodd.(s) |> any) && error("Array dims must be divisible by 2")
-    S = @. 2 * s
-    t = @. s / 2 |> Int
-    z = Zeros{eltype(a)}(t...)
-    M = Hcat([z; z], a, [z; z])
-    return Vcat([z z z z], M, [z z z z]) |> Matrix
-end
 
-function log10range(a,b,n)
-    x = LinRange(log10(a),log10(b),n)
-    return @. 10^x
-end
-
-function kespectrum(kp,ψ,x,y)
-    dx,dy = diff(x)[1],diff(y)[1]
-    Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
-    yp = xp
-    ρ = @. sqrt(xp^2 + yp'^2)
-    ψc = zeropad(ψ)
-    ϕc = fft(ψc)
-    A = ifft(abs2.(ϕc)) |> fftshift
-
-    Ek = zero(kp)
-    for i in eachindex(kp)
-        k = kp[i]
-        Ek[i]  = 0.5*k^3*sum(@. besselj0(k*ρ)*A)*dx*dy |> real
-    end
-    return Ek
-end
 
 ψc = zeropad(ψi)
 ϕc = fft(ψc)
@@ -124,13 +93,7 @@ kp = log10range(kmin,kmax,Np)
 Ek = kespectrum(kp,ψi,x,y)
 plot(kp,Ek,scale=:log10)
 
-#---
-
-
-
-
-
-#--- test incompressible spectrum
+## test incompressible spectrum
 k2field = k2(K)
 psi = XField(ψi,X,K,k2field)
 vx,vy = velocity(psi)
@@ -139,7 +102,7 @@ wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
 Wi, Wc = helmholtz(wx,wy,psi)
 wix,wiy = Wi
 
-# convolutions
+## convolutions
 Wix = zeropad(wix)
 Wiy = zeropad(wiy)
 wixk = fft(Wix)

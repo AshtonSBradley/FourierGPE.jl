@@ -185,25 +185,31 @@ Calculates the kinetic enery spectrum for wavefunction ``\\psi``.
 Arrays `X`, `K` should be computed using `makearrays`.
 """
 function kespectrum(k,ψ,X,K)
-	x,y = X; kx,ky = K
+    x,y = X; kx,ky = K
     dx,dy = diff(x)[1],diff(y)[1]
-	DX,DK = dfftall(X,K)
+    DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+    rho = abs2.(ψ)
+    wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
+
+    cwx = autocorrelate(wx,X,K)
+    cwy = autocorrelate(wy,X,K)
+    Ci = cwx .+ cwy
+
     Nx = 2*length(x)
     Lx = x[end]-x[1] + dx
     xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
     yp = xp
     ρ = hypot.(xp,yp')
-    # ψc = zeropad(ψ)
-    # ϕc = fft(ψc)*prod(DX)
-    # A = ifft(abs2.(ϕc))*prod(DK) |> fftshift
-	A = autocorrelate(ψ,X,K)
 
-    Ek = zero(k)
+    Eki = zero(k)
     for i in eachindex(k)
         κ = k[i]
-        Ek[i]  = 0.5*κ^3*sum(@. besselj0(κ*ρ)*A)*dx*dy |> real
+        Eki[i]  = 0.5*κ*sum(@. besselj0(κ*ρ)*Ci)*dx*dy |> real
     end
-    return Ek
+    return Eki
 end
 
 """
@@ -224,16 +230,6 @@ function ikespectrum(k,ψ,X,K)
     Wi, Wc = helmholtz(wx,wy,psi)
     wix,wiy = Wi
 
-    # transforms
-    # Wix = zeropad(wix)
-    # Wiy = zeropad(wiy)
-    # Wixk = fft(Wix)*prod(DX)
-    # Wiyk = fft(Wiy)*prod(DX)
-    # @test sum(abs2.(Wix))*dx*dy ≈ sum(abs2.(Wixk))*(dkx/2)*(dky/2)
-
-    # convolutions
-    # Cix = ifft(abs2.(Wixk))*prod(DK) |> fftshift
-    # Ciy = ifft(abs2.(Wiyk))*prod(DK) |> fftshift
 	cwix = autocorrelate(wix,X,K)
 	cwiy = autocorrelate(wiy,X,K)
     Ci = cwix .+ cwiy
@@ -242,7 +238,7 @@ function ikespectrum(k,ψ,X,K)
     Lx = x[end]-x[1] + dx
     xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
     yp = xp
-    ρ = @. sqrt(xp^2 + yp'^2)
+    ρ = hypot.(xp,yp')
 
     Eki = zero(k)
     for i in eachindex(k)
