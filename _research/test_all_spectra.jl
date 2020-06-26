@@ -41,8 +41,8 @@ function ikespectrum(k,ψ,X,K)
     Ci = cwix .+ cwiy
 
     Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    Lx = x[end]-x[begin]
+    xp = LinRange(-Lx,Lx,Nx)
     yp = xp
     ρ = hypot.(xp,yp')
 
@@ -63,19 +63,23 @@ plot(k,Eki)
 function kespectrum(k,ψ,X,K)
     x,y = X; kx,ky = K
     dx,dy = diff(x)[1],diff(y)[1]
-    psiac = autocorrelate(ψ,X,K,periodic=true)
+    DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    ψx,ψy = gradient(psi)
+    cx = autocorrelate(ψx,X,K)
+    cy = autocorrelate(ψy,X,K)
+    Ci = cx .+ cy
 
-    # make ρ
     Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    Lx = x[end]-x[begin]
+    xp = LinRange(-Lx,Lx,Nx)
     yp = xp
     ρ = hypot.(xp,yp')
 
-    # do spectra
     Ek = zero(k)
-    for (i,ki) in enumerate(k)
-        Ek[i]  = 0.5*ki^3*sum(@. besselj0(ki*ρ)*psiac)*dx*dy |> real
+    for (j,kj) in enumerate(k)
+        Ek[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
     end
     return Ek
 end
