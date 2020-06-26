@@ -213,17 +213,22 @@ A(\rho) = \int d^2r\;\psi_1(r-\rho)\psi_2(r)
 ```
 using FFTW.
 """
-function convolve(ψ1,ψ2,X,K)
-	DX,DK = dfftall(X,K)
+function convolve(ψ1,ψ2,X,K;periodic=false)
+    DX,DK = dfftall(X,K)
+    if periodic == false
 	ϕ1 = zeropad(ψ1)
-	ϕ2 = zeropad(ψ2)
+    ϕ2 = zeropad(ψ2)
+    else 
+        ϕ1 = ψ1
+        ϕ2 = ψ2
+    end
 	χ1 = fft(ϕ1)*prod(DX)
 	χ2 = fft(ϕ2)*prod(DX)
 	return ifft(χ1.*χ2)*prod(DK) |> fftshift
 end
 
 @doc raw"""
-	autocorrelate(ψ,X,K)
+	autocorrelate(ψ,X,K,periodic=false)
 
 Return the autocorrelation integral of a complex field ``\psi``, ``A``, given by
 
@@ -237,9 +242,13 @@ defined on a cartesian grid on a cartesian grid using FFTW.
 
 This method is useful for evaluating spectra from cartesian data.
 """
-function autocorrelate(ψ,X,K)
-	DX,DK = dfftall(X,K)
-	ϕ = zeropad(ψ)
+function autocorrelate(ψ,X,K;periodic=false)
+    DX,DK = dfftall(X,K)
+    if periodic == false
+        ϕ = zeropad(ψ)
+    else
+        ϕ = ψ
+    end
 	χ = fft(ϕ)*prod(DX)
 	return ifft(abs2.(χ))*prod(DK) |> fftshift
 end
@@ -250,32 +259,31 @@ end
 Calculates the kinetic enery spectrum for wavefunction ``\\psi``.
 Arrays `X`, `K` should be computed using `makearrays`.
 """
-function kespectrum(k,ψ,X,K)
+function kespectrum(k,ψ,X,K;periodic=false)
     x,y = X; kx,ky = K
     dx,dy = diff(x)[1],diff(y)[1]
     DX,DK = dfftall(X,K)
     k2field = k2(K)
     psi = XField(ψ,X,K,k2field)
-    vx,vy = velocity(psi)
-    rho = abs2.(ψ)
-    wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
+    ψx,ψy = gradient(psi)
 
-    cwx = autocorrelate(wx,X,K)
-    cwy = autocorrelate(wy,X,K)
-    Ci = cwx .+ cwy
+	cx = autocorrelate(ψx,X,K,periodic=periodic)
+	cy = autocorrelate(ψy,X,K,periodic=periodic)
+    Ci = cx .+ cy
 
+    # make ρ
     Nx = 2*length(x)
     Lx = x[end]-x[1] + dx
     xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
     yp = xp
     ρ = hypot.(xp,yp')
 
-    Eki = zero(k)
-    for i in eachindex(k)
-        κ = k[i]
-        Eki[i]  = 0.5*κ*sum(@. besselj0(κ*ρ)*Ci)*dx*dy |> real
+    # do spectra
+    Ek = zero(k)
+    for (j,kj) in enumerate(k)
+        Ek[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
     end
-    return Eki
+    return Ek
 end
 
 """
@@ -284,7 +292,7 @@ end
 Caculate the incompressible kinetic enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function ikespectrum(k,ψ,X,K)
+function ikespectrum(k,ψ,X,K;periodic=false)
     x,y = X; kx,ky = K
  	dx,dy = diff(x)[1],diff(y)[1]
 	DX,DK = dfftall(X,K)
@@ -296,8 +304,8 @@ function ikespectrum(k,ψ,X,K)
     Wi, Wc = helmholtz(wx,wy,psi)
     wix,wiy = Wi
 
-	cwix = autocorrelate(wix,X,K)
-	cwiy = autocorrelate(wiy,X,K)
+	cwix = autocorrelate(wix,X,K,periodic=periodic)
+	cwiy = autocorrelate(wiy,X,K,periodic=periodic)
     Ci = cwix .+ cwiy
 
     Nx = 2*length(x)

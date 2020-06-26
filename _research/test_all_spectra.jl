@@ -18,17 +18,10 @@ dx,dy = diff(x)[1],diff(y)[1]
 ## plot
 heatmap(x,y,abs2.(ψi))
 
-## total kinetic energy
-k = LinRange(0.1,1.0,40) |> collect
-Ek = kespectrum(k,ψi,X,K)
-
-## autocorrelate ?
-A = autocorrelate(ψi,X,K)
-
 ## ike spectrum
 import FourierGPE:ikespectrum, kespectrum
 
-function ikespectrum(k,ψ,X,K)
+function ikespectrum(k,ψ,X,K;periodic=false)
     x,y = X; kx,ky = K
  	dx,dy = diff(x)[1],diff(y)[1]
 	DX,DK = dfftall(X,K)
@@ -40,8 +33,8 @@ function ikespectrum(k,ψ,X,K)
     Wi, Wc = helmholtz(wx,wy,psi)
     wix,wiy = Wi
 
-	cwix = autocorrelate(wix,X,K)
-	cwiy = autocorrelate(wiy,X,K)
+	cwix = autocorrelate(wix,X,K,periodic=periodic)
+	cwiy = autocorrelate(wiy,X,K,periodic=periodic)
     Ci = cwix .+ cwiy
 
     Nx = 2*length(x)
@@ -64,10 +57,17 @@ Eki = ikespectrum(k,ψi,X,K)
 plot(k,Eki)
 
 ## kespectrum fix
-function kespectrum(k,ψ,X,K)
+function kespectrum(k,ψ,X,K;periodic=false)
     x,y = X; kx,ky = K
     dx,dy = diff(x)[1],diff(y)[1]
-    psiac = autocorrelate(ψ,X,K,periodic=true)
+    DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    ψx,ψy = gradient(psi)
+
+	cx = autocorrelate(ψx,X,K,periodic=periodic)
+	cy = autocorrelate(ψy,X,K,periodic=periodic)
+    Ci = cx .+ cy
 
     # make ρ
     Nx = 2*length(x)
@@ -78,8 +78,8 @@ function kespectrum(k,ψ,X,K)
 
     # do spectra
     Ek = zero(k)
-    for (i,ki) in enumerate(k)
-        Ek[i]  = 0.5*ki^3*sum(@. besselj0(ki*ρ)*psiac)*dx*dy |> real
+    for (j,kj) in enumerate(k)
+        Ek[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
     end
     return Ek
 end
