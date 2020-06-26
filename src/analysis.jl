@@ -1,4 +1,70 @@
 """
+	gradient(psi::XField{D})
+
+Compute the `D` vector gradient components of an `XField` of spatial dimension `D`.
+The `D` gradient components returned are `D`-dimensional arrays.
+"""
+function gradient(psi::XField{1})
+	@unpack psiX,K = psi; kx = K[1]; ψ = psiX
+	ϕ = fft(ψ)
+	ψx = ifft(im*kx.*ϕ)
+	return ψx
+end
+
+function gradient(psi::XField{2})
+	@unpack psiX,K = psi; kx,ky = K; ψ = psiX
+	ϕ = fft(ψ)
+	ψx = ifft(im*kx.*ϕ)
+	ψy = ifft(im*ky'.*ϕ)
+	return ψx,ψy
+end
+
+function gradient(psi::XField{3})
+	@unpack psiX,K = psi; kx,ky,kz = K; ψ = psiX
+	ϕ = fft(ψ)
+	ψx = ifft(im*kx.*ϕ)
+	ψy = ifft(im*ky'.*ϕ)
+	ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
+	return ψx,ψy,ψz
+end
+
+"""
+	current(psi::XField{D})
+
+Compute the `D` current components of an `XField` of spatial dimension `D`.
+The `D` cartesian components returned are `D`-dimensional arrays.
+"""
+function current(psi::XField{1})
+	@unpack psiX,K = psi; kx = K[1]; ψ = psiX
+	ϕ = fft(ψ)
+	ψx = ifft(im*kx.*ϕ)
+	jx = @. imag(conj(ψ)*ψx)
+	return jx
+end
+
+function current(psi::XField{2})
+	@unpack psiX,K = psi; kx,ky = K; ψ = psiX
+	ϕ = fft(ψ)
+	ψx = ifft(im*kx.*ϕ)
+	ψy = ifft(im*ky'.*ϕ)
+	jx = @. imag(conj(ψ)*ψx) 
+	jy = @. imag(conj(ψ)*ψy)
+	return jx,jy
+end
+
+function current(psi::XField{3})
+	@unpack psiX,K = psi; kx,ky,kz = K; ψ = psiX
+	ϕ = fft(ψ)
+	ψx = ifft(im*kx.*ϕ)
+	ψy = ifft(im*ky'.*ϕ)
+	ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
+	jx = @. imag(conj(ψ)*ψx) 
+	jy = @. imag(conj(ψ)*ψy) 
+	jz = @. imag(conj(ψ)*ψz)
+	return jx,jy,jz
+end
+
+"""
 	velocity(psi::XField{D})
 
 Compute the `D` velocity components of an `XField` of spatial dimension `D`.
