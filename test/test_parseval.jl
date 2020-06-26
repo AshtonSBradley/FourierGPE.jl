@@ -1,7 +1,6 @@
 #transform tests
 # using Test
 
-
 # test Parseval's theorem for wavefunctions
 function parsevaltest(L,N)
 X,K,dX,dK = makearrays(L,N)
