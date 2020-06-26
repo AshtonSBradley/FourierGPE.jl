@@ -6,7 +6,7 @@ linspace(a,b,n) = LinRange(a,b,n) |> collect
 
 Creates `x` values with correct periodicity for box specified by length `λ` for number of points `N`.
 """
-xvec(L,N) = LinRange(-L/2,L/2,N+1)[2:end] |> collect
+xvec(L,N) = LinRange(-L/2,L/2,N) |> collect
 
 """
     k = kvec(λ,N)

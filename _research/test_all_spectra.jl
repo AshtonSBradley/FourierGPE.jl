@@ -18,12 +18,8 @@ dx,dy = diff(x)[1],diff(y)[1]
 ## plot
 heatmap(x,y,abs2.(ψi))
 
-## total kinetic energy
+## k vector
 k = LinRange(0.1,1.0,40) |> collect
-Ek = kespectrum(k,ψi,X,K)
-
-## autocorrelate ?
-A = autocorrelate(ψi,X,K)
 
 ## ike spectrum
 import FourierGPE:ikespectrum, kespectrum
@@ -63,7 +59,7 @@ Eki = ikespectrum(k,ψi,X,K)
 ## plot
 plot(k,Eki)
 
-## kespectrum fix
+## kespectrum  
 function kespectrum(k,ψ,X,K)
     x,y = X; kx,ky = K
     dx,dy = diff(x)[1],diff(y)[1]

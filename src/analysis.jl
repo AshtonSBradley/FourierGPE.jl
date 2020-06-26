@@ -256,26 +256,22 @@ function kespectrum(k,ψ,X,K)
     DX,DK = dfftall(X,K)
     k2field = k2(K)
     psi = XField(ψ,X,K,k2field)
-    vx,vy = velocity(psi)
-    rho = abs2.(ψ)
-    wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
-
-    cwx = autocorrelate(wx,X,K)
-    cwy = autocorrelate(wy,X,K)
-    Ci = cwx .+ cwy
+    ψx,ψy = gradient(psi)
+    cx = autocorrelate(ψx,X,K)
+    cy = autocorrelate(ψy,X,K)
+    Ci = cx .+ cy
 
     Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    Lx = x[end]-x[begin]
+    xp = LinRange(-Lx,Lx,Nx)
     yp = xp
     ρ = hypot.(xp,yp')
 
-    Eki = zero(k)
-    for i in eachindex(k)
-        κ = k[i]
-        Eki[i]  = 0.5*κ*sum(@. besselj0(κ*ρ)*Ci)*dx*dy |> real
+    Ek = zero(k)
+    for (j,kj) in enumerate(k)
+        Ek[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
     end
-    return Eki
+    return Ek
 end
 
 """
@@ -301,8 +297,8 @@ function ikespectrum(k,ψ,X,K)
     Ci = cwix .+ cwiy
 
     Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    Lx = x[end]-x[begin]
+    xp = LinRange(-Lx,Lx,Nx)
     yp = xp
     ρ = hypot.(xp,yp')
 
