@@ -307,9 +307,8 @@ function ikespectrum(k,ψ,X,K)
     ρ = hypot.(xp,yp')
 
     Eki = zero(k)
-    for i in eachindex(k)
-        κ = k[i]
-        Eki[i]  = 0.5*κ*sum(@. besselj0(κ*ρ)*Ci)*dx*dy |> real
+    for (j,kj) in enumerate(k)
+        Eki[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
     end
     return Eki
 end
