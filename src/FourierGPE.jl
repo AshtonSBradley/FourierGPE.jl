@@ -33,6 +33,7 @@ export Sim, @pack_Sim!, @unpack_Sim, testsim
 export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
-export Field, XField, KField, velocity, energydecomp, helmholtz
-export log10range, zeropad, autocorrelate, convolve, kespectrum, ikespectrum
+export Field, XField, KField, gradient, velocity, current
+export energydecomp, helmholtz, kespectrum, ikespectrum
+export log10range, zeropad, autocorrelate, convolve
 end # module
