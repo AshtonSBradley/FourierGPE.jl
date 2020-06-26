@@ -148,7 +148,7 @@ end
 """
 	et,ei,ec = energydecomp(psi::Xfield{D})
 
-Decomposes the kinetic energy of `psi`, returning the total `et`, incompressible `ei`,
+Decomposes the hydrodynamic kinetic energy of `psi`, returning the total `et`, incompressible `ei`,
 and compressible `ec` energy densities in position space. `D` can be 2 or 3 dimensions.
 """
 function energydecomp(psi::XField{2})
