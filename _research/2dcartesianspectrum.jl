@@ -2,6 +2,7 @@
 using Test, SpecialFunctions, VortexDistributions
 using FFTW, Plots, Pkg, Revise
 
+##
 Pkg.activate(".")
 using FourierGPE
 
