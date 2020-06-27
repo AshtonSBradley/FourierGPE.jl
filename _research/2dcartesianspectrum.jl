@@ -1,18 +1,7 @@
 ##
 using Test, SpecialFunctions, VortexDistributions
-using FourierGPE
-
-## test in VSCode
-using Pkg;Pkg.activate(".")
-Pkg.test()
-
-## simple diffeq test
-using DifferentialEquations
-f(u,p,t) = 1.01*u
-u0 = 1/2
-tspan = (0.0,1.0)
-prob = ODEProblem(f,u0,tspan)
-sol = solve(prob, Tsit5(), reltol=1e-8, abstol=1e-8)
+using FFTW, Plots
+using Revise, FourierGPE
 
 ## Initialize simulation
 # harmonic oscillator units
@@ -37,7 +26,7 @@ x,y = X
 dx,dy = diff(x)[1],diff(y)[1]
 
 ## evolve
-sol = runsim(sim)
+@time sol = runsim(sim)
 
 ## pull out ground state
 ϕg = sol[end]
@@ -66,29 +55,24 @@ showpsi(x,y,psi.ψ)
 ϕi = kspace(ψi,sim) |> fftshift
 kx,ky = K .|> fftshift
 x,y = X
- 
+
 kmin = 0.1 #0.5*2*pi/R(1)
 kmax = 2*pi/ξ0
 Np = 200
-kp = log10range(kmin,kmax,Np)
+k = log10range(kmin,kmax,Np)
 
-Ek = kespectrum(kp,ψi,x,y)
-plot(kp,Ek,scale=:log10)
+## find spec
+Ek = kespectrum(k,ψi,X,K)
+plot(k,Ek,scale=:log10,label="all KE")
+
+Eki = ikespectrum(k,ψi,X,K)
+plot!(k,Eki,scale=:log10,label="incompressible KE")
+
+Ekc = ckespectrum(k,ψi,X,K)
+plot!(k,Ekc,scale=:log10,label="compressible KE")
 
 
-
-d = 2*rv
-kR = 2*pi/R(1)
-kξ = 2*pi/ξ
-kd = 2*pi/d
-ka = 2*pi #k value associated with oscillator length
-kmin = 0.1*kR
-kmax = 2kξ
-Np = 300
-kp = log10range(kmin,kmax,Np)
-
-Eki = ikspectrum(kp,Ci,x,y)
-
+## fancy plot
 kxi = kp*ka/kξ
 plot(kxi,Eki,scale=:log10,grid=false,label=L"E_i(k)",legend=:topright)
 plot!(kxi,2e7*kxi.^(-3),label=L"k^{-3}")

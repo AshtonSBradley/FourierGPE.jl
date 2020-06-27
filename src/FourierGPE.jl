@@ -6,9 +6,9 @@ using LazyArrays
 using FillArrays
 using DifferentialEquations
 using RecursiveArrayTools
-using FFTW
 using LaTeXStrings
 using ColorSchemes
+@reexport using FFTW
 @reexport using Parameters
 @reexport using JLD2
 @reexport using FileIO
@@ -34,6 +34,6 @@ export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
 export Field, XField, KField, gradient, velocity, current
-export energydecomp, helmholtz, kespectrum, ikespectrum
+export energydecomp, helmholtz, kespectrum, ikespectrum, ckespectrum
 export log10range, zeropad, autocorrelate, convolve
 end # module
