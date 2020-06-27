@@ -1,7 +1,9 @@
 ##
 using Test, SpecialFunctions, VortexDistributions
-using FFTW, Plots
-using Revise, FourierGPE
+using FFTW, Plots, Pkg, Revise
+
+Pkg.activate(".")
+using FourierGPE
 
 ## Initialize simulation
 # harmonic oscillator units
@@ -63,7 +65,7 @@ k = log10range(kmin,kmax,Np)
 
 ## find spec
 Ek = kespectrum(k,ψi,X,K)
-plot(k,Ek,scale=:log10,label="all KE")
+plot(k,Ek,scale=:log10,label="all KE",legend=:bottomleft)
 
 Eki = ikespectrum(k,ψi,X,K)
 plot!(k,Eki,scale=:log10,label="incompressible KE")
@@ -71,6 +73,7 @@ plot!(k,Eki,scale=:log10,label="incompressible KE")
 Ekc = ckespectrum(k,ψi,X,K)
 plot!(k,Ekc,scale=:log10,label="compressible KE")
 
+# NOTE: spectra are not locally additive in k-space
 
 ## fancy plot
 kxi = kp*ka/kξ

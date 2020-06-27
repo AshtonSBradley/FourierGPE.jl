@@ -47,7 +47,7 @@ function current(psi::XField{2})
 	ϕ = fft(ψ)
 	ψx = ifft(im*kx.*ϕ)
 	ψy = ifft(im*ky'.*ϕ)
-	jx = @. imag(conj(ψ)*ψx) 
+	jx = @. imag(conj(ψ)*ψx)
 	jy = @. imag(conj(ψ)*ψy)
 	return jx,jy
 end
@@ -58,8 +58,8 @@ function current(psi::XField{3})
 	ψx = ifft(im*kx.*ϕ)
 	ψy = ifft(im*ky'.*ϕ)
 	ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
-	jx = @. imag(conj(ψ)*ψx) 
-	jy = @. imag(conj(ψ)*ψy) 
+	jx = @. imag(conj(ψ)*ψx)
+	jy = @. imag(conj(ψ)*ψy)
 	jz = @. imag(conj(ψ)*ψz)
 	return jx,jy,jz
 end
@@ -218,7 +218,7 @@ function convolve(ψ1,ψ2,X,K;periodic=false)
     if periodic == false
 	ϕ1 = zeropad(ψ1)
     ϕ2 = zeropad(ψ2)
-    else 
+    else
         ϕ1 = ψ1
         ϕ2 = ψ2
     end
@@ -304,9 +304,9 @@ function ikespectrum(k,ψ,X,K;periodic=false)
     Wi, Wc = helmholtz(wx,wy,psi)
     wix,wiy = Wi
 
-	cwix = autocorrelate(wix,X,K,periodic=periodic)
-	cwiy = autocorrelate(wiy,X,K,periodic=periodic)
-    Ci = cwix .+ cwiy
+	cix = autocorrelate(wix,X,K,periodic=periodic)
+	ciy = autocorrelate(wiy,X,K,periodic=periodic)
+    Ci = cix .+ ciy
 
     Nx = 2*length(x)
     Lx = x[end]-x[1] + dx
@@ -319,4 +319,39 @@ function ikespectrum(k,ψ,X,K;periodic=false)
         Eki[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
     end
     return Eki
+end
+
+"""
+	ckespectrum(k,ψ,X,K)
+
+Caculate the compressible kinetic enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
+Input arrays `X`, `K` must be computed using `makearrays`.
+"""
+function ckespectrum(k,ψ,X,K;periodic=false)
+    x,y = X; kx,ky = K
+ 	dx,dy = diff(x)[1],diff(y)[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+    rho = abs2.(ψ)
+    wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
+    Wi, Wc = helmholtz(wx,wy,psi)
+    wcx,wcy = Wc
+
+	ccx = autocorrelate(wcx,X,K,periodic=periodic)
+	ccy = autocorrelate(wcy,X,K,periodic=periodic)
+    Cc = ccx .+ ccy
+
+    Nx = 2*length(x)
+    Lx = x[end]-x[1] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp
+    ρ = hypot.(xp,yp')
+
+    Ekc = zero(k)
+    for (j,kj) in enumerate(k)
+        Ekc[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Cc)*dx*dy |> real
+    end
+    return Ekc
 end
