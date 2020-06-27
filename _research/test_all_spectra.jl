@@ -34,8 +34,6 @@ Ek = kespectrum(k,ψi,X,K)
 ## plot
 plot(k,Ek)
 
-
-
 ## what does autocorrelate look like?
 x,y = X; kx,ky = K
 dx,dy = diff(x)[1],diff(y)[1]
