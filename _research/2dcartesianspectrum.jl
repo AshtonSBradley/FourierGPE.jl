@@ -1,7 +1,6 @@
 ##
 using Test, SpecialFunctions, VortexDistributions
-using LazyArrays, FillArrays
-using Revise, FourierGPE
+using FourierGPE
 
 
 ## Initialize simulation
@@ -25,19 +24,16 @@ x,y = X
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 dx,dy = diff(x)[1],diff(y)[1]
-#---
 
 ## evolve
 @time sol = runsim(sim)
 
-# ground state
+## pull out ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
-#---
 
-
-##
+## make dipole
 R(w) = sqrt(2*μ/w^2)
 R(1)
 rv = .8
@@ -47,8 +43,6 @@ healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
 pv = PointVortex(rv,0.,1)
 nv = PointVortex(-rv,0,-1)
-
-## dipole is a bit better behaved for testing
 v1 = ScalarVortex(ξ,pv)
 v2 = ScalarVortex(ξ,nv)
 
@@ -56,35 +50,12 @@ psi = Torus(copy(ψg),x,y)
 vortex!(psi,[v1;v2])
 showpsi(x,y,psi.ψ)
 
+## kespectrum
 ψi .= psi.ψ
 ϕi = kspace(ψi,sim) |> fftshift
 kx,ky = K .|> fftshift
 x,y = X
  
-
-## construct polar spectrum
-# convolve, then bessel
-
-# Npad = N[1]/2 |> Int
-# z0 = Zeros(ψi[:,1:Npad])
-# ψc = Hcat(z0,view(ψi,:,:),z0)
-# z0 = Zeros(ψc[1:Npad,:])
-# ψc = Vcat(z0,ψc,z0) |> Matrix
-# ϕc = fft(ψc)
-# A = ifft(abs2.(ϕc)) |> fftshift
-#
-# heatmap(abs2.(ψi))
-# heatmap(abs.(ϕi))
-# heatmap(abs.(A))
-
-## method to pad 2d array to twice size with zeros.
-
-
-
-ψc = zeropad(ψi)
-ϕc = fft(ψc)
-A = ifft(abs2.(ϕc)) |> fftshift
-
 kmin = 0.1 #0.5*2*pi/R(1)
 kmax = 2*pi/ξ0
 Np = 200
@@ -92,25 +63,6 @@ kp = log10range(kmin,kmax,Np)
 
 Ek = kespectrum(kp,ψi,x,y)
 plot(kp,Ek,scale=:log10)
-
-## test incompressible spectrum
-k2field = k2(K)
-psi = XField(ψi,X,K,k2field)
-vx,vy = velocity(psi)
-rho = abs2.(ψi)
-wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
-Wi, Wc = helmholtz(wx,wy,psi)
-wix,wiy = Wi
-
-## convolutions
-Wix = zeropad(wix)
-Wiy = zeropad(wiy)
-wixk = fft(Wix)
-wiyk = fft(Wiy)
-Cix = ifft(abs2.(wixk)) |> fftshift
-Ciy = ifft(abs2.(wiyk)) |> fftshift
-Ci = Cix .+ Ciy
-heatmap(abs.(Ci))
 
 
 
@@ -123,22 +75,6 @@ kmin = 0.1*kR
 kmax = 2kξ
 Np = 300
 kp = log10range(kmin,kmax,Np)
-
-function ikspectrum(kp,wconv,x,y)
-    dx,dy = diff(x)[1],diff(y)[1]
-    Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
-    yp = xp
-    ρ = @. sqrt(xp^2 + yp'^2)
-
-    Eki = zero(kp)
-    for i in eachindex(kp)
-        k = kp[i]
-        Eki[i]  = 0.5*k*sum(@. besselj0(k*ρ)*wconv)*dx*dy |> real
-    end
-    return Eki
-end
 
 Eki = ikspectrum(kp,Ci,x,y)
 
