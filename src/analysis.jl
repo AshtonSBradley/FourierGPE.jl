@@ -259,7 +259,7 @@ end
 Calculates the kinetic enery spectrum for wavefunction ``\\psi``.
 Arrays `X`, `K` should be computed using `makearrays`.
 """
-function kespectrum(k,ψ,X,K;periodic=false)
+function kespectrum(k,ψ,X,K)
     x,y = X; kx,ky = K
     dx,dy = diff(x)[1],diff(y)[1]
     DX,DK = dfftall(X,K)
@@ -267,8 +267,8 @@ function kespectrum(k,ψ,X,K;periodic=false)
     psi = XField(ψ,X,K,k2field)
     ψx,ψy = gradient(psi)
 
-	cx = autocorrelate(ψx,X,K,periodic=periodic)
-	cy = autocorrelate(ψy,X,K,periodic=periodic)
+	cx = autocorrelate(ψx,X,K)
+	cy = autocorrelate(ψy,X,K)
     Ci = cx .+ cy
 
     # make ρ
@@ -292,7 +292,7 @@ end
 Caculate the incompressible kinetic enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function ikespectrum(k,ψ,X,K;periodic=false)
+function ikespectrum(k,ψ,X,K)
     x,y = X; kx,ky = K
  	dx,dy = diff(x)[1],diff(y)[1]
 	DX,DK = dfftall(X,K)
@@ -304,10 +304,11 @@ function ikespectrum(k,ψ,X,K;periodic=false)
     Wi, Wc = helmholtz(wx,wy,psi)
     wix,wiy = Wi
 
-	cix = autocorrelate(wix,X,K,periodic=periodic)
-	ciy = autocorrelate(wiy,X,K,periodic=periodic)
+	cix = autocorrelate(wix,X,K)
+	ciy = autocorrelate(wiy,X,K)
     Ci = cix .+ ciy
 
+	# make ρ
     Nx = 2*length(x)
     Lx = x[end]-x[1] + dx
     xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
@@ -327,7 +328,7 @@ end
 Caculate the compressible kinetic enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function ckespectrum(k,ψ,X,K;periodic=false)
+function ckespectrum(k,ψ,X,K)
     x,y = X; kx,ky = K
  	dx,dy = diff(x)[1],diff(y)[1]
 	DX,DK = dfftall(X,K)
@@ -339,8 +340,8 @@ function ckespectrum(k,ψ,X,K;periodic=false)
     Wi, Wc = helmholtz(wx,wy,psi)
     wcx,wcy = Wc
 
-	ccx = autocorrelate(wcx,X,K,periodic=periodic)
-	ccy = autocorrelate(wcy,X,K,periodic=periodic)
+	ccx = autocorrelate(wcx,X,K)
+	ccy = autocorrelate(wcy,X,K)
     Cc = ccx .+ ccy
 
     Nx = 2*length(x)

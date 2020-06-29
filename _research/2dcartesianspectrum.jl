@@ -66,13 +66,13 @@ kp = log10range(kmin,kmax,Np)
 
 ## find spec
 Ek = kespectrum(kp,ψi,X,K)
-plot(kp,Ek,scale=:log10,label="all KE",legend=:bottomleft)
+plot(kp,abs.(Ek),scale=:log10,label="all KE",legend=:bottomleft)
 
 Eki = ikespectrum(kp,ψi,X,K)
-plot!(kp,Eki,scale=:log10,label="incompressible KE")
+plot!(kp,abs.(Eki),scale=:log10,label="incompressible KE, nonperiodic")
 
 Ekc = ckespectrum(kp,ψi,X,K)
-plot!(kp,Ekc,scale=:log10,label="compressible KE")
+plot!(kp,abs.(Ekc),scale=:log10,label="compressible KE")
 
 # NOTE: spectra are not locally additive in k-space
 
