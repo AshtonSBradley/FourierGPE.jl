@@ -66,49 +66,54 @@ kp = log10range(kmin,kmax,Np)
 
 ## find spec
 Ek = kespectrum(kp,ψi,X,K)
-plot(kp,abs.(Ek),scale=:log10,label="all KE",legend=:bottomleft)
+plot(kp,Ek,scale=:log10,label="all KE",legend=:bottomleft)
 
 Eki = ikespectrum(kp,ψi,X,K)
-plot!(kp,abs.(Eki),scale=:log10,label="incompressible KE, nonperiodic")
+plot!(kp,Eki,scale=:log10,label="incompressible KE")
 
 Ekc = ckespectrum(kp,ψi,X,K)
-plot!(kp,abs.(Ekc),scale=:log10,label="compressible KE")
+plot!(kp,Ekc,scale=:log10,label="compressible KE")
 
+Eqp = qpespectrum(kp,ψi,X,K)
+plot!(kp,Eqp,scale=:log10,label="quantum pressure")
 # NOTE: spectra are not locally additive in k-space
 
-## test totals (estimate since not linearly spaced)
-dkp = diff(kp);push!(dkp,dkp[end])
-Ekt = sum(Ek.*dkp)
-
-## energy totals
-K2 = k2(K)
-
-function potential_energy(ϕ,sim,t)
-    @unpack g,X = sim; x,y = X
-    ψ = xspace(ϕ,sim)
-    @. ψ *= V(x,y',t)
-    return kspace(ψ,sim)
-end
-
-function interaction_energy(ϕ,sim)
-    @unpack g,X = sim; x,y = X
-    ψ = xspace(ϕ,sim)
-    @. ψ *= 0.5*g*abs2(ψ)
-    return kspace(ψ,sim)
-end
-
+## compute total kinetic energy spectrally from momentum space w.f. ϕ
 function kinetic_energy(ϕ,sim)
     @unpack espec,K = sim; kx,ky = K
     dkx,dky = kx[2]-kx[1],ky[2]-ky[1]
     return sum(espec.*abs2.(ϕ))*dkx*dky |> real
 end
 
-dx = diff(x)[1]; dy = diff(y)[1]
-dkx = diff(kx)[1]; dky = diff(ky)[1]
-n0 = μ/g
+## test totals against spectral evauluation
+dkp = diff(kp);push!(dkp,dkp[end])
+
+# integrate each
+Ekit = sum(Eki.*dkp)
+Ekct = sum(Ekc.*dkp)
+Eqpt = sum(Eqp.*dkp)
+#sum
+Ekit + Ekct + Eqpt
+
+#integrate total spectrum
+Ekt = sum(Ek.*dkp)
+
+#integrate total in k space
+ke = kinetic_energy(kspace(psi.ψ,sim),sim)
+
+
+
+
+## NOTE stop here
+
+# some convenience methods
+# dx = diff(x)[1]; dy = diff(y)[1]
+# dkx = diff(kx)[1]; dky = diff(ky)[1]
+# n0 = μ/g
 
 function energies(ψ,sim)
     @unpack X,K = sim
+    x,y = X
     K2 = k2(K)
     psi = XField(ψ,X,K,K2)
     ek,ei,ec = energydecomp(psi)
@@ -116,28 +121,15 @@ function energies(ψ,sim)
     Ei = sum(ei)*dx*dy |> real
     Ec = sum(ec)*dx*dy |> real
     Ek = kinetic_energy(kspace(ψ,sim),sim)
-
-    Ev = sum(@. V(x,y',t)*abs2(ψ))*dx*dy |> real
+    # Ev = sum(@. V(x,y',t)*abs2(ψ))*dx*dy |> real
     Eint = sum(@. g/2*(abs2(ψ) - n0)^2)*dx*dy |> real
-    Eqp = Ekall - Ekhy
+    Eqp = Ek - Ekh
 
-    Et = Ekall + Ev + Eint
+    Et = Ek + Eint # + Ev
     Natoms = sum(abs2.(ψ))*dx*dy
     # end
-    return Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms
+    return Ei,Ec,Ekh,Eqp,Eint,Et,Ek,Natoms
 end
 
-Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms = energies(psi.ψ,sim)
-
-##
-ϕ = kspace(psi.ψ,sim)
-ke = kinetic_energy(kspace(psi.ψ,sim),sim)
-
-## check ordering with plot
-using Plots
-heatmap(log10.(abs2.(fftshift(ϕ))))
-##
-heatmap(real(abs.(fftshift(sim.espec))))
-# OK, so everything in kspace is in fft order
-
-##
+## evaluate
+Ei,Ec,Ekh,Eqp,Eint,Et,Ek,Natoms = energies(psi.ψ,sim)

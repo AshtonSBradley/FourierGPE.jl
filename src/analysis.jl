@@ -256,8 +256,8 @@ end
 """
 	kespectrum(k,ψ,X,K)
 
-Calculates the kinetic enery spectrum for wavefunction ``\\psi``.
-Arrays `X`, `K` should be computed using `makearrays`.
+Calculates the kinetic enery spectrum for wavefunction ``\\psi``, at the
+points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
 function kespectrum(k,ψ,X,K)
     x,y = X; kx,ky = K
@@ -273,7 +273,7 @@ function kespectrum(k,ψ,X,K)
 
     # make ρ
     Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
+    Lx = x[end] - x[begin] + dx
     xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
     yp = xp
     ρ = hypot.(xp,yp')
@@ -355,4 +355,36 @@ function ckespectrum(k,ψ,X,K)
         Ekc[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Cc)*dx*dy |> real
     end
     return Ekc
+end
+
+"""
+	qpspectrum(k,ψ,X,K)
+
+Caculate the quantum pressure enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
+Input arrays `X`, `K` must be computed using `makearrays`.
+"""
+function qpespectrum(k,ψ,X,K)
+    x,y = X; kx,ky = K
+ 	dx,dy = diff(x)[1],diff(y)[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(abs.(ψ) |> complex,X,K,k2field)
+    rnx,rny = gradient(psi)
+
+	cx = autocorrelate(rnx,X,K)
+	cy = autocorrelate(rny,X,K)
+    Cq = cx .+ cy
+
+	# make ρ
+    Nx = 2*length(x)
+    Lx = x[end]-x[1] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp
+    ρ = hypot.(xp,yp')
+
+    Eq = zero(k)
+    for (j,kj) in enumerate(k)
+        Eq[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Cq)*dx*dy |> real
+    end
+    return Eq
 end
