@@ -7,7 +7,7 @@ using FourierGPE, Test
 # using Test
 
 
-#--- test Parseval's theorem for wavefunctions
+## test Parseval's theorem for wavefunctions
 function parsevaltest(L,N)
 X,K,dX,dK = makearrays(L,N)
 T = makeT(X,K)
@@ -20,7 +20,7 @@ n1 = sum(abs2.(ψ))*prod(dX)
 n2 = sum(abs2.(ϕ))*prod(dK)
 return n1,n2
 end
-#---
+##
 
 L = (88.)
 N = (128)
@@ -32,7 +32,7 @@ N = (30,34)
 n1,n2 = parsevaltest(L,N)
 @test n1 ≈ n2
 
-#--- Fails:
+## Fails:
 L = (30.,20.,10)
 N = (30,34,24)
 X,K,dX,dK = makearrays(L,N)
@@ -64,7 +64,7 @@ Mxk,Mxk!,Mkx,Mkx! = makeTMixed(X,K,flags=flags)
 # n1,n2 = parsevaltest(L,N)
 # @test n1 ≈ n2
 
-#---
+##
 L = (30.,20.,10,50.)
 N = (30,34,24,22)
 n1,n2 = parsevaltest(L,N)

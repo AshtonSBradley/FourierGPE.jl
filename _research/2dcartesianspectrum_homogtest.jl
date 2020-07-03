@@ -2,14 +2,14 @@ using VortexDistributions
 using Revise, FourierGPE
 
 
-#--- Initialize simulation
+## Initialize simulation
 # units of healing length, chemical potential
 L = (100.,100.)
 N = (512,512)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-#--- homogeneous state
+## homogeneous state
 μ = 1.0
 g = 0.01
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
@@ -19,7 +19,7 @@ kx,ky = K
 ψg = ψ0.(x,y',μ,g)
 showpsi(x,y,ψg)
 
-#--- initial dipole, with periodic phase
+## initial dipole, with periodic phase
 ψd = copy(ψg)
 d = 12
 ξv = healinglength(0.,0.,μ,g)
@@ -36,7 +36,7 @@ vortex!(psi,dipole) # make dipole
 ψd = abs.(psi.ψ).*exp.(im*Thetad(x,y,xp,yp,xn,yn))
 showpsi(x,y,ψd)
 
-#--- test new methods
+## test new methods
 kL = 2*pi/L[1]
 kξ = 2*pi
 
@@ -51,7 +51,7 @@ plot(k,Ek,scale=:log10)
 
 # heatmap(log.(abs2.(A |> fftshift) .+ eps.()))
 
-#--- incompressible spectrum
+## incompressible spectrum
 kL = 2*pi/L[1]
 kξ = 2*pi
 kd = 2*pi/d
@@ -63,7 +63,7 @@ k = log10range(kmin,kmax,Np)
 
 Eki = ikespectrum(k,ψd,X,K)
 
-#--- power-law plot in logspace
+## power-law plot in logspace
 n0 = abs2.(ψd[1,1])
 E0 = π*n0
 p1 = plot(k,Eki/E0,scale=:log10,grid=false,label=L"E_i(k)",legend=:bottomleft)

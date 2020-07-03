@@ -3,13 +3,13 @@ gr(size=(600,300),colorbar=false,legend=false,grid=false)
 
 using FourierGPE
 
-#--- initialize
+## initialize
 L = (60.0,)
 N = (512,)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-#--- simulation parameters
+## simulation parameters
 μ = 1.0
 g = 0.01
 γ = 0.0
@@ -18,7 +18,7 @@ Nt = 150
 ti = 0.0
 t = LinRange(ti,tf,Nt)
 
-#--- Bogoliubov state
+## Bogoliubov state
 x = X[1]
 k = K[1]
 
@@ -30,7 +30,7 @@ lam = 0.01
 bog(x,k) = u(k)*exp(im*k*x) - conj(v(k))*exp(-im*k*x)
 ψb(x,k) = sqrt(μ/g)*(complex(1) + lam*bog(x,k))
 
-#--- choose an allowed k for periodic system
+## choose an allowed k for periodic system
 kb = k[20]
 ψi = ψb.(x,kb)
 ϕi = kspace(ψi,sim)
@@ -41,11 +41,11 @@ kb = k[20]
 
 @pack_Sim! sim
 
-#--- Evolve in k space
+## Evolve in k space
 @time sol = runsim(sim)
 y = abs2.(xspace(sol[end-1],sim)); plot(x,y)
 
-#--- density movie
+## density movie
 anim = @animate for i=1:Nt
     ψ = xspace(sol[i],sim)
     y = g*abs2.(ψ)

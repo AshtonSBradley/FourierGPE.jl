@@ -1,12 +1,12 @@
 using VortexDistributions, Revise, FourierGPE
 
-#--- Initialize simulation
+## Initialize simulation
 L = (18.0,18.0)
 N = (512,512)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-#--- set simulation parameters
+## set simulation parameters
 μ = 12.0
 tf = 1.0
 t = LinRange(ti,tf,Nt)
@@ -16,22 +16,22 @@ import FourierGPE.V
 V(x,y,t) = 0.5*(x^2 + y^2)
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 
-#--- make initial state
+## make initial state
 x,y = X
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-#--- evolve
+## evolve
 @time sol = runsim(sim)
 
-#--- plot ground state
+## plot ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 showpsi(x,y,ψg)
 
-#--- make dipole and evolve for short time with γ = 0.
+## make dipole and evolve for short time with γ = 0.
 ψd = copy(ψg)
 d = 2
 ξv = healinglength(d/2,0.,μ,g)
@@ -46,7 +46,7 @@ psi = Torus(ψd,x,y) # set field topology for VortexDistributions
 vortex!(psi,dipole) # make dipole
 showpsi(x,y,ψd)
 
-#--- evolve
+## evolve
 tf = 1.0
 t = LinRange(ti,tf,Nt)
 γ = 0.
@@ -57,12 +57,12 @@ t = LinRange(ti,tf,Nt)
 @time sol = runsim(sim)
 
 
-#--- plot final state
+## plot final state
 ϕf = sol[end]
 ψf = xspace(ϕf,sim)
 showpsi(x,y,ψf)
 
-#--- analyse
+## analyse
 kL = 2*pi/L[1]
 kξ = 2*pi
 
@@ -77,7 +77,7 @@ plot(k,Ek,scale=:log10)
 
 # heatmap(log.(abs2.(A |> fftshift) .+ eps.()))
 
-#--- incompressible spectrum
+## incompressible spectrum
 kL = 2*pi/L[1]
 kξ = 2*pi
 kd = 2*pi/d
@@ -89,7 +89,7 @@ k = log10range(kmin,kmax,Np)
 
 @time Eki = ikespectrum(k,ψf,X,K)
 
-#--- power-law plot in logspace
+## power-law plot in logspace
 n0 = abs2.(ψf[1,1])
 E0 = π*n0
 p1 = plot(k,Eki/E0,scale=:log10,grid=false,label=L"E_i(k)",legend=:bottomleft)

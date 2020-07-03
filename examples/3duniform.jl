@@ -7,7 +7,7 @@ gr(titlefontsize=12,size=(500,300),colorbar=false)
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-#--- set simulation parameters
+## set simulation parameters
 L=(16.,16.,16.)
 N=(64,64,64)
 sim = Sim(L,N)
@@ -18,11 +18,11 @@ tf = 4/γ
 Nt = 200
 t = LinRange(0.,tf,Nt)
 
-#--- useful state functions
+## useful state functions
 ψ0(x,y,z,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,z,0.0)/μ,0.0)+im*0.0)
 healing(x,y,z,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,z,μ,g)))
 
-#--- make initial state
+## make initial state
 x,y,z = X
 ψi = ψ0.(x,y',reshape(z,1,1,length(z)),μ,g)
 ψi = randn(N)+im*randn(N)
@@ -30,10 +30,10 @@ x,y,z = X
 
 @pack_Sim! sim
 
-#--- Evolve in k space
+## Evolve in k space
 sol = runsim(sim)
 
-#--- plot
+## plot
 # function showpsi(x,y,ψ)
 #     p1 = heatmap(x,y,abs2.(ψ),aspectratio=1)
 #     xlabel!(L"x/\xi");ylabel!(L"y/\xi")
@@ -59,7 +59,7 @@ end
 gif(anim,"./examples/3dquench.gif",fps=30)
 
 
-#--- animate isosurface in Makie
+## animate isosurface in Makie
 using Makie, AbstractPlotting
 
 function dense(i)

@@ -1,7 +1,7 @@
 using Revise, FourierGPE
 using Test
 
-#--- Initialize simulation
+## Initialize simulation
 L = (12.0,12.0)
 N = (256,256)
 sim = Sim(L,N)
@@ -20,9 +20,9 @@ x,y = X
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
-#---
+##
 
-#--- evolve
+## evolve
 @time sol = runsim(sim)
 
 # ground state
@@ -30,10 +30,10 @@ x,y = X
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
-#---
+##
 
 
-#---
+##
 using VortexDistributions
 R(w) = sqrt(2*μ/w^2)
 R(1)
@@ -55,7 +55,7 @@ showpsi(x,y,psi.ψ)
 kx,ky = K .|> fftshift
 x,y = X
 
-#--- Transform onto polar coordinates in k space
+## Transform onto polar coordinates in k space
 # grids
 
 
@@ -95,12 +95,12 @@ function cart2pol(ψi,x,y,kx,ky)
     return ϕp
 end
 
-#---
+##
 @time ϕp = cart2pol(ψi,x,y,kx,ky)
 sum(abs2.(ϕp).*k)*dθ*dk
 sum(abs2.(ψi))*dx*dy
 
-#---
+##
 heatmap(log.(eps.() .+abs2.(ϕp)))
 Ek = sum(abs2.(ϕp).*k.^3*dθ,dims = 2)
 plot(k,log.(Ek))

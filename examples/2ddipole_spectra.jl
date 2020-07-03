@@ -12,19 +12,19 @@ function psimovie(sol,sim)
     return anim
 end
 
-#--- Units
+## Units
 # Units of ξ for length, 1/μ for time
 # related by μ ≡ ħ²/mξ² = mc^2 where
 # c = ħ/mξ is the speed of sound of
 # the uniform system.
 
-#--- Initialize simulation
+## Initialize simulation
 L = (200.,200.)
 N = (256,256)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-#--- set simulation parameters
+## set simulation parameters
 μ = 1.0
 g = 0.01
 γ = 0.5
@@ -33,26 +33,26 @@ tf = .3pi
 Nt = 150
 t = LinRange(ti,tf,Nt)
 
-#--- useful state functions
+## useful state functions
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
-#--- make initial state
+## make initial state
 x,y = X
 kx,ky = K
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-#--- evolve
+## evolve
 sol = runsim(sim)
 
-#--- pull out the ground state
+## pull out the ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
 
-#--- initial dipole
+## initial dipole
 ψv = copy(ψg)
 d = 30
 ξv = healinglength(0.,0.,μ,g)
@@ -67,7 +67,7 @@ vortex!(psi,dipole) # make dipole
 ψv = psi.ψ # pull out the field
 showpsi(x,y,ψv)
 
-#--- set simulation parameters
+## set simulation parameters
 c = sqrt(μ)
 tf = L[1]/c/4
 γ = 0.1
@@ -79,17 +79,17 @@ alg = Vern7()
 simd = Sim(L,N)
 @pack_Sim! simd
 
-#--- remove boundary artifacts with small γ
+## remove boundary artifacts with small γ
 sold = runsim(simd)
 
-#--- plot
+## plot
 ψd = xspace(sold[end],sim)
 showpsi(x,y,ψd)
 
 anim = psimovie(sold,sim)
 gif(anim,"./examples/dipole_damping_small.gif",fps=25)
 
-#--- Hamiltonian evolution
+## Hamiltonian evolution
 γ = 0.0
 tf = L[1]/c
 t = LinRange(ti,tf,Nt)
@@ -98,10 +98,10 @@ t = LinRange(ti,tf,Nt)
 simh = Sim(L,N)
 @pack_Sim! simh
 
-#--- evolve
+## evolve
 solh = runsim(simh)
 
-#--- plot
+## plot
 ψdh = xspace(solh[end],simh)
 showpsi(x,y,ψdh)
 
@@ -131,7 +131,7 @@ end
 
 gif(anim,"./examples/dipoleenergies_small.gif",fps=30)
 
-#--- energy totals
+## energy totals
 
 function venergy(ϕ,sim,t)
     @unpack g,X = sim; x,y = X
@@ -192,14 +192,14 @@ end
 
 @time Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms = energies(solh)
 
-#--- plot energies
+## plot energies
 plot(t,Et./Natoms,label=L"E_t",legend=:left)
 plot!(t,Eint./Natoms,label=L"E_{int}")
 plot!(t,Ekall./Natoms,label=L"E_{kall}")
 ylims!(0,1.1*Et[1]./Natoms[1])
 xlabel!(L"t")
 
-#--- decomposition
+## decomposition
 plot(t,(Ekall .+ Eint)./Natoms,label=L"E_{kall}+E_{int}",w=5,c=:gray,alpha=0.3)
 plot!(t,Et./Natoms,label=L"E_t",legend=:left)
 plot!(t,Ei./Natoms,label=L"E_k^i")
@@ -243,7 +243,7 @@ showenergiesk(psi)
 # all kinetic
 heatmap(x,y,log10.(abs2.(fftshift(ϕ))),aspectratio=1)
 
-#--- single vortex
+## single vortex
 ψv = copy(ψg)
 ξv = healinglength(0.,0.,μ,g)
 pv = PointVortex(0.,0.,1)

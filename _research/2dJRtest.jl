@@ -7,14 +7,14 @@ gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 function jrphase(x,y)
     return 4x/(1.5 + (2y^2)+x^2)
 end
-#--- Initialize simulation
+## Initialize simulation
 
 L = (30.0,30.0)
 N = (128,128)
 sim = Sim(L,N)
 @unpack_Sim sim
 
-#--- simulation parameters
+## simulation parameters
 μ = 60.0
 ξ = 1/sqrt(μ)
 offset = 2.0
@@ -34,7 +34,7 @@ x,y = X
 
 @pack_Sim! sim
 
-#--- evolve and plot final state
+## evolve and plot final state
 sol = runsim(sim)
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
@@ -42,7 +42,7 @@ showpsi(x,y,ψg)
 
 
 
-#--- imprint and evolve JR for short time
+## imprint and evolve JR for short time
 # shift = sig
 # ψjr = @. ψg*exp(-im*jrphase((x - offset-shift)/ξ,y'/ξ))
 # showpsi(x,y,ψjr)
@@ -54,7 +54,7 @@ showpsi(x,y,ψg)
 # simjr = Sim(L,N)
 # @pack! simjr = tf,t,γ,ϕi
 
-#--- try jump of obstacle
+## try jump of obstacle
 shift = -2*sig
 # ψjr = @. ψg*exp(-im*jrphase((x - offset-shift)/ξ,y'/ξ))
 
@@ -68,7 +68,7 @@ t = LinRange(ti,tf,Nt)
 simjr = Sim(L,N)
 @pack! simjr = tf,t,γ,ϕi
 
-#--- evolve
+## evolve
 soljr = runsim(simjr)
 
 ϕf = soljr[end]

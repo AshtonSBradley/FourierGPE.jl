@@ -1,9 +1,9 @@
-using Plots, LaTeXStrings 
+using Plots, LaTeXStrings
 gr(colorbar=false,size=(300,300),legend=false,grid=false)
 
 using FourierGPE
 
-#--- setup
+## setup
 L = (60.0,60.)
 N = (512,512)
 sim = Sim(L,N)
@@ -23,7 +23,7 @@ Nt = 150
 ti = 0.0
 t = LinRange(ti,tf,Nt)
 
-#--- Bogoliubov state
+## Bogoliubov state
 x,y = X
 kx,ky = K
 
@@ -44,12 +44,12 @@ kb = kx[20]
 
 @pack_Sim! sim
 
-#--- Evolve in k space
+## Evolve in k space
 @time sol = runsim(sim)
 
 z = abs2.(xspace(sol[end-1],sim)); heatmap(x,y,z)
 
-#--- movie
+## movie
 anim = @animate for i in eachindex(t)
     ψ = xspace(sol[i],sim)
     z = abs2.(ψ)
@@ -61,7 +61,7 @@ end
 
 gif(anim, "./examples/2dBogoliubov.gif", fps = 25)
 
-#--- slice movie
+## slice movie
 anim = @animate for i in eachindex(t)
     z = abs2.(xspace(sol[i],sim))[:,256]
     plot(x,z)
@@ -73,7 +73,7 @@ end
 gif(anim, "./examples/2dBogoliubovSlice.gif", fps = 25)
 
 
-#--- energy densities
+## energy densities
 
 function showenergies(ψ)
     et,ei,ec = energydecomp(ψ)
@@ -97,7 +97,7 @@ end
 
 gif(anim,"./examples/2dbogenergies.gif",fps = 25)
 
-#--- energy totals
+## energy totals
 function xenergy(ϕ,sim,t)
     @unpack g,X = sim; x,y = X
     ψ = xspace(ϕ,sim)
@@ -146,7 +146,7 @@ for (i,t) in enumerate(t)
     H[i] = gpenergy(ϕ,sim,t)
 end
 
-#--- compressible energy conservation
+## compressible energy conservation
 plot(t,Et./Natoms,label=L"E_t",size=(400,200),legend=true)
 plot!(t,Ei./Natoms,label=L"E_i",legend=:bottomright)
 plot!(t,Ec./Natoms,label=L"E_c")

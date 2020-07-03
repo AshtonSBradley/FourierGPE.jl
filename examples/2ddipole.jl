@@ -1,4 +1,4 @@
-#--- load packages
+## load packages
 using Plots, LaTeXStrings, VortexDistributions
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
@@ -11,7 +11,7 @@ function psimovie(sol,sim)
     return anim
 end
 
-#--- Set up parameters and ground state
+## Set up parameters and ground state
 # Units of ξ for length, 1/μ for time
 # related by μ ≡ ħ²/mξ² = mc^2 where
 # c = ħ/mξ is the speed of sound of
@@ -36,22 +36,22 @@ t = LinRange(ti,tf,Nt)
 ψ0(x,y,μ,g) = sqrt(μ/g)*sqrt(max(1.0-V(x,y,0.0)/μ,0.0)+im*0.0)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 
-#--- Make initial state
+## Make initial state
 x,y = X
 kx,ky = K
 ψi = ψ0.(x,y',μ,g)
 ϕi = kspace(ψi,sim)
 @pack_Sim! sim
 
-#--- evolve
+## evolve
 sol = runsim(sim)
 
-#--- plot ground state
+## plot ground state
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg)
 
-#--- periodic dipole phase
+## periodic dipole phase
 # Billam et al, PRL 112, 145301 (2014), Supplemental
 # Methods
 H(x) = x > 0. ? 1.0 : 0.0
@@ -91,7 +91,7 @@ function Thetad(x,y,xp,yp,xn,yn)
     return @. angle(exp(im*thetad.(x*2*pi/Lx,y'*2*pi/Ly,xp*2*pi/Lx,yp*2*pi/Ly,xn*2*pi/Lx,yn*2*pi/Ly)))
 end
 
-#--- initial dipole, with periodic phase
+## initial dipole, with periodic phase
 ψv = copy(ψg)
 d = 14
 ξv = healinglength(0.,0.,μ,g)
@@ -107,13 +107,13 @@ vortex!(psi,dipole) # make dipole
 ψv = abs.(psi.ψ).*exp.(im*Thetad(x,y,xp,yp,xn,yn))
 showpsi(x,y,ψv)
 
-#--- make sure phase is periodic
+## make sure phase is periodic
 using Test
 testphase = angle.(ψv)
 @test testphase[:,1] ≈ testphase[:,end]
 @test testphase[1,:] ≈ testphase[end,:]
 
-#--- evolve dipole with weak damping
+## evolve dipole with weak damping
 # Set simulation parameters
 c = sqrt(μ)
 tf = 3*L[1]/c # a short run for testing evolutoin and detection
@@ -128,14 +128,14 @@ alg = Vern7()
 # remove boundary artifacts with small γ
 @time solv = runsim(sim)
 
-#--- plot and animate
+## plot and animate
 ψd = xspace(solv[end],sim)
 showpsi(x,y,ψd)
 
 anim = psimovie(solv,sim)
 gif(anim,"./examples/dipole_damping.gif",fps=25)
 
-#--- Vortex detection test
+## Vortex detection test
 Nt = 100
 d = zeros(Nt)
 
@@ -147,7 +147,7 @@ end
 
 plot(t[1:Nt],d)
 
-#--- Hamiltonian evolution
+## Hamiltonian evolution
 γ = 0.0
 tf = L[1]/c/5
 t = LinRange(ti,tf,Nt)
@@ -156,14 +156,14 @@ t = LinRange(ti,tf,Nt)
 
 solh = runsim(sim)
 
-#--- plot
+## plot
 ψdh = xspace(solh[end],sim)
 showpsi(x,y,ψdh)
 
 anim = psimovie(solh,sim)
 gif(anim,"./examples/dipole_hamiltonian.gif",fps=25)
 
-#--- energy densities
+## energy densities
 function showenergies(ψ)
     et,ei,ec = energydecomp(ψ)
     p1 = heatmap(x,y,log10.(ei),aspectratio=1)
@@ -186,7 +186,7 @@ end
 
 gif(anim,"./examples/dipoleenergies.gif",fps=30)
 
-#--- energy totals
+## energy totals
 
 function venergy(ϕ,sim,t)
     @unpack g,X = sim; x,y = X
@@ -247,7 +247,7 @@ end
 
 @time Ei,Ec,Ekhy,Eqp,Ev,Eint,Et,Ekall,Natoms = energies(solh)
 
-#--- plot energies
+## plot energies
 # simple breakdown
 plot(t,Et./Natoms,label=L"E_t",legend=:left)
 plot!(t,Eint./Natoms,label=L"E_{int}")

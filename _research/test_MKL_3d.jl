@@ -6,7 +6,7 @@ Pkg.activate(".")
 using FourierGPE, Test
 
 
-#--- density with Makie
+## density with Makie
 using Makie, AbstractPlotting
 function dense(phi)
     ψm = xspace(phi,sim)
@@ -43,11 +43,11 @@ end
 
 #==================================#
 
-#--- 3D expansion
+## 3D expansion
 using Plots, Interact, LaTeXStrings, FourierGPE
 gr(titlefontsize=12,size=(500,300),transpose=true,colorbar=false)
 
-#--- Scaling GPE
+## Scaling GPE
 import FourierGPE: nlin!, Lgp!
 
 function k2_scaling(K,λ,t)
@@ -94,7 +94,7 @@ end
 
 init_phase!(ψ) = remove_phase!(ψ,0)
 
-#--- First, we verify Castin-Dum scaling inversion
+## First, we verify Castin-Dum scaling inversion
 # using parameters of Mewes et al 1996 (or smaller N)
 
 # initialize default sim
@@ -176,11 +176,11 @@ Na = sum(abs2.(ψi))*prod(dX)
 nfiles = true
 path = joinpath(@__DIR__,"oblate_ground_state")
 
-#--- Evolve in k space
+## Evolve in k space
 @pack_Sim! sim
 @time sol = runsim(sim)
 
-#--- slice through z=0:
+## slice through z=0:
 ϕg = sol[end]
 
 # loadfile = joinpath(path,"save200.jld2")
@@ -189,13 +189,13 @@ path = joinpath(@__DIR__,"oblate_ground_state")
 ψg = xspace(ϕg,sim)
 showpsi(x,y,ψg[:,:,zmid])
 
-#--- one D plot
+## one D plot
 Vplot(x,y,z,t) = 0.5*(x^2 + y^2 + wz^2*z^2)
 ψtfplot(x,y,z,μ,g)=sqrt(μ/g)*sqrt(max(1.0-Vplot(x,y,z,0.0)/μ,0.0)+im*0.0)
 Plots.plot(x,g*abs2.(ψi[:,16,16]),label=L"|\psi(x)|^2")
 Plots.plot!(x,g*abs2.(ψtfplot.(x,0,0,μ,g)),label=L"n_{TF}(x)")
 
-#--- file for easy load
+## file for easy load
 function loadpsi(i::Int,sim)
     padi = lpad(string(i),ndigits(length(sim.t)),"0")
     fromfile = joinpath(sim.path,sim.filename*padi*".jld2")
@@ -203,7 +203,7 @@ function loadpsi(i::Int,sim)
 end
 
 
-#--- initial state for expansion
+## initial state for expansion
 # tind = 200
 # ϕt = sol[tind]
 # ψt = xspace(ϕt,sim)
@@ -216,13 +216,13 @@ tind = 100
     showpsi(x,y,ψt[:,:,i])
 end
 
-#--- save initial state
+## save initial state
 # using JLD2, FileIO
 
 tofile = "initial_state_oblate.jld2"
 save(tofile,"ϕt",ϕt)
 
-#--- Free expansion
+## Free expansion
 fromfile = tofile
 load(fromfile,"ϕt")
 
@@ -261,10 +261,10 @@ simes = Sim(L,N)
 @pack_Sim! simes
 
 simes
-#--- Evolve
+## Evolve
 @time soles = runsim(simes)
 
-#--- Plot
+## Plot
 @manipulate for i in 1:zmid, tind in 1:length(t)
     ϕf = loadpsi(tind,simes)
     ψf = xspace(ϕf,simes)
@@ -276,7 +276,7 @@ simes
     Plots.ylabel!(L"z/a_z")
 end
 
-#--- aspect ratio
+## aspect ratio
 aspect = zero.(t)
 
 x = X[1]
@@ -305,10 +305,10 @@ Plots.ylabel!(L"R_z(t)/R_\perp(t)")
 # <x^2>/<z^2> and Rx^2/Rz^2 are equivalent for Thomas-Fermi approximation
 
 # savefig(p1,"expand_oblate_comparison.pdf")
-#--- make movie
+## make movie
 # @time p = densityfilm(soles,Nt,file="3dfree_expansion.gif")
 
-#--- plot column density
+## plot column density
 @manipulate for i in 1:4:lastindex(t)
     ϕf = soles[i]
     ψf = xspace(ϕf,simes)
@@ -317,7 +317,7 @@ Plots.ylabel!(L"R_z(t)/R_\perp(t)")
     showpsi(x*λ(s),y*λ(s),ψcd/λ(s))
 end
 
-#--- compute aspect ratio from standard deviations in r,z
+## compute aspect ratio from standard deviations in r,z
 dx = diff(x)[1]; dy = diff(y)[1];dz = diff(z)[1]
 Na(ψ) = sum(abs2.(ψ))*dx*dy*dz
 Rz(ψ) = sum(abs2.(ψ).*zt.^2)*dx*dy*dz/Na(ψ) |> abs |> sqrt
@@ -335,7 +335,7 @@ plot(t,α,legend=false)
 ylims!(0,3.2)
 plot!(t,one.(t)*2/α0/pi,ls=:dash)
 
-#--- check against TF radii with fitting
+## check against TF radii with fitting
 Rz_tf0 = sqrt(2*μ)
 Rperp_tf0 = sqrt(2*μ/64)
 
