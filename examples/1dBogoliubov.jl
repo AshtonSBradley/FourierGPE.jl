@@ -22,7 +22,7 @@ t = LinRange(ti,tf,Nt)
 x = X[1]
 k = K[1]
 
-# Define Bog state
+## Define Bog state
 f(k) = 1 + 4/k^2
 u(k) = 0.5*(sqrt(f(k))+1)/f(k)^(1/4)
 v(k) = 0.5*(sqrt(f(k))-1)/f(k)^(1/4)
