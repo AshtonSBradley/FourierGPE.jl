@@ -26,7 +26,7 @@ t = LinRange(ti,tf,Nt)
 x = X[1]
 ψs(x) = sqrt(Ns/2ξs)*sech(x/ξs)*exp(im*us*x)
 ψi = ψs.(x)
-ϕi = kspace(ψi,sim)
+ϕi = kspace(ψi,sim);
 
 ## Set all fields
 @pack_Sim! sim
