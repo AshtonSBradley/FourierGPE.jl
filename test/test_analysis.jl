@@ -1,11 +1,13 @@
-# using Test, FourierGPE
+## analysis
+using Test, FourierGPE
 
 # Velocity and Helmholtz tests
 N = 100
 X = xvecs((1,1),(N,N))
 K = kvecs((1,1),(N,N))
-K2 = k2(K)
+K2 = k2(K);
 
+##
 ktest = K[1][2]
 psi = @. exp(im*ktest*X[1]*one.(X[2]'))
 
