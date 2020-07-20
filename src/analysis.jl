@@ -370,8 +370,8 @@ function qpespectrum(k,ψ,X,K)
     k2field = k2(K)
     psi = XField(abs.(ψ) |> complex,X,K,k2field)
     rnx,rny = gradient(psi)
-    rnx ./= psi.ψ
-    rny ./= psi.ψ
+    rnx ./= ψ
+    rny ./= ψ
 	cx = autocorrelate(rnx,X,K)
 	cy = autocorrelate(rny,X,K)
     Cq = cx .+ cy
