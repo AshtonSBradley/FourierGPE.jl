@@ -370,13 +370,11 @@ function qpespectrum(k,ψ,X,K)
     k2field = k2(K)
     psi = XField(abs.(ψ) |> complex,X,K,k2field)
     rnx,rny = gradient(psi)
-    rnx ./= abs.(ψ) # test needed
-    rny ./= abs.(ψ)
 	cx = autocorrelate(rnx,X,K)
 	cy = autocorrelate(rny,X,K)
     Cq = cx .+ cy
 
-	# make ρ
+	# make ρ vector
     Nx = 2*length(x)
     Lx = x[end]-x[1] + dx
     xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
