@@ -233,7 +233,7 @@ end
 Return the autocorrelation integral of a complex field ``\psi``, ``A``, given by
 
 ```
-A(\rho)=\int d^2r\;\psi^*(r-\rho)\psi(r)
+A(\rho)=\frac{1}{(2\pi)^{d/2}}\int d^2r\;\psi^*(r-\rho)\psi(r)
 ```
 
 defined on a cartesian grid on a cartesian grid using FFTW.
