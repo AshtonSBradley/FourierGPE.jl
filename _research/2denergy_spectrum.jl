@@ -77,12 +77,13 @@ plot!(kp*ξ0,Eki,scale=:log10,label=L"E_{K,i}(k)")
 Ekc = ckespectrum(kp,ψi,X,K)
 plot!(kp*ξ0,Ekc,scale=:log10,label=L"E_{K,c}(k)")
 
+xlabel!(L"k\xi")
+
 # k values of interest
 vline!([(2*pi/R(1))*ξ0],label=L"2\pi/R")
 vline!([(2*pi/d)*ξ0],label=L"2\pi/d")
 vline!([1],ls=:dash,label=L"1/\xi")
-
-xlabel!(L"k\xi")
+# vline!([(2*pi/dx)*ξ0],label=L"2\pi/dx") # check grid cutoff
 
 # Eqp = qpespectrum(kp,ψi,X,K)
 # plot!(kp,Eqp,scale=:log10,label="quantum pressure")
