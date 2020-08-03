@@ -9,7 +9,7 @@ using FourierGPE
 ## Initialize simulation
 # harmonic oscillator units
 L = (18.0,18.0)
-N = (256,256)
+N = (512,512)
 sim = Sim(L,N)
 @unpack_Sim sim
 
@@ -39,13 +39,13 @@ showpsi(x,y,ψg)
 ## make dipole
 R(w) = sqrt(2*μ/w^2)
 R(1)
-rv = .8
+d = 2
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
 ξ0 = healinglength.(0.,0.,μ,g)
-ξ = healinglength(rv,0.,μ,g)
+ξ = healinglength(d/2,0.,μ,g)
 
-pv = PointVortex(rv,0.,1)
-nv = PointVortex(-rv,0,-1)
+pv = PointVortex(d/2,0.,1)
+nv = PointVortex(-d/2,0,-1)
 v1 = ScalarVortex(ξ,pv)
 v2 = ScalarVortex(ξ,nv)
 
@@ -59,23 +59,27 @@ showpsi(x,y,psi.ψ)
 kx,ky = K .|> fftshift
 x,y = X
 
-kmin = 0.1 #0.5*2*pi/R(1)
-kmax = 2*pi/ξ0
-Np = 200
+kmin = 2*pi/R(1)
+kmax = 0.7*2*pi/ξ0
+Np = 100
 kp = log10range(kmin,kmax,Np)
 
 ## find spec
 Ek = kespectrum(kp,ψi,X,K)
-plot(kp,Ek,scale=:log10,label="all KE",legend=:bottomleft)
+plot(kp*ξ0,Ek,scale=:log10,label="all KE",legend=:bottomleft,grid=false)
 
 Eki = ikespectrum(kp,ψi,X,K)
-plot!(kp,Eki,scale=:log10,label="incompressible KE")
+plot!(kp*ξ0,Eki,scale=:log10,label="incompressible KE")
 
 Ekc = ckespectrum(kp,ψi,X,K)
-plot!(kp,Ekc,scale=:log10,label="compressible KE")
+plot!(kp*ξ0,Ekc,scale=:log10,label="compressible KE")
 
-Eqp = qpespectrum(kp,ψi,X,K)
-plot!(kp,Eqp,scale=:log10,label="quantum pressure")
+## k values of interest
+vline!([2*pi*ξ0/R(1)])
+vline!([2*pi*ξ0])
+
+# Eqp = qpespectrum(kp,ψi,X,K)
+# plot!(kp,Eqp,scale=:log10,label="quantum pressure")
 # NOTE: spectra are not locally additive in k-space
 
 ## compute total kinetic energy spectrally from momentum space w.f. ϕ
