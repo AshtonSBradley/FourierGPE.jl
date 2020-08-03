@@ -9,7 +9,7 @@ using FourierGPE
 ## Initialize simulation
 # harmonic oscillator units
 L = (18.0,18.0)
-N = (512,512)
+N = (256,256)
 sim = Sim(L,N)
 @unpack_Sim sim
 
@@ -59,7 +59,7 @@ showpsi(x,y,psi.ψ)
 kx,ky = K .|> fftshift
 x,y = X
 
-kmin = 2*pi/R(1)
+kmin = pi/R(1)/4
 kmax = 0.7*2*pi/ξ0
 Np = 100
 kp = log10range(kmin,kmax,Np)
@@ -76,7 +76,7 @@ plot!(kp*ξ0,Ekc,scale=:log10,label="compressible KE")
 
 ## k values of interest
 vline!([2*pi*ξ0/R(1)])
-vline!([2*pi*ξ0])
+vline!([1])
 
 # Eqp = qpespectrum(kp,ψi,X,K)
 # plot!(kp,Eqp,scale=:log10,label="quantum pressure")
