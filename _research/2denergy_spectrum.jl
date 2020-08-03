@@ -1,6 +1,6 @@
 ##
 using Test, SpecialFunctions, VortexDistributions
-using FFTW, Plots, Pkg, Revise
+using FFTW, Plots, Pkg, LaTeXStrings
 
 ##
 Pkg.activate(".")
@@ -59,24 +59,30 @@ showpsi(x,y,psi.ψ)
 kx,ky = K .|> fftshift
 x,y = X
 
-kmin = pi/R(1)/4
-kmax = 0.7*2*pi/ξ0
-Np = 100
+kR = 2*pi/R(1)
+kxi = 2*pi/ξ0
+
+kmin = 0.15kR
+kmax = 0.7kxi
+Np = 200
 kp = log10range(kmin,kmax,Np)
 
 ## find spec
 Ek = kespectrum(kp,ψi,X,K)
-plot(kp*ξ0,Ek,scale=:log10,label="all KE",legend=:bottomleft,grid=false)
+plot(kp*ξ0,Ek,scale=:log10,label=L"E_K(k)",legend=:bottomleft,grid=false,foreground_color_legend = nothing)
 
 Eki = ikespectrum(kp,ψi,X,K)
-plot!(kp*ξ0,Eki,scale=:log10,label="incompressible KE")
+plot!(kp*ξ0,Eki,scale=:log10,label=L"E_{K,i}(k)")
 
 Ekc = ckespectrum(kp,ψi,X,K)
-plot!(kp*ξ0,Ekc,scale=:log10,label="compressible KE")
+plot!(kp*ξ0,Ekc,scale=:log10,label=L"E_{K,c}(k)")
 
-## k values of interest
-vline!([2*pi*ξ0/R(1)])
-vline!([1])
+# k values of interest
+vline!([(2*pi/R(1))*ξ0],label=L"2\pi/R")
+vline!([(2*pi/d)*ξ0],label=L"2\pi/d")
+vline!([1],ls=:dash,label=L"1/\xi")
+
+xlabel!(L"k\xi")
 
 # Eqp = qpespectrum(kp,ψi,X,K)
 # plot!(kp,Eqp,scale=:log10,label="quantum pressure")
