@@ -75,7 +75,7 @@ tf = L[1]/c/4
 t = LinRange(ti,tf,Nt)
 ϕi = kspace(ψv,sim)
 reltol = 1e-7 #uniform requires slightly smaller tolerance
-alg = Vern7()
+# alg = Vern7()
 simd = Sim(L,N)
 @pack_Sim! simd
 
