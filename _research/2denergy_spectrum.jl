@@ -85,6 +85,40 @@ vline!([(2*pi/d)*ξ0],label=L"2\pi/d")
 vline!([1],ls=:dash,label=L"1/\xi")
 # vline!([(2*pi/dx)*ξ0],label=L"2\pi/dx") # check grid cutoff
 
+##TEST: define ike spec using v decomp instead of u. Pathological?
+function ikespectrum2(k,ψ,X,K)
+    x,y = X; kx,ky = K
+ 	dx,dy = diff(x)[1],diff(y)[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+    # rho = abs2.(ψ)
+    # wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
+    Wi, Wc = helmholtz(vx,vy,psi)
+    wix,wiy = Wi
+    @. wix *= abs(ψ)
+    @. wiy *= abs(ψ)
+	cix = autocorrelate(wix,X,K)
+	ciy = autocorrelate(wiy,X,K)
+    Ci = cix .+ ciy
+
+	# make ρ
+    Nx = 2*length(x)
+    Lx = x[end]-x[1] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp
+    ρ = hypot.(xp,yp')
+
+    Eki = zero(k)
+    for (j,kj) in enumerate(k)
+        Eki[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
+    end
+    return Eki
+end
+
+Eki2 = ikespectrum2(kp,ψi,X,K)
+plot!(kp*ξ0,Eki2,scale=:log10,label=L"E_{K,i}(k)",c=:black)
 # Eqp = qpespectrum(kp,ψi,X,K)
 # plot!(kp,Eqp,scale=:log10,label="quantum pressure")
 # NOTE: spectra are not locally additive in k-space
