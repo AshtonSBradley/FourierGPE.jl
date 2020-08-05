@@ -75,7 +75,7 @@ function velocity(psi::XField{1})
 	rho = abs2.(ψ)
 	ϕ = fft(ψ)
 	ψx = ifft(im*kx.*ϕ)
-	vx = @. imag(conj(ψ)*ψx)/rho
+	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
 	return vx
 end
 
@@ -85,8 +85,8 @@ function velocity(psi::XField{2})
 	ϕ = fft(ψ)
 	ψx = ifft(im*kx.*ϕ)
 	ψy = ifft(im*ky'.*ϕ)
-	vx = @. imag(conj(ψ)*ψx)/rho
-	vy = @. imag(conj(ψ)*ψy)/rho
+	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
+	vy = @. imag(conj(ψ)*ψy)/rho; @. vy[isnan(vy)] = zero(vy[1])
 	return vx,vy
 end
 
@@ -97,9 +97,9 @@ function velocity(psi::XField{3})
 	ψx = ifft(im*kx.*ϕ)
 	ψy = ifft(im*ky'.*ϕ)
 	ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
-	vx = @. imag(conj(ψ)*ψx)/rho
-	vy = @. imag(conj(ψ)*ψy)/rho
-	vz = @. imag(conj(ψ)*ψz)/rho
+	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
+	vy = @. imag(conj(ψ)*ψy)/rho; @. vy[isnan(vy)] = zero(vy[1])
+	vz = @. imag(conj(ψ)*ψz)/rho; @. vy[isnan(vy)] = zero(vz[1])
 	return vx,vy,vz
 end
 
