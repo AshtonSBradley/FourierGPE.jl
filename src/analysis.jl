@@ -334,8 +334,7 @@ function ckespectrum(k,ψ,X,K)
     k2field = k2(K)
     psi = XField(ψ,X,K,k2field)
     vx,vy = velocity(psi)
-    rho = abs2.(ψ)
-    wx = @. sqrt(rho)*vx; wy = @. sqrt(rho)*vy
+    wx = @. abs(ψ)*vx; wy = @. abs(ψ)*vy
     Wi, Wc = helmholtz(wx,wy,psi)
     wcx,wcy = Wc
 
