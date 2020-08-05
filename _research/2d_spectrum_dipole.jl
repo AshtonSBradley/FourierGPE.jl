@@ -1,6 +1,5 @@
 using VortexDistributions, FourierGPE, Plots, LaTeXStrings
 
-
 ## Initialize simulation
 # units of healing length, chemical potential
 L = (100.,100.)
@@ -74,9 +73,8 @@ vline!([kξ],ls=:dash,label=L"k_\xi")
 xlabel!(L"k\xi")
 ylabel!(L"E_i(k)")
 
-# test against analytic form
+## Analytic form
 using SpecialFunctions
-# use the numerical dipole distance
 vort = findvortices(Torus(ψd,x,y)) |> vortex_array
 d = vort[:,2] |> diff
 Λ = 0.8249
