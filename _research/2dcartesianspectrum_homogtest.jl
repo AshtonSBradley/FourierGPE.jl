@@ -1,5 +1,4 @@
-using VortexDistributions
-using Revise, FourierGPE
+using VortexDistributions, FourierGPE, Plots, LaTeXStrings
 
 
 ## Initialize simulation
@@ -33,7 +32,7 @@ dipole = [nv;pv]
 psi = Torus(ψd,x,y) # set field topology for VortexDistributions
 vortex!(psi,dipole) # make dipole
 # periodic phase correction
-ψd = abs.(psi.ψ).*exp.(im*Thetad(x,y,xp,yp,xn,yn))
+# ψd = abs.(psi.ψ).*exp.(im*thetad(x,y,xp,yp,xn,yn))
 showpsi(x,y,ψd)
 
 ## test new methods
@@ -48,8 +47,6 @@ k = log10range(kmin,kmax,Np)
 
 @time Ek = kespectrum(k,ψd,X,K)
 plot(k,Ek,scale=:log10)
-
-# heatmap(log.(abs2.(A |> fftshift) .+ eps.()))
 
 ## incompressible spectrum
 kL = 2*pi/L[1]
@@ -78,12 +75,13 @@ xlabel!(L"k\xi")
 ylabel!(L"E_i(k)")
 
 # test against analytic form
+using SpecialFunctions
 # use the numerical dipole distance
-vort = findvortices(Torus(ψd,x,y)) |> rawData
+vort = findvortices(Torus(ψd,x,y)) |> vortex_array
 d = vort[:,2] |> diff
 Λ = 0.8249
 f(x) = x*(besselk(1,x)*besseli(0,x)-besselk(0,x)*besseli(1,x))
 F(x,Λ) = f(x/(2Λ))^2/x
 F(x) = F(x,Λ)
 Ed(k,d) = 2*F(k)*(1-besselj0(k*d))
-plot!(k,Ed.(k,d),label=L"{\cal E}_i^a(k)")
+plot!(k,Ed.(k,d),label=L"E_i^a(k)")

@@ -3,7 +3,7 @@ using Test, SpecialFunctions, VortexDistributions
 using FFTW, Plots, Pkg, LaTeXStrings
 
 ##
-Pkg.activate(".")
+# Pkg.activate(".")
 using FourierGPE
 
 ## Initialize simulation
@@ -12,8 +12,6 @@ L = (18.0,18.0)
 N = (256,256)
 sim = Sim(L,N)
 @unpack_Sim sim
-
-# set simulation parameters
 μ = 20.0
 
 ## Time dependent potential function (here trivial t dep)
