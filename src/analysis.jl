@@ -99,7 +99,7 @@ function velocity(psi::XField{3})
 	ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
 	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
 	vy = @. imag(conj(ψ)*ψy)/rho; @. vy[isnan(vy)] = zero(vy[1])
-	vz = @. imag(conj(ψ)*ψz)/rho; @. vy[isnan(vy)] = zero(vz[1])
+	vz = @. imag(conj(ψ)*ψz)/rho; @. vz[isnan(vz)] = zero(vz[1])
 	return vx,vy,vz
 end
 
