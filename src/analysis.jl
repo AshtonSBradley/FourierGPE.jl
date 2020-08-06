@@ -280,7 +280,8 @@ function kespectrum(k,ψ,X,K)
 
     # do spectra
     Ek = zero(k)
-    for (j,kj) in enumerate(k)
+    Threads.@threads for kj in k
+        j = findfirst(k.==kj)
         Ek[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
     end
     return Ek
@@ -315,7 +316,8 @@ function ikespectrum(k,ψ,X,K)
     ρ = hypot.(xp,yp')
 
     Eki = zero(k)
-    for (j,kj) in enumerate(k)
+    Threads.@threads for kj in k
+        j = findfirst(k.==kj)
         Eki[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
     end
     return Eki
@@ -349,7 +351,8 @@ function ckespectrum(k,ψ,X,K)
     ρ = hypot.(xp,yp')
 
     Ekc = zero(k)
-    for (j,kj) in enumerate(k)
+    Threads.@threads for kj in k
+        j = findfirst(k.==kj)
         Ekc[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Cc)*dx*dy |> real
     end
     return Ekc
@@ -380,8 +383,9 @@ function qpespectrum(k,ψ,X,K)
     ρ = hypot.(xp,yp')
 
     Eq = zero(k)
-    for (j,kj) in enumerate(k)
-        Eq[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Cq)*dx*dy |> real
+    Threads.@threads for kj in k
+        j = findfirst(k.==kj)
+        Eq[j] = 0.5*kj*sum(@. besselj0(kj*ρ)*Cq)*dx*dy |> real
     end
     return Eq
 end

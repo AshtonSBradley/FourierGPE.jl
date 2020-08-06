@@ -3,7 +3,7 @@ using VortexDistributions, FourierGPE, Plots, LaTeXStrings
 ## Initialize simulation
 # units of healing length, chemical potential
 L = (100.,100.)
-N = (512,512)
+N = (256,256)
 sim = Sim(L,N)
 @unpack_Sim sim
 
@@ -35,29 +35,22 @@ vortex!(psi,dipole) # make dipole
 showpsi(x,y,ψd)
 
 ## test new methods
+kd = 2*pi/d
 kL = 2*pi/L[1]
 kξ = 2*pi
-
 kmin = 0.1*kL
-kmax = kξ
+kmax = 1.3kξ
 
-Np = 200
+Np = 400
 k = log10range(kmin,kmax,Np)
 
 @time Ek = kespectrum(k,ψd,X,K)
 plot(k,Ek,scale=:log10)
 
 ## incompressible spectrum
-kL = 2*pi/L[1]
-kξ = 2*pi
-kd = 2*pi/d
+@time Eki = ikespectrum(k,ψd,X,K)
+plot!(k,Eki,scale=:log10)
 
-kmin = 0.1*kL
-kmax = 1.3kξ
-Np = 400
-k = log10range(kmin,kmax,Np)
-
-Eki = ikespectrum(k,ψd,X,K)
 
 ## power-law plot in logspace
 n0 = abs2.(ψd[1,1])
