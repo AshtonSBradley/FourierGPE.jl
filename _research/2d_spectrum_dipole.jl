@@ -1,4 +1,4 @@
-using VortexDistributions, FourierGPE, Plots, LaTeXStrings
+using VortexDistributions, FourierGPE, Plots, LaTeXStrings, SpecialFunctions
 
 ## Initialize simulation
 # units of healing length, chemical potential
@@ -54,19 +54,17 @@ plot!(k,Eki,scale=:log10)
 ## power-law plot in logspace
 n0 = abs2.(ψd[1,1])
 E0 = π*n0
-p1 = plot(k,Eki/E0,scale=:log10,grid=false,label=L"E_i(k)",legend=:bottomleft)
-plot!(k,2k.^(-3),label=L"k^{-3}")
+p1 = plot(k,Eki/E0,scale=:log10,grid=false,label=L"\epsilon_h^i(k)",legend=:bottomleft)
+plot!(k,2.5k.^(-3),label=L"k^{-3}")
 plot!(k,200*k,label=L"k")
 ylims!(2e-3,1e2)
-# xlims!(0.02,10)
 vline!([kL],ls=:dash,label=L"k_L")
 vline!([kd],ls=:dash,label=L"k_d")
 vline!([kξ],ls=:dash,label=L"k_\xi")
 xlabel!(L"k\xi")
-ylabel!(L"E_i(k)")
+ylabel!(L"\epsilon_h^i(k)")
 
 ## Analytic form
-using SpecialFunctions
 vort = findvortices(Torus(ψd,x,y)) |> vortex_array
 d = vort[:,2] |> diff
 Λ = 0.8249
@@ -74,4 +72,6 @@ f(x) = x*(besselk(1,x)*besseli(0,x)-besselk(0,x)*besseli(1,x))
 F(x,Λ) = f(x/(2Λ))^2/x
 F(x) = F(x,Λ)
 Ed(k,d) = 2*F(k)*(1-besselj0(k*d))
-plot!(k,Ed.(k,d),label=L"E_i^a(k)")
+plot!(k,Ed.(k,d),label=L"\epsilon_{pv}^i(k)")
+
+
