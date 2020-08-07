@@ -39,7 +39,7 @@ kd = 2*pi/d
 kL = 2*pi/L[1]
 kξ = 2*pi
 kmin = 0.1*kL
-kmax = 1.3kξ
+kmax = kξ
 
 Np = 400
 k = log10range(kmin,kmax,Np)
@@ -50,7 +50,6 @@ plot(k,Ek,scale=:log10)
 ## incompressible spectrum
 @time Eki = ikespectrum(k,ψd,X,K)
 plot!(k,Eki,scale=:log10)
-
 
 ## power-law plot in logspace
 n0 = abs2.(ψd[1,1])
