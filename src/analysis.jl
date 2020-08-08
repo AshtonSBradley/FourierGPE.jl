@@ -253,6 +253,22 @@ function autocorrelate(ψ,X,K;periodic=false)
 	return ifft(abs2.(χ))*prod(DK) |> fftshift
 end
 
+function bessel_projection(k,x,y,C)
+    dx,dy = diff(x)[1],diff(y)[1]
+    Nx = 2*length(x)
+    Lx = x[end] - x[begin] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp
+    ρ = hypot.(xp,yp')
+    E = zero(k)
+    Threads.@threads for j in eachindex(k)
+        kj = k[j]
+        E[j] = sum(@. besselj0(kj*ρ)*C) |> real
+    end
+    @. E *= 0.5*k*dx*dy
+    return E 
+end
+
 """
 	kespectrum(k,ψ,X,K)
 
@@ -269,22 +285,9 @@ function kespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(ψx,X,K)
 	cy = autocorrelate(ψy,X,K)
-    Ci = cx .+ cy
+    C = cx .+ cy
 
-    # make ρ
-    Nx = 2*length(x)
-    Lx = x[end] - x[begin] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
-    yp = xp
-    ρ = hypot.(xp,yp')
-
-    # do spectra
-    Ek = zero(k)
-    Threads.@threads for kj in k
-        j = findfirst(k.==kj)
-        Ek[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
-    end
-    return Ek
+    return bessel_projection(k,x,y,C)
 end
 
 """
@@ -302,25 +305,13 @@ function ikespectrum(k,ψ,X,K)
     vx,vy = velocity(psi)
     wx = @. abs(ψ)*vx; wy = @. abs(ψ)*vy
     Wi, Wc = helmholtz(wx,wy,psi)
-    wix,wiy = Wi
+    wx,wy = Wi
 
-	cix = autocorrelate(wix,X,K)
-	ciy = autocorrelate(wiy,X,K)
-    Ci = cix .+ ciy
+	cx = autocorrelate(wx,X,K)
+	cy = autocorrelate(wy,X,K)
+    C = cx .+ cy
 
-	# make ρ
-    Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
-    yp = xp
-    ρ = hypot.(xp,yp')
-
-    Eki = zero(k)
-    Threads.@threads for kj in k
-        j = findfirst(k.==kj)
-        Eki[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Ci)*dx*dy |> real
-    end
-    return Eki
+    return bessel_projection(k,x,y,C)
 end
 
 """
@@ -338,24 +329,13 @@ function ckespectrum(k,ψ,X,K)
     vx,vy = velocity(psi)
     wx = @. abs(ψ)*vx; wy = @. abs(ψ)*vy
     Wi, Wc = helmholtz(wx,wy,psi)
-    wcx,wcy = Wc
+    wx,wy = Wc
 
-	ccx = autocorrelate(wcx,X,K)
-	ccy = autocorrelate(wcy,X,K)
-    Cc = ccx .+ ccy
+	cx = autocorrelate(wx,X,K)
+	cy = autocorrelate(wy,X,K)
+    C = cx .+ cy
 
-    Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
-    yp = xp
-    ρ = hypot.(xp,yp')
-
-    Ekc = zero(k)
-    Threads.@threads for kj in k
-        j = findfirst(k.==kj)
-        Ekc[j]  = 0.5*kj*sum(@. besselj0(kj*ρ)*Cc)*dx*dy |> real
-    end
-    return Ekc
+    return bessel_projection(k,x,y,C)
 end
 
 """
@@ -370,22 +350,11 @@ function qpespectrum(k,ψ,X,K)
 	DX,DK = dfftall(X,K)
     k2field = k2(K)
     psi = XField(abs.(ψ) |> complex,X,K,k2field)
-    rnx,rny = gradient(psi)
-	cx = autocorrelate(rnx,X,K)
-	cy = autocorrelate(rny,X,K)
-    Cq = cx .+ cy
+    wx,wy = gradient(psi)
 
-	# make ρ vector
-    Nx = 2*length(x)
-    Lx = x[end]-x[1] + dx
-    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
-    yp = xp
-    ρ = hypot.(xp,yp')
+	cx = autocorrelate(wx,X,K)
+	cy = autocorrelate(wy,X,K)
+    C = cx .+ cy
 
-    Eq = zero(k)
-    Threads.@threads for kj in k
-        j = findfirst(k.==kj)
-        Eq[j] = 0.5*kj*sum(@. besselj0(kj*ρ)*Cq)*dx*dy |> real
-    end
-    return Eq
+    return bessel_projection(k,x,y,C)
 end

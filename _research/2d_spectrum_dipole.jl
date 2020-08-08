@@ -30,8 +30,6 @@ dipole = [nv;pv]
 
 psi = Torus(ψd,x,y) # set field topology for VortexDistributions
 vortex!(psi,dipole) # make dipole
-# periodic phase correction
-# ψd = abs.(psi.ψ).*exp.(im*thetad(x,y,xp,yp,xn,yn))
 showpsi(x,y,ψd)
 
 ## test new methods
@@ -41,20 +39,25 @@ kξ = 2*pi
 kmin = 0.1*kL
 kmax = kξ
 
-Np = 400
+Np = 300
 k = log10range(kmin,kmax,Np)
 
-@time Ek = kespectrum(k,ψd,X,K)
-plot(k,Ek,scale=:log10)
+# @time Ek = kespectrum(k,ψd,X,K)
+# plot(k,Ek,scale=:log10)
 
-## incompressible spectrum
-@time Eki = ikespectrum(k,ψd,X,K)
-plot!(k,Eki,scale=:log10)
+# ## incompressible spectrum
+# @time Eki = ikespectrum(k,ψd,X,K)
+# plot!(k,Eki,scale=:log10)
 
 ## power-law plot in logspace
+@time Eki = ikespectrum(k,ψd,X,K)
+Eqp = qpespectrum(k,ψd,X,K)
+Ekc = ckespectrum(k,ψd,X,K)
+
 n0 = abs2.(ψd[1,1])
 E0 = π*n0
 p1 = plot(k,Eki/E0,scale=:log10,grid=false,label=L"\epsilon_h^v(k)",legend=:bottomleft)
+plot!(k,Eqp/E0,label=L"\epsilon_q(k)")
 plot!(k,2.5k.^(-3),label=L"k^{-3}")
 plot!(k,200*k,label=L"k")
 ylims!(2e-3,1e2)
@@ -73,5 +76,4 @@ F(x,Λ) = f(x/(2Λ))^2/x
 F(x) = F(x,Λ)
 Ed(k,d) = 2*F(k)*(1-besselj0(k*d))
 plot!(k,Ed.(k,d),label=L"\epsilon_{a}^v(k)")
-
 
