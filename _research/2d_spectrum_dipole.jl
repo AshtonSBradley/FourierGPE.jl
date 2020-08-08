@@ -77,3 +77,14 @@ F(x) = F(x,Λ)
 Ed(k,d) = 2*F(k)*(1-besselj0(k*d))
 plot!(k,Ed.(k,d),label=L"\epsilon_{a}^v(k)")
 
+
+
+## two point correlator (approx)
+ddk = diff(k); push!(ddk,last(ddk))
+gtwo(r)=sum(@. k^2*Eki*besselj0(k*r)*ddk)
+Gtwo(r)=gtwo(r)/gtwo(0)
+
+## plot Gtwo
+r = LinRange(0,10,100)
+plot(r,Gtwo.(r),label=L"G_2(r)")
+vline!([d],ls=:dash,label=L"d")
