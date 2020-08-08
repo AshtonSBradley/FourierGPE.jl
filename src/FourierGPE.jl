@@ -34,6 +34,6 @@ export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
 export Field, XField, KField, gradient, velocity, current
-export energydecomp, helmholtz, kespectrum, ikespectrum, ckespectrum, qpespectrum
+export energydecomp, helmholtz, kespectrum, ikespectrum, ckespectrum, qpespectrum, bessel_projection,
 export log10range, zeropad, autocorrelate, convolve
 end # module
