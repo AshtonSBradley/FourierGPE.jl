@@ -20,6 +20,7 @@ heatmap(x,y,abs2.(ψi))
 
 
 ## call
+k = LinRange(0.01,10.0,100) |> collect
 Eki = ikespectrum(k,ψi,X,K)
 
 ## plot
@@ -28,7 +29,7 @@ plot(k,Eki)
 
 
 ## call
-k = LinRange(0.01,10.0,100) |> collect
+
 Ek = kespectrum(k,ψi,X,K)
 
 ## plot

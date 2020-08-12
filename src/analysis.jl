@@ -253,7 +253,7 @@ function autocorrelate(ψ,X,K;periodic=false)
 	return ifft(abs2.(χ))*prod(DK) |> fftshift
 end
 
-function bessel_projection(k,x,y,C)
+function bessel_reduce(k,x,y,C)
     dx,dy = diff(x)[1],diff(y)[1]
     Nx = 2*length(x)
     Lx = x[end] - x[begin] + dx
@@ -287,7 +287,7 @@ function kespectrum(k,ψ,X,K)
 	cy = autocorrelate(ψy,X,K)
     C = cx .+ cy
 
-    return bessel_projection(k,x,y,C)
+    return bessel_reduce(k,x,y,C)
 end
 
 """
@@ -311,7 +311,7 @@ function ikespectrum(k,ψ,X,K)
 	cy = autocorrelate(wy,X,K)
     C = cx .+ cy
 
-    return bessel_projection(k,x,y,C)
+    return bessel_reduce(k,x,y,C)
 end
 
 """
@@ -335,7 +335,7 @@ function ckespectrum(k,ψ,X,K)
 	cy = autocorrelate(wy,X,K)
     C = cx .+ cy
 
-    return bessel_projection(k,x,y,C)
+    return bessel_reduce(k,x,y,C)
 end
 
 """
@@ -356,5 +356,5 @@ function qpespectrum(k,ψ,X,K)
 	cy = autocorrelate(wy,X,K)
     C = cx .+ cy
 
-    return bessel_projection(k,x,y,C)
+    return bessel_reduce(k,x,y,C)
 end
