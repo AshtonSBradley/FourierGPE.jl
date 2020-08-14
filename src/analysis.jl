@@ -36,17 +36,17 @@ The `D` cartesian components returned are `D`-dimensional arrays.
 """
 function current(psi::XField{1})
 	@unpack psiX,K = psi; kx = K[1]; ψ = psiX
-	ϕ = fft(ψ)
-	ψx = ifft(im*kx.*ϕ)
+	ψx = gradient(psi)
 	jx = @. imag(conj(ψ)*ψx)
 	return jx
 end
 
 function current(psi::XField{2})
 	@unpack psiX,K = psi; kx,ky = K; ψ = psiX
-	ϕ = fft(ψ)
-	ψx = ifft(im*kx.*ϕ)
-	ψy = ifft(im*ky'.*ϕ)
+	# ϕ = fft(ψ)
+	# ψx = ifft(im*kx.*ϕ)
+    # ψy = ifft(im*ky'.*ϕ)
+    ψx,ψy = gradient(psi)
 	jx = @. imag(conj(ψ)*ψx)
 	jy = @. imag(conj(ψ)*ψy)
 	return jx,jy
@@ -54,10 +54,11 @@ end
 
 function current(psi::XField{3})
 	@unpack psiX,K = psi; kx,ky,kz = K; ψ = psiX
-	ϕ = fft(ψ)
-	ψx = ifft(im*kx.*ϕ)
-	ψy = ifft(im*ky'.*ϕ)
-	ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
+	# ϕ = fft(ψ)
+	# ψx = ifft(im*kx.*ϕ)
+	# ψy = ifft(im*ky'.*ϕ)
+    # ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
+    ψx,ψy,ψz = gradient(psi)
 	jx = @. imag(conj(ψ)*ψx)
 	jy = @. imag(conj(ψ)*ψy)
 	jz = @. imag(conj(ψ)*ψz)
@@ -73,8 +74,9 @@ The `D` velocities returned are `D`-dimensional arrays.
 function velocity(psi::XField{1})
 	@unpack psiX,K = psi; kx = K[1]; ψ = psiX
 	rho = abs2.(ψ)
-	ϕ = fft(ψ)
-	ψx = ifft(im*kx.*ϕ)
+	# ϕ = fft(ψ)
+    # ψx = ifft(im*kx.*ϕ)
+    ψx = gradient(ψ)
 	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
 	return vx
 end
@@ -82,9 +84,10 @@ end
 function velocity(psi::XField{2})
 	@unpack psiX,K = psi; kx,ky = K; ψ = psiX
 	rho = abs2.(ψ)
-	ϕ = fft(ψ)
-	ψx = ifft(im*kx.*ϕ)
-	ψy = ifft(im*ky'.*ϕ)
+	# ϕ = fft(ψ)
+	# ψx = ifft(im*kx.*ϕ)
+    # ψy = ifft(im*ky'.*ϕ)
+    ψx,ψy = gradient(psi)
 	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
 	vy = @. imag(conj(ψ)*ψy)/rho; @. vy[isnan(vy)] = zero(vy[1])
 	return vx,vy
@@ -93,10 +96,11 @@ end
 function velocity(psi::XField{3})
 	@unpack psiX,K = psi; kx,ky,kz = K; ψ = psiX
 	rho = abs2.(ψ)
-	ϕ = fft(ψ)
-	ψx = ifft(im*kx.*ϕ)
-	ψy = ifft(im*ky'.*ϕ)
-	ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
+	# ϕ = fft(ψ)
+	# ψx = ifft(im*kx.*ϕ)
+	# ψy = ifft(im*ky'.*ϕ)
+    # ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
+    ψx,ψy,ψz = gradient(psi)
 	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
 	vy = @. imag(conj(ψ)*ψy)/rho; @. vy[isnan(vy)] = zero(vy[1])
 	vz = @. imag(conj(ψ)*ψz)/rho; @. vz[isnan(vz)] = zero(vz[1])
@@ -216,8 +220,8 @@ using FFTW.
 function convolve(ψ1,ψ2,X,K;periodic=false)
     DX,DK = dfftall(X,K)
     if periodic == false
-	ϕ1 = zeropad(ψ1)
-    ϕ2 = zeropad(ψ2)
+	    ϕ1 = zeropad(ψ1)
+        ϕ2 = zeropad(ψ2)
     else
         ϕ1 = ψ1
         ϕ2 = ψ2
