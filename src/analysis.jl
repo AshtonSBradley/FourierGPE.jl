@@ -342,7 +342,7 @@ end
 """
 	qpspectrum(k,ψ,X,K)
 
-Caculate the quantum pressure enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
+Caculate the quantum pressure enery spectrum for wavefunction ``\\psi``.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
 function qpespectrum(k,ψ,X,K)
