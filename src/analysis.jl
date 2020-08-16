@@ -266,6 +266,9 @@ function bessel_reduce(k,x,y,C)
     ρ = hypot.(xp,yp')
     E = zero(k)
     @tullio E[i] = real(besselj0(k[i]*ρ[p,q])*C[p,q])
+    # Threads.@threads for i in eachindex(k)
+    #     E[i] = sum(@. besselj0(k[i]*ρ)*C) |> real
+    # end
     @. E *= 0.5*k*dx*dy 
     return E 
 end

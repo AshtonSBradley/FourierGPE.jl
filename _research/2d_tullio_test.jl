@@ -1,5 +1,4 @@
 using VortexDistributions, FourierGPE, Plots, LaTeXStrings, SpecialFunctions
-using Tullio, LoopVectorization
 
 ## Initialize simulation
 # units of healing length, chemical potential
@@ -44,6 +43,7 @@ kmax = kξ
 Np = 300
 k = log10range(kmin,kmax,Np)
 
+## test reduction
 import FourierGPE:bessel_reduce
 
 function bessel_reduce(k,x,y,C)
