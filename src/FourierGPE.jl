@@ -5,6 +5,7 @@ using SpecialFunctions
 using LazyArrays
 using FillArrays
 using DifferentialEquations
+using Tullio
 using RecursiveArrayTools
 using LaTeXStrings
 using ColorSchemes
