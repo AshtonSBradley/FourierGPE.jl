@@ -1,14 +1,16 @@
-using VortexDistributions, Revise, FourierGPE
+using VortexDistributions, FourierGPE, Plots, LaTeXStrings
+using SpecialFunctions
+
 
 ## Initialize simulation
 L = (18.0,18.0)
-N = (512,512)
+N = (256,256)
 sim = Sim(L,N)
 @unpack_Sim sim
 
 ## set simulation parameters
 μ = 12.0
-tf = 1.0
+tf = 10.0
 t = LinRange(ti,tf,Nt)
 
 # Time dependent potential function (here trivial t dep)
@@ -29,12 +31,66 @@ x,y = X
 ϕg = sol[end]
 ψg = xspace(ϕg,sim)
 healinglength(x,y,μ,g) = 1/sqrt(g*abs2(ψ0(x,y,μ,g)))
+R(μ,g) = sqrt(2*μ)
 showpsi(x,y,ψg)
+Rtf = R(μ,g)
+n0 = maximum(abs2.(ψg))
 
-## make dipole and evolve for short time with γ = 0.
+
+## spectra of ground state 
+ξ = healinglength(0,0,μ,g)
+kR = 2*pi/Rtf
+kξ = 2*pi
+
+kmin = 0.1*kR
+kmax = kξ
+
+Np = 300
+k = log10range(kmin,kmax,Np)
+
+@time Ek = kespectrum(k,ψg,X,K)
+plot(k*ξ,Ek,scale=:log10)
+
+# analytic
+f(x) = (sin(x)-x*cos(x))^2/x^3
+Ektf(k,R) = π*n0*R*f.(k*R)
+
+# linear scale
+plot(k*ξ,Ek)
+plot!(k*ξ,Ektf.(k,Rtf), c=:red)
+
+## spectrum
+kR = 2*pi/Rtf
+kξ = 2*pi
+
+kmin = 0.1*kR
+kmax = 1.3kξ
+Np = 200
+k = log10range(kmin,kmax,Np)
+
+Eki = ikespectrum(k,ψg,X,K)
+Ekc = ckespectrum(k,ψg,X,K)
+Ekq = qpespectrum(k,ψg,X,K)
+plot(k*ξ,Eki,label=L"E_k^i(k)")
+plot!(k*ξ,Ekc,label=L"E_k^c(k)")
+plot!(k*ξ,Ekq,label=L"E_k^q(k)")
+
+plot(k*ξ,Ekq,scale=:log10)
+vline!([kR*ξ],ls=:dash)
+vline!([1.0],ls=:dash)
+
+## also plot interaction and trap energies without vortex
+using QuadGK
+# trap energy
+int1(k)=quadgk(x-> x^2*sqrt(1-x^2)*besselj0(k*x),0,1)[1]
+
+# interaction energy
+int2(k)=quadgk(x-> x*(1-x^2)*besselj0(k*x),0,1)[1]
+
+plot(k,)
+## make central vortex
 ψd = copy(ψg)
-d = 2
-ξv = healinglength(d/2,0.,μ,g)
+ξv = healinglength(0,0.,μ,g)
 # can use default ξ = 1
 xp,yp = 0.,d/2
 xn,yn = 0.,-d/2
