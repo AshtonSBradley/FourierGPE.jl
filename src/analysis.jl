@@ -43,9 +43,6 @@ end
 
 function current(psi::XField{2})
 	@unpack psiX,K = psi; kx,ky = K; ψ = psiX
-	# ϕ = fft(ψ)
-	# ψx = ifft(im*kx.*ϕ)
-    # ψy = ifft(im*ky'.*ϕ)
     ψx,ψy = gradient(psi)
 	jx = @. imag(conj(ψ)*ψx)
 	jy = @. imag(conj(ψ)*ψy)
@@ -54,10 +51,6 @@ end
 
 function current(psi::XField{3})
 	@unpack psiX,K = psi; kx,ky,kz = K; ψ = psiX
-	# ϕ = fft(ψ)
-	# ψx = ifft(im*kx.*ϕ)
-	# ψy = ifft(im*ky'.*ϕ)
-    # ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
     ψx,ψy,ψz = gradient(psi)
 	jx = @. imag(conj(ψ)*ψx)
 	jy = @. imag(conj(ψ)*ψy)
@@ -74,8 +67,6 @@ The `D` velocities returned are `D`-dimensional arrays.
 function velocity(psi::XField{1})
 	@unpack psiX,K = psi; kx = K[1]; ψ = psiX
 	rho = abs2.(ψ)
-	# ϕ = fft(ψ)
-    # ψx = ifft(im*kx.*ϕ)
     ψx = gradient(ψ)
 	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
 	return vx
@@ -84,9 +75,6 @@ end
 function velocity(psi::XField{2})
 	@unpack psiX,K = psi; kx,ky = K; ψ = psiX
 	rho = abs2.(ψ)
-	# ϕ = fft(ψ)
-	# ψx = ifft(im*kx.*ϕ)
-    # ψy = ifft(im*ky'.*ϕ)
     ψx,ψy = gradient(psi)
 	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
 	vy = @. imag(conj(ψ)*ψy)/rho; @. vy[isnan(vy)] = zero(vy[1])
@@ -96,10 +84,6 @@ end
 function velocity(psi::XField{3})
 	@unpack psiX,K = psi; kx,ky,kz = K; ψ = psiX
 	rho = abs2.(ψ)
-	# ϕ = fft(ψ)
-	# ψx = ifft(im*kx.*ϕ)
-	# ψy = ifft(im*ky'.*ϕ)
-    # ψz = ifft(im*reshape(kz,1,1,length(kz)).*ϕ)
     ψx,ψy,ψz = gradient(psi)
 	vx = @. imag(conj(ψ)*ψx)/rho; @. vx[isnan(vx)] = zero(vx[1])
 	vy = @. imag(conj(ψ)*ψy)/rho; @. vy[isnan(vy)] = zero(vy[1])
@@ -266,9 +250,6 @@ function bessel_reduce(k,x,y,C)
     ρ = hypot.(xp,yp')
     E = zero(k)
     @tullio E[i] = real(besselj0(k[i]*ρ[p,q])*C[p,q])
-    # Threads.@threads for i in eachindex(k)
-    #     E[i] = sum(@. besselj0(k[i]*ρ)*C) |> real
-    # end
     @. E *= 0.5*k*dx*dy 
     return E 
 end

@@ -1,4 +1,5 @@
 using VortexDistributions, FourierGPE, Plots, LaTeXStrings, SpecialFunctions
+using Tullio
 
 ## Initialize simulation
 # units of healing length, chemical potential
