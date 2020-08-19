@@ -250,7 +250,7 @@ function bessel_reduce(k,x,y,C)
     ρ = hypot.(xp,yp')
     E = zero(k)
     @tullio E[i] = real(besselj0(k[i]*ρ[p,q])*C[p,q])
-    @. E *= 0.5*k*dx*dy 
+    @. E *= k*dx*dy 
     return E 
 end
 
@@ -270,7 +270,7 @@ function kespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(ψx,X,K)
 	cy = autocorrelate(ψy,X,K)
-    C = cx .+ cy
+    C = 0.5*(cx .+ cy)
 
     return bessel_reduce(k,x,y,C)
 end
@@ -294,7 +294,7 @@ function ikespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(wx,X,K)
 	cy = autocorrelate(wy,X,K)
-    C = cx .+ cy
+    C = 0.5*(cx .+ cy)
 
     return bessel_reduce(k,x,y,C)
 end
@@ -318,7 +318,7 @@ function ckespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(wx,X,K)
 	cy = autocorrelate(wy,X,K)
-    C = cx .+ cy
+    C = 0.5*(cx .+ cy)
 
     return bessel_reduce(k,x,y,C)
 end
@@ -339,7 +339,7 @@ function qpespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(wx,X,K)
 	cy = autocorrelate(wy,X,K)
-    C = cx .+ cy
+    C = 0.5*(cx .+ cy)
 
     return bessel_reduce(k,x,y,C)
 end
