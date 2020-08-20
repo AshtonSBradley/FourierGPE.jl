@@ -5,7 +5,7 @@ Measures that make `fft`, `ifft` 2-norm preserving.
 Correct measures for mapping between `x`- and `k`-space.
 """
 function dfft(x,k)
-    dx = diff(x)[1]; dk = diff(k)[1]
+    dx = x[2]-x[1]; dk = k[2]-k[1]
     Dx = dx/sqrt(2*pi)
     Dk = length(k)*dk/sqrt(2*pi)
     return Dx, Dk

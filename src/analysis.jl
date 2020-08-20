@@ -201,18 +201,15 @@ A(\rho) = \int d^2r\;\psi_1(r-\rho)\psi_2(r)
 ```
 using FFTW.
 """
-function convolve(ψ1,ψ2,X,K;periodic=false)
+function convolve(ψ1,ψ2,X,K)
+    n = length(X)
     DX,DK = dfftall(X,K)
-    if periodic == false
-	    ϕ1 = zeropad(ψ1)
-        ϕ2 = zeropad(ψ2)
-    else
-        ϕ1 = ψ1
-        ϕ2 = ψ2
-    end
+	ϕ1 = zeropad(ψ1)
+    ϕ2 = zeropad(ψ2)
+
 	χ1 = fft(ϕ1)*prod(DX)
 	χ2 = fft(ϕ2)*prod(DX)
-	return ifft(χ1.*χ2)*prod(DK) |> fftshift
+	return ifft(χ1.*χ2)*prod(DK)*(2*pi)^(n/2) |> fftshift
 end
 
 @doc raw"""
@@ -221,7 +218,7 @@ end
 Return the autocorrelation integral of a complex field ``\psi``, ``A``, given by
 
 ```
-A(\rho)=\frac{1}{(2\pi)^{d/2}}\int d^2r\;\psi^*(r-\rho)\psi(r)
+A(\rho)=\int d^2r\;\psi^*(r-\rho)\psi(r)
 ```
 
 defined on a cartesian grid on a cartesian grid using FFTW.
@@ -230,15 +227,12 @@ defined on a cartesian grid on a cartesian grid using FFTW.
 
 This method is useful for evaluating spectra from cartesian data.
 """
-function autocorrelate(ψ,X,K;periodic=false)
+function autocorrelate(ψ,X,K)
+    n = length(X)
     DX,DK = dfftall(X,K)
-    if periodic == false
-        ϕ = zeropad(ψ)
-    else
-        ϕ = ψ
-    end
+    ϕ = zeropad(ψ)
 	χ = fft(ϕ)*prod(DX)
-	return ifft(abs2.(χ))*prod(DK) |> fftshift
+	return ifft(abs2.(χ))*prod(DK)*(2*pi)^(n/2) |> fftshift
 end
 
 function bessel_reduce(k,x,y,C)
@@ -250,7 +244,7 @@ function bessel_reduce(k,x,y,C)
     ρ = hypot.(xp,yp')
     E = zero(k)
     @tullio E[i] = real(besselj0(k[i]*ρ[p,q])*C[p,q])
-    @. E *= k*dx*dy 
+    @. E *= k*dx*dy/2/pi 
     return E 
 end
 
@@ -270,7 +264,7 @@ function kespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(ψx,X,K)
 	cy = autocorrelate(ψy,X,K)
-    C = 0.5*(cx .+ cy)
+    C = 0.5(cx .+ cy)
 
     return bessel_reduce(k,x,y,C)
 end
