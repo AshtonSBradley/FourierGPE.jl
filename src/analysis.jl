@@ -197,14 +197,14 @@ end
 Computes the convolution of two complex fields according to
 
 ```math
-A(\rho) = \int d^2r\;\psi_1(r-\rho)\psi_2(r)
+A(\rho) = \int d^2r\;\psi_1^*(r+\rho)\psi_2(r)
 ```
 using FFTW.
 """
 function convolve(ψ1,ψ2,X,K)
     n = length(X)
     DX,DK = dfftall(X,K)
-	ϕ1 = zeropad(ψ1)
+	ϕ1 = zeropad(conj.(ψ1))
     ϕ2 = zeropad(ψ2)
 
 	χ1 = fft(ϕ1)*prod(DX)
