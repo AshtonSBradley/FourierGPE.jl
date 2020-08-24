@@ -213,7 +213,7 @@ function convolve(ψ1,ψ2,X,K)
 end
 
 @doc raw"""
-	autocorrelate(ψ,X,K,periodic=false)
+	autocorrelate(ψ,X,K)
 
 Return the autocorrelation integral of a complex field ``\psi``, ``A``, given by
 
@@ -236,7 +236,7 @@ function autocorrelate(ψ,X,K)
 end
 
 function bessel_reduce(k,x,y,C)
-    dx,dy = diff(x)[1],diff(y)[1]
+    dx,dy = x[2]-x[1],y[2]-y[1]
     Nx = 2*length(x)
     Lx = x[end] - x[begin] + dx
     xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
@@ -248,13 +248,26 @@ function bessel_reduce(k,x,y,C)
     return E 
 end
 
+function sinc_reduce(k,x,y,z,C)
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+    Nx = 2*length(x)    # assumes grids are same in each dimension
+    Lx = x[end] - x[begin] + dx
+    xp = LinRange(-Lx,Lx,Nx+1)[1:Nx]
+    yp = xp'; zp = reshape(xp,1,1,Nx)
+    ρ = hypot.(xp,yp,zp)
+    E = zero(k)
+    @tullio E[i] = real(sinc(k[i]*ρ[p,q,r]/π)*C[p,q,r]) # julia def. of sinc
+    @. E *= k.^2*dx*dy*dz/2/pi^2  
+    return E 
+end
+
 """
-	kespectrum(k,ψ,X,K)
+	kinetic_edensity(k,ψ,X,K)
 
 Calculates the kinetic enery spectrum for wavefunction ``\\psi``, at the
 points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
-function kespectrum(k,ψ,X,K)
+function kinetic_edensity(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = diff(x)[1],diff(y)[1]
     DX,DK = dfftall(X,K)
@@ -264,20 +277,36 @@ function kespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(ψx,X,K)
 	cy = autocorrelate(ψy,X,K)
-    C = 0.5(cx .+ cy)
+    C = @. 0.5(cx + cy)
 
     return bessel_reduce(k,x,y,C)
 end
 
-"""
-	ikespectrum(k,ψ,X,K)
+function kinetic_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+    DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    ψx,ψy,ψz = gradient(psi)
 
-Caculate the incompressible kinetic enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
+	cx = autocorrelate(ψx,X,K)
+    cy = autocorrelate(ψy,X,K)
+    cz = autocorrelate(ψz,X,K)
+    C = @. 0.5(cx + cy + cz)
+
+    return sinc_reduce(k,x,y,z,C)
+end
+
+"""
+	incompressible_cspectrum(k,ψ,X,K)
+
+Caculate the incompressible velocity correlation spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function ikespectrum(k,ψ,X,K)
+function incompressible_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
- 	dx,dy = diff(x)[1],diff(y)[1]
+ 	dx,dy = x[2]-x[1],y[2]-y[1] 
 	DX,DK = dfftall(X,K)
     k2field = k2(K)
     psi = XField(ψ,X,K,k2field)
@@ -288,20 +317,39 @@ function ikespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(wx,X,K)
 	cy = autocorrelate(wy,X,K)
-    C = 0.5*(cx .+ cy)
+    C = @. 0.5*(cx + cy)
 
     return bessel_reduce(k,x,y,C)
 end
 
+function incompressible_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+ 	dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy,vz = velocity(psi)
+    wx = @. abs(ψ)*vx; wy = @. abs(ψ)*vy; wz = @. abs(ψ)*vz
+    Wi, Wc = helmholtz(wx,wy,wz,psi)
+    wx,wy,wz = Wi
+
+	cx = autocorrelate(wx,X,K)
+    cy = autocorrelate(wy,X,K)
+    cy = autocorrelate(wz,X,K)
+    C = @. 0.5*(cx + cy + cz)
+
+    return sinc_reduce(k,x,y,z,C)
+end
+
 """
-	ckespectrum(k,ψ,X,K)
+	compressible_cspectrum(k,ψ,X,K)
 
 Caculate the compressible kinetic enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function ckespectrum(k,ψ,X,K)
+function compressible_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
- 	dx,dy = diff(x)[1],diff(y)[1]
+ 	dx,dy = x[2]-x[1],y[2]-y[1]
 	DX,DK = dfftall(X,K)
     k2field = k2(K)
     psi = XField(ψ,X,K,k2field)
@@ -312,20 +360,39 @@ function ckespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(wx,X,K)
 	cy = autocorrelate(wy,X,K)
-    C = 0.5*(cx .+ cy)
+    C = @. 0.5*(cx + cy)
 
     return bessel_reduce(k,x,y,C)
 end
 
-"""
-	qpspectrum(k,ψ,X,K)
+function compressible_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+ 	dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy,vz = velocity(psi)
+    wx = @. abs(ψ)*vx; wy = @. abs(ψ)*vy; wz = @. abs(ψ)*vz
+    Wi, Wc = helmholtz(wx,wy,wz,psi)
+    wx,wy,wz = Wc
 
-Caculate the quantum pressure enery spectrum for wavefunction ``\\psi``.
+	cx = autocorrelate(wx,X,K)
+    cy = autocorrelate(wy,X,K)
+    cz = autocorrelate(wz,X,K)
+    C = @. 0.5*(cx + cy + cz)
+
+    return sinc_reduce(k,x,y,z,C)
+end
+
+"""
+	qpressure_cspectrum(k,ψ,X,K)
+
+Caculate the quantum pressure correlation spectrum for wavefunction ``\\psi``.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function qpespectrum(k,ψ,X,K)
+function qpressure_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
- 	dx,dy = diff(x)[1],diff(y)[1]
+    dx,dy = x[2]-x[1],y[2]-y[1]
 	DX,DK = dfftall(X,K)
     k2field = k2(K)
     psi = XField(abs.(ψ) |> complex,X,K,k2field)
@@ -333,7 +400,364 @@ function qpespectrum(k,ψ,X,K)
 
 	cx = autocorrelate(wx,X,K)
 	cy = autocorrelate(wy,X,K)
-    C = 0.5*(cx .+ cy)
+    C = @. 0.5*(cx + cy)
 
     return bessel_reduce(k,x,y,C)
+end
+
+function qpressure_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(abs.(ψ) |> complex,X,K,k2field)
+    wx,wy,wz = gradient(psi)
+
+	cx = autocorrelate(wx,X,K)
+    cy = autocorrelate(wy,X,K)
+    cz = autocorrelate(wz,X,K)
+    C = @. 0.5*(cx + cy + cz)
+
+    return sinc_reduce(k,x,y,z,C)
+end
+
+"""
+    incompressible_edensity(k,ψ,X,K)
+
+Calculates the kinetic energy density of the incompressible velocity field in the wavefunction ``\\psi``, at the
+points `k`. Arrays `X`, `K` should be computed using `makearrays`.
+"""
+function incompressible_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+    x,y = X; kx,ky = K
+    dx,dy = x[2]-x[1],y[2]-y[1] 
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy 
+    Wi, Wc = helmholtz(ux,uy,psi)
+    wix,wiy = Wi
+    U = @. exp(im*angle(ψ))
+    @. wix *= U # restore phase factors
+    @. wiy *= U
+
+	cx = autocorrelate(wix,X,K)
+	cy = autocorrelate(wiy,X,K)
+    C = @. 0.5*(cx + cy)
+    return bessel_reduce(k,x,y,C)
+end
+
+function incompressible_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy,vz = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy; uz = @. abs(ψ)*vz
+    Wi, Wc = helmholtz(ux,uy,uz,psi)
+    wix,wiy,wiz = Wi
+    U = @. exp(im*angle(ψ))
+    @. wix *= U # restore phase factors
+    @. wiy *= U
+    @. wiz *= U
+
+	cx = autocorrelate(wix,X,K)
+    cy = autocorrelate(wiy,X,K)
+    cz = autocorrelate(wiz,X,K)
+    C = @. 0.5*(cx + cy + cz)
+    return sinc_reduce(k,x,y,z,C)
+end
+
+"""
+    compressible_edensity(k,ψ,X,K)
+
+Calculates the kinetic energy density of the compressible velocity field in the wavefunction ``\\psi``, at the
+points `k`. Arrays `X`, `K` should be computed using `makearrays`.
+"""
+function compressible_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+    x,y = X; kx,ky = K
+    dx,dy = x[2]-x[1],y[2]-y[1] 
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy 
+    Wi, Wc = helmholtz(ux,uy,psi)
+    wcx,wcy = Wc
+    U = @. exp(im*angle(ψ))
+    @. wcx *= U # restore phase factors
+    @. wcy *= U
+
+	cx = autocorrelate(wcx,X,K)
+	cy = autocorrelate(wcy,X,K)
+    C = @. 0.5*(cx + cy)
+    return bessel_reduce(k,x,y,C)
+end
+
+function compressible_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy,vz = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy; uz = @. abs(ψ)*vz
+    Wi, Wc = helmholtz(ux,uy,uz,psi)
+    wcx,wcy,wcz = Wc
+    U = @. exp(im*angle(ψ))
+    @. wcx *= U # restore phase factors
+    @. wcy *= U
+    @. wcz *= U
+
+	cx = autocorrelate(wcx,X,K)
+    cy = autocorrelate(wcy,X,K)
+    cz = autocorrelate(wcz,X,K)
+    C = @. 0.5*(cx + cy + cz)
+    return sinc_reduce(k,x,y,z,C)
+end
+
+"""
+    qpressure_edensity(k,ψ,X,K)
+
+Energy density of the quantum pressure in the wavefunction ``\\psi``, at the
+points `k`. Arrays `X`, `K` should be computed using `makearrays`.
+"""
+function qpressure_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+    x,y = X; kx,ky = K
+    dx,dy = x[2]-x[1],y[2]-y[1] 
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(abs.(ψ) |> complex,X,K,k2field)
+    rnx,rny = gradient(psi)
+    U = @. exp(im*angle(ψ))
+    @. rnx *= U # restore phase factors
+    @. rny *= U 
+
+	cx = autocorrelate(rnx,X,K)
+	cy = autocorrelate(rny,X,K)
+    C = @. 0.5*(cx + cy)
+    return bessel_reduce(k,x,y,C)
+end
+
+function qpressure_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(abs.(ψ) |> complex,X,K,k2field)
+    rnx,rny,rnz = gradient(psi)
+    U = @. exp(im*angle(ψ))
+    @. rnx *= U # restore phase factors
+    @. rny *= U 
+    @. rnz *= U 
+
+	cx = autocorrelate(rnx,X,K)
+    cy = autocorrelate(rny,X,K)
+    cz = autocorrelate(rnz,X,K)
+    C = @. 0.5*(cx + cy + cz)
+    return sinc_reduce(k,x,y,z,C)
+end
+
+## coupling terms
+
+"""
+    ic_edensity(k,ψ,X,K)
+
+Energy density of the incompressible-compressible interaction in the wavefunction ``\\psi``, at the
+points `k`. Arrays `X`, `K` should be computed using `makearrays`.
+"""
+function ic_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+    x,y = X; kx,ky = K
+    dx,dy = x[2]-x[1],y[2]-y[1] 
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy 
+    Wi, Wc = helmholtz(ux,uy,psi)
+    wix,wiy = Wi; wcx,wcy = Wc
+    U = @. exp(im*angle(ψ))
+    @. wix *= im*U # restore phase factors and make u -> w fields
+    @. wiy *= im*U
+    @. wcx *= im*U 
+    @. wcy *= im*U
+
+    cicx = convolve(wix,wcx,X,K) 
+    ccix = convolve(wcx,wix,X,K)
+    cicy = convolve(wiy,wcy,X,K) 
+    cciy = convolve(wcy,wiy,X,K)
+    C = @. 0.5*(cicx + ccix + cicy + cciy)  
+    return bessel_reduce(k,x,y,C)
+end
+
+function ic_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy,vz = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy; uz = @. abs(ψ)*vz 
+    Wi, Wc = helmholtz(ux,uy,uz,psi)
+    wix,wiy,wiz = Wi; wcx,wcy,wcz = Wc
+    U = @. exp(im*angle(ψ))
+    @. wix *= im*U # restore phase factors and make u -> w fields
+    @. wiy *= im*U
+    @. wiz *= im*U   
+    @. wcx *= im*U 
+    @. wcy *= im*U
+    @. wcz *= im*U
+
+    cicx = convolve(wix,wcx,X,K) 
+    ccix = convolve(wcx,wix,X,K)
+    cicy = convolve(wiy,wcy,X,K) 
+    cciy = convolve(wcy,wiy,X,K)
+    cicz = convolve(wiz,wcz,X,K) 
+    cciz = convolve(wcz,wiz,X,K)
+    C = @. 0.5*(cicx + ccix + cicy + cciy + cicz + cciz)  
+    return sinc_reduce(k,x,y,z,C)
+end
+
+"""
+    iq_edensity(k,ψ,X,K)
+
+Energy density of the incompressible-quantum pressure interaction in the wavefunction ``\\psi``, at the
+points `k`. Arrays `X`, `K` should be computed using `makearrays`.
+"""
+function iq_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+    x,y = X; kx,ky = K
+    dx,dy = x[2]-x[1],y[2]-y[1] 
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy 
+    Wi, Wc = helmholtz(ux,uy,psi)
+    wix,wiy = Wi 
+
+    psi = XField(abs.(ψ) |> complex,X,K,k2field)
+    wqx,wqy = gradient(psi)
+
+    U = @. exp(im*angle(ψ))
+    @. wix *= im*U # phase factors and make u -> w fields
+    @. wiy *= im*U
+    @. wqx *= U
+    @. wqy *= U
+
+    ciqx = convolve(wix,wqx,X,K) 
+    cqix = convolve(wqx,wix,X,K) 
+    ciqy = convolve(wiy,wqy,X,K) 
+    cqiy = convolve(wqy,wiy,X,K) 
+    C = @. 0.5*(ciqx + cqix + ciqy + cqiy) 
+    return bessel_reduce(k,x,y,C)
+end
+
+function iq_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy,vz = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy; uz = @. abs(ψ)*vz
+    Wi, Wc = helmholtz(ux,uy,uz,psi)
+    wix,wiy,wiz = Wi; 
+
+    psi = XField(abs.(ψ) |> complex,X,K,k2field)
+    wqx,wqy,wqz = gradient(psi)
+
+    U = @. exp(im*angle(ψ))
+    @. wix *= im*U # phase factors and make u -> w fields
+    @. wiy *= im*U
+    @. wiz *= im*U
+    @. wqx *= U
+    @. wqy *= U
+    @. wqz *= U
+
+    ciqx = convolve(wix,wqx,X,K) 
+    cqix = convolve(wqx,wix,X,K) 
+    ciqy = convolve(wiy,wqy,X,K) 
+    cqiy = convolve(wqy,wiy,X,K) 
+    ciqz = convolve(wiz,wqz,X,K) 
+    cqiz = convolve(wqz,wiz,X,K) 
+    C = @. 0.5*(ciqx + cqix + ciqy + cqiy + ciqz + cqiz) 
+    return sinc_reduce(k,x,y,z,C)
+end
+
+
+"""
+    cq_edensity(k,ψ,X,K)
+
+Energy density of the compressible-quantum pressure interaction in the wavefunction ``\\psi``, at the
+points `k`. Arrays `X`, `K` should be computed using `makearrays`.
+"""
+function cq_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+    x,y = X; kx,ky = K
+    dx,dy = x[2]-x[1],y[2]-y[1] 
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy 
+    Wi, Wc = helmholtz(ux,uy,psi)
+    wcx,wcy = Wc 
+
+    psi = XField(abs.(ψ) |> complex,X,K,k2field)
+    wqx,wqy = gradient(psi)
+
+    U = @. exp(im*angle(ψ))
+    @. wcx *= im*U # phase factors and make u -> w fields
+    @. wcy *= im*U
+    @. wqx *= U
+    @. wqy *= U
+
+    ccqx = convolve(wcx,wqx,X,K) 
+    cqcx = convolve(wqx,wcx,X,K) 
+    ccqy = convolve(wcy,wqy,X,K) 
+    cqcy = convolve(wqy,wcy,X,K) 
+    C = @. 0.5*(ccqx + cqcx + ccqy + cqcy) 
+    return bessel_reduce(k,x,y,C)
+end
+
+function cq_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+    x,y,z = X; kx,ky,kz = K
+    dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
+	DX,DK = dfftall(X,K)
+    k2field = k2(K)
+    psi = XField(ψ,X,K,k2field)
+    vx,vy,vz = velocity(psi)
+
+    ux = @. abs(ψ)*vx; uy = @. abs(ψ)*vy; uz = @. abs(ψ)*vz
+    Wi, Wc = helmholtz(ux,uy,uz,psi)
+    wcx,wcy,wcz = Wc  
+
+    psi = XField(abs.(ψ) |> complex,X,K,k2field)
+    wqx,wqy,wqz = gradient(psi)
+
+    U = @. exp(im*angle(ψ))
+    @. wcx *= im*U # phase factors and make u -> w fields
+    @. wcy *= im*U
+    @. wcz *= im*U
+    @. wqx *= U
+    @. wqy *= U
+    @. wqz *= U
+
+    ccqx = convolve(wcx,wqx,X,K) 
+    cqcx = convolve(wqx,wcx,X,K) 
+    ccqy = convolve(wcy,wqy,X,K) 
+    cqcy = convolve(wqy,wcy,X,K) 
+    ccqz = convolve(wcz,wqz,X,K) 
+    cqcz = convolve(wqz,wcz,X,K) 
+    C = @. 0.5*(ccqx + cqcx + ccqy + cqcy + ccqz + cqcz) 
+    return sinc_reduce(k,x,y,z,C)
 end
