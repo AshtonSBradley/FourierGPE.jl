@@ -345,7 +345,7 @@ function incompressible_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
 
 	cx = autocorrelate(wx,X,K)
     cy = autocorrelate(wy,X,K)
-    cy = autocorrelate(wz,X,K)
+    cz = autocorrelate(wz,X,K)
     C = @. 0.5*(cx + cy + cz)
 
     return sinc_reduce(k,x,y,z,C)
