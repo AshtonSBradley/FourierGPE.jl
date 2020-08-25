@@ -8,6 +8,7 @@ using DifferentialEquations
 using LoopVectorization
 using Tullio
 using RecursiveArrayTools
+using PaddedViews
 using LaTeXStrings
 using ColorSchemes
 

@@ -168,16 +168,26 @@ end
 """
 	zeropad(A)
 
-Zero-pad the 2D array `A` to twice the size with the same element type as `A`.
+Zero-pad the array `A` to twice the size with the same element type as `A`.
 """
-function zeropad(a)
-    s = size(a)
-    (isodd.(s) |> any) && error("Array dims must be divisible by 2")
-    S = @. 2 * s
-    t = @. s / 2 |> Int
-    z = Zeros{eltype(a)}(t...)
-    M = Hcat([z; z], a, [z; z])
-    return Vcat([z z z z], M, [z z z z]) |> Matrix
+function zeropad(A)
+    S = size(A)
+    (isodd.(S) |> any) && error("Array dims must be divisible by 2")
+    nO = @. 2*S
+    nI = @. S/2 |> Int
+
+    outer = []
+    inner = []
+
+    for no in nO
+        push!(outer,(1:no))
+    end
+
+    for ni in nI
+        push!(inner,(ni+1:ni+2*ni))
+    end
+
+    return PaddedView(zero(eltype(A)),A,Tuple(outer),Tuple(inner)) |> collect
 end
 
 """
