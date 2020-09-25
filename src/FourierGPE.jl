@@ -42,6 +42,6 @@ export energydecomp, helmholtz, kinetic_edensity
 export incompressible_cspectrum, compressible_cspectrum, qpressure_cspectrum
 export incompressible_edensity, compressible_edensity, qpressure_edensity
 export ic_edensity, iq_edensity, cq_edensity
-export bessel_reduce, sinc_reduce
+export bessel_reduce, sinc_reduce, gv
 export log10range, zeropad, autocorrelate, convolve
 end # module

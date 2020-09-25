@@ -272,12 +272,12 @@ function sinc_reduce(k,x,y,z,C)
 end
 
 """
-	kinetic_edensity(k,ψ,X,K)
+	kinetic_density(k,ψ,X,K)
 
 Calculates the kinetic enery spectrum for wavefunction ``\\psi``, at the
 points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
-function kinetic_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+function kinetic_density(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = diff(x)[1],diff(y)[1]
     DX,DK = dfftall(X,K)
@@ -292,7 +292,7 @@ function kinetic_edensity(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function kinetic_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+function kinetic_density(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
     dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
     DX,DK = dfftall(X,K)
@@ -309,12 +309,12 @@ function kinetic_edensity(k,ψ::Array{Complex{Float64},3},X,K)
 end
 
 """
-	incompressible_cspectrum(k,ψ,X,K)
+	incompressible_spectrum(k,ψ,X,K)
 
 Caculate the incompressible velocity correlation spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function incompressible_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
+function incompressible_spectrum(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
  	dx,dy = x[2]-x[1],y[2]-y[1] 
 	DX,DK = dfftall(X,K)
@@ -332,7 +332,7 @@ function incompressible_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function incompressible_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
+function incompressible_spectrum(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
  	dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -352,12 +352,12 @@ function incompressible_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
 end
 
 """
-	compressible_cspectrum(k,ψ,X,K)
+	compressible_spectrum(k,ψ,X,K)
 
 Caculate the compressible kinetic enery spectrum for wavefunction ``\\psi``, via Helmholtz decomposition.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function compressible_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
+function compressible_spectrum(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
  	dx,dy = x[2]-x[1],y[2]-y[1]
 	DX,DK = dfftall(X,K)
@@ -375,7 +375,7 @@ function compressible_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function compressible_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
+function compressible_spectrum(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
  	dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -395,12 +395,12 @@ function compressible_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
 end
 
 """
-	qpressure_cspectrum(k,ψ,X,K)
+	qpressure_spectrum(k,ψ,X,K)
 
 Caculate the quantum pressure correlation spectrum for wavefunction ``\\psi``.
 Input arrays `X`, `K` must be computed using `makearrays`.
 """
-function qpressure_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
+function qpressure_spectrum(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = x[2]-x[1],y[2]-y[1]
 	DX,DK = dfftall(X,K)
@@ -415,7 +415,7 @@ function qpressure_cspectrum(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function qpressure_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
+function qpressure_spectrum(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
     dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -432,12 +432,12 @@ function qpressure_cspectrum(k,ψ::Array{Complex{Float64},3},X,K)
 end
 
 """
-    incompressible_edensity(k,ψ,X,K)
+    incompressible_density(k,ψ,X,K)
 
 Calculates the kinetic energy density of the incompressible velocity field in the wavefunction ``\\psi``, at the
 points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
-function incompressible_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+function incompressible_density(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = x[2]-x[1],y[2]-y[1] 
 	DX,DK = dfftall(X,K)
@@ -458,7 +458,7 @@ function incompressible_edensity(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function incompressible_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+function incompressible_density(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
     dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -482,12 +482,12 @@ function incompressible_edensity(k,ψ::Array{Complex{Float64},3},X,K)
 end
 
 """
-    compressible_edensity(k,ψ,X,K)
+    compressible_density(k,ψ,X,K)
 
 Calculates the kinetic energy density of the compressible velocity field in the wavefunction ``\\psi``, at the
 points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
-function compressible_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+function compressible_density(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = x[2]-x[1],y[2]-y[1] 
 	DX,DK = dfftall(X,K)
@@ -508,7 +508,7 @@ function compressible_edensity(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function compressible_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+function compressible_density(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
     dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -532,12 +532,12 @@ function compressible_edensity(k,ψ::Array{Complex{Float64},3},X,K)
 end
 
 """
-    qpressure_edensity(k,ψ,X,K)
+    qpressure_density(k,ψ,X,K)
 
 Energy density of the quantum pressure in the wavefunction ``\\psi``, at the
 points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
-function qpressure_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+function qpressure_density(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = x[2]-x[1],y[2]-y[1] 
 	DX,DK = dfftall(X,K)
@@ -554,7 +554,7 @@ function qpressure_edensity(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function qpressure_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+function qpressure_density(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
     dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -576,12 +576,12 @@ end
 ## coupling terms
 
 """
-    ic_edensity(k,ψ,X,K)
+    ic_density(k,ψ,X,K)
 
 Energy density of the incompressible-compressible interaction in the wavefunction ``\\psi``, at the
 points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
-function ic_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+function ic_density(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = x[2]-x[1],y[2]-y[1] 
 	DX,DK = dfftall(X,K)
@@ -606,7 +606,7 @@ function ic_edensity(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function ic_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+function ic_density(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
     dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -636,12 +636,12 @@ function ic_edensity(k,ψ::Array{Complex{Float64},3},X,K)
 end
 
 """
-    iq_edensity(k,ψ,X,K)
+    iq_density(k,ψ,X,K)
 
 Energy density of the incompressible-quantum pressure interaction in the wavefunction ``\\psi``, at the
 points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
-function iq_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+function iq_density(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = x[2]-x[1],y[2]-y[1] 
 	DX,DK = dfftall(X,K)
@@ -670,7 +670,7 @@ function iq_edensity(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function iq_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+function iq_density(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
     dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -705,12 +705,12 @@ end
 
 
 """
-    cq_edensity(k,ψ,X,K)
+    cq_density(k,ψ,X,K)
 
 Energy density of the compressible-quantum pressure interaction in the wavefunction ``\\psi``, at the
 points `k`. Arrays `X`, `K` should be computed using `makearrays`.
 """
-function cq_edensity(k,ψ::Array{Complex{Float64},2},X,K)
+function cq_density(k,ψ::Array{Complex{Float64},2},X,K)
     x,y = X; kx,ky = K
     dx,dy = x[2]-x[1],y[2]-y[1] 
 	DX,DK = dfftall(X,K)
@@ -739,7 +739,7 @@ function cq_edensity(k,ψ::Array{Complex{Float64},2},X,K)
     return bessel_reduce(k,x,y,C)
 end
 
-function cq_edensity(k,ψ::Array{Complex{Float64},3},X,K)
+function cq_density(k,ψ::Array{Complex{Float64},3},X,K)
     x,y,z = X; kx,ky,kz = K
     dx,dy,dz = x[2]-x[1],y[2]-y[1],z[2]-z[1]
 	DX,DK = dfftall(X,K)
@@ -770,4 +770,18 @@ function cq_edensity(k,ψ::Array{Complex{Float64},3},X,K)
     cqcz = convolve(wqz,wcz,X,K) 
     C = @. 0.5*(ccqx + cqcx + ccqy + cqcy + ccqz + cqcz) 
     return sinc_reduce(k,x,y,z,C)
+end
+
+"""
+    gv(r,k,ε)
+
+Give the velocity two-point correlation function on the spatial points r, for velocity power spectrum ε(k).
+"""
+function gv(r,k,ε)
+    dk = diff(k)
+    push!(dk,last(k))  # vanishing spectra at high k
+    E = sum(@. ε*dk)
+    gv = zero(r)
+    @tullio gv[i] = ε[j]*besselj0(k[j]*r[i])*dk[j]
+    return gv/E
 end
