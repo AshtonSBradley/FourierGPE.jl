@@ -38,10 +38,10 @@ export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
 export Field, XField, KField, gradient, velocity, current
-export energydecomp, helmholtz, kinetic_edensity
-export incompressible_cspectrum, compressible_cspectrum, qpressure_cspectrum
-export incompressible_edensity, compressible_edensity, qpressure_edensity
-export ic_edensity, iq_edensity, cq_edensity
+export energydecomp, helmholtz, kinetic_density
+export incompressible_spectrum, compressible_spectrum, qpressure_spectrum
+export incompressible_density, compressible_density, qpressure_density
+export ic_density, iq_density, cq_density
 export bessel_reduce, sinc_reduce, gv
 export log10range, zeropad, autocorrelate, convolve
 end # module
