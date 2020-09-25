@@ -775,7 +775,7 @@ end
 """
     gv(r,k,ε)
 
-Give the velocity two-point correlation function on the spatial points r, for velocity power spectrum ε(k).
+Give the velocity two-point correlation function on the spatial points r, for power spectrum ε(k)defined at k. The vector r can be chosen arbitrarily provided r ≥ 0. 
 """
 function gv(r,k,ε)
     dk = diff(k)
