@@ -27,6 +27,7 @@ include("transforms.jl")
 include("evolution.jl")
 include("analysis.jl")
 
+# simulation
 export Simulation, TransformLibrary, UserParams
 export xvec, kvec, xvecs, kvecs, dfft, dfftall, crandn_array, crandnpartition 
 export maketransarrays, makearrays, xspace, xspace!, kspace, kspace!
@@ -38,6 +39,7 @@ export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
 export Field, XField, KField, gradient, velocity, current
+# analysis
 export energydecomp, helmholtz, kinetic_density
 export incompressible_spectrum, compressible_spectrum, qpressure_spectrum
 export incompressible_density, compressible_density, qpressure_density
