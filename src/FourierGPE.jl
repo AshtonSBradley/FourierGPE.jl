@@ -12,11 +12,12 @@ using PaddedViews
 using LaTeXStrings
 using ColorSchemes
 
-@reexport using FFTW
+using FFTW
+using Plots
 @reexport using Parameters
 @reexport using JLD2
 @reexport using FileIO
-using Plots
+
 const c1 = cgrad(ColorSchemes.inferno.colors)
 const c2 = cgrad(ColorSchemes.RdBu_11.colors)
 const c3 =:mediumseagreen

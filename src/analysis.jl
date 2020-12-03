@@ -278,7 +278,7 @@ function sinc_reduce(k,x,y,z,C)
             E[i] += real(sinc(k[i]*ρ[p,q,r]/π)*C[p,q,r])
         end
     end
-    @. E *= k.^2*dx*dy*dz/2/pi^2  
+    @. E *= k^2*dx*dy*dz/2/pi^2  
     return E 
 end
 
