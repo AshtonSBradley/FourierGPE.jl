@@ -14,9 +14,10 @@ xvec(L,N) = LinRange(-L/2,L/2,N+1)[2:end] |> collect
 Creates `k` values with correct periodicity for box specified by length `λ` for number of points `N`.
 """
 function kvec(λ,N)
-    @assert iseven(N)
-    nk = 0:Int(N/2)
-    k = [nk[1:end-1];-reverse(nk[2:end])]*2*π/λ
+    # @assert iseven(N)
+    # nk = 0:Int(N/2)
+    # k = [nk[1:end-1];-reverse(nk[2:end])]*2*π/λ
+    k = fftfreq(N)*N*2*π    # N not restricted
     return k
 end
 
@@ -62,7 +63,7 @@ end
     X,K,dX,dK = makearrays(L,N)
 
 Creates all `x` and `k` arrays for box specified by tuples `L=(Lx,...)` and `N=(Nx,...)`.
-Differenetials `dX`, `dK` are also reaturned. `L` and `N` must be of equal length.
+Differenetials `dX`, `dK` are also reaturned. `L` and `N` must be tuples of equal length.
 """
 function makearrays(L,N)
     @assert length(L) == length(N)
@@ -81,7 +82,7 @@ function makearrays(L,N)
 end
 
 """
-A = crandn_array(M)
+    A = crandn_array(M)
 
 Make placeholder `2x2x...` complex `randn()` array of `M` dimensions."""
 function crandn_array(M)
@@ -90,7 +91,7 @@ function crandn_array(M)
 end
 
 """
-A = crandnpartition(D,M)
+    A = crandnpartition(D,M)
 
 Make placeholder ArrayPartition vector of length `M`, containing `2x2x...` rank D complex matrices.
 """
