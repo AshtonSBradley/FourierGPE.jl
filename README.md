@@ -13,7 +13,7 @@ Simple GPE solver using FFTW
 ]add https://github.com/AshtonSBradley/FourierGPE.jl.git
 using FourierGPE
 ```
-There is an option to build against MKL, but this will cause issues with 3D simulations. Hence, if you want MKL enhancements for 1D,2D, remove the comment  in `build.jl`, and rebuild. 
+By default FourierGPE is built against MKL.
 
 ## Getting started
 To get started see runnable examples in the `/examples` directory, or for more information see [FGPEexamples.jl](https://github.com/AshtonSBradley/FGPEexamples.jl)
