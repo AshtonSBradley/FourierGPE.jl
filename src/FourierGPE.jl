@@ -5,8 +5,8 @@ using SpecialFunctions
 using LazyArrays
 using FillArrays
 using DifferentialEquations
-# using LoopVectorization   #until 1.6 fixes stabilize
-# using Tullio              #until 1.6 fixes stabilize
+using LoopVectorization   #until 1.6 fixes stabilize
+using Tullio              #until 1.6 fixes stabilize
 using RecursiveArrayTools
 using PaddedViews
 using LaTeXStrings
@@ -40,6 +40,7 @@ export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
 export Field, XField, KField, gradient, velocity, current
+
 # analysis
 export energydecomp, helmholtz, kinetic_density
 export incompressible_spectrum, compressible_spectrum, qpressure_spectrum

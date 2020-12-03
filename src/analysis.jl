@@ -254,12 +254,12 @@ function bessel_reduce(k,x,y,C)
     ρ = hypot.(xp,yp')
     E = zero(k)
     # until loopvectorization/tullio fix
-    # @tullio E[i] = real(besselj0(k[i]*ρ[p,q])*C[p,q])
-    for i in eachindex(E)
-        for p in axes(ρ,1), q in axes(ρ,2)
-            E[i] += real(besselj0(k[i]*ρ[p,q])*C[p,q])
-        end
-    end
+    @tullio E[i] = real(besselj0(k[i]*ρ[p,q])*C[p,q])
+    # for i in eachindex(E)
+    #     for p in axes(ρ,1), q in axes(ρ,2)
+    #         E[i] += real(besselj0(k[i]*ρ[p,q])*C[p,q])
+    #     end
+    # end
     @. E *= k*dx*dy/2/pi 
     return E 
 end
@@ -272,12 +272,12 @@ function sinc_reduce(k,x,y,z,C)
     yp = xp'; zp = reshape(xp,1,1,Nx)
     ρ = hypot.(xp,yp,zp)
     E = zero(k)
-    # @tullio E[i] = real(sinc(k[i]*ρ[p,q,r]/π)*C[p,q,r]) # julia def. of sinc
-    for i in eachindex(E)
-        for p in axes(ρ,1), q in axes(ρ,2), r in axes(ρ,3)
-            E[i] += real(sinc(k[i]*ρ[p,q,r]/π)*C[p,q,r])
-        end
-    end
+    @tullio E[i] = real(sinc(k[i]*ρ[p,q,r]/π)*C[p,q,r]) # julia def. of sinc
+    # for i in eachindex(E)
+    #     for p in axes(ρ,1), q in axes(ρ,2), r in axes(ρ,3)
+    #         E[i] += real(sinc(k[i]*ρ[p,q,r]/π)*C[p,q,r])
+    #     end
+    # end
     @. E *= k^2*dx*dy*dz/2/pi^2  
     return E 
 end
@@ -793,11 +793,11 @@ function gv(r,k,ε)
     push!(dk,last(k))  # vanishing spectra at high k
     E = sum(@. ε*dk)
     gv = zero(r)
-    # @tullio gv[i] = ε[j]*besselj0(k[j]*r[i])*dk[j]
-    for i in eachindex(gv)
-        for j in eachindex(k)
-            gv[i] += ε[j]*besselj0(k[j]*r[i])*dk[j]
-        end
-    end
+    @tullio gv[i] = ε[j]*besselj0(k[j]*r[i])*dk[j]
+    # for i in eachindex(gv)
+    #     for j in eachindex(k)
+    #         gv[i] += ε[j]*besselj0(k[j]*r[i])*dk[j]
+    #     end
+    # end
     return gv/E
 end

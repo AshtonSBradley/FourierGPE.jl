@@ -17,7 +17,7 @@ function kvec(λ,N)
     @assert iseven(N)
     nk = 0:Int(N/2)
     k = [nk[1:end-1];-reverse(nk[2:end])]*2*π/λ
-return k
+    return k
 end
 
 """
