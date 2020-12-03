@@ -5,8 +5,8 @@ using SpecialFunctions
 using LazyArrays
 using FillArrays
 using DifferentialEquations
-using LoopVectorization
-using Tullio
+# using LoopVectorization   #until 1.6 fixes stabilize
+# using Tullio              #until 1.6 fixes stabilize
 using RecursiveArrayTools
 using PaddedViews
 using LaTeXStrings
