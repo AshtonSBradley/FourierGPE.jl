@@ -790,7 +790,7 @@ Transform the power spectrum `ε(k)` defined at `k` to position space to give a 
 """
 function gv(r,k,ε)
     dk = diff(k)
-    push!(dk,last(k))  # vanishing spectra at high k
+    push!(dk,last(dk))  # vanishing spectra at high k
     E = sum(@. ε*dk)
     gv = zero(r)
     @tullio gv[i] = ε[j]*besselj0(k[j]*r[i])*dk[j] avx=false
