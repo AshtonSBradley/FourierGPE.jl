@@ -793,7 +793,7 @@ function gv(r,k,ε)
     push!(dk,last(k))  # vanishing spectra at high k
     E = sum(@. ε*dk)
     gv = zero(r)
-    @tullio gv[i] = ε[j]*besselj0(k[j]*r[i])*dk[j]
+    @tullio gv[i] = ε[j]*besselj0(k[j]*r[i])*dk[j] avx=false
     # for i in eachindex(gv)
     #     for j in eachindex(k)
     #         gv[i] += ε[j]*besselj0(k[j]*r[i])*dk[j]
