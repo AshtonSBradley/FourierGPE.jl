@@ -121,8 +121,8 @@ function showpsi(x,ψ;scale=:identity)
 end
 
 function showpsi(x,y,ψ;scale=:identity)
-    if scale==:log10
     ψt = transpose(ψ)
+    if scale==:log10
     p1 = heatmap(x,y,log10.(abs2.(ψt) .+ eps.(abs2.(ψt))),aspectratio=1,c=c1,titlefontsize=12,colorbar=false)
     xlims!(x[1],x[end]);ylims!(y[1],y[end])
     xlabel!(L"x");ylabel!(L"y")
