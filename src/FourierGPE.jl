@@ -18,6 +18,8 @@ using Plots
 @reexport using JLD2
 @reexport using FileIO
 
+import VortexDistributions.unwrap
+
 const c1 = cgrad(ColorSchemes.inferno.colors)
 const c2 = cgrad(ColorSchemes.RdBu_11.colors)
 const c3 =:mediumseagreen
@@ -47,5 +49,5 @@ export incompressible_spectrum, compressible_spectrum, qpressure_spectrum
 export incompressible_density, compressible_density, qpressure_density
 export ic_density, iq_density, cq_density
 export bessel_reduce, sinc_reduce, gv
-export log10range, zeropad, autocorrelate, convolve
+export log10range, zeropad, autocorrelate, convolve, unwrap
 end # module

@@ -107,7 +107,7 @@ function showpsi(x,ψ;scale=:identity)
     if scale == :log10
         p1 = plot(x,log10.(abs2.(ψ) .+ eps.(abs2.(ψ))))
         xlabel!(L"x");ylabel!(L"|\psi|^2")
-        p2 = plot(x,angle.(ψ))
+        p2 = plot(x,unwrap(angle.(ψ)))
         xlabel!(L"x");ylabel!(L"\textrm{phase} (\psi)")
         p = plot(p1,p2,layout=(2,1),size=(600,400))
     elseif scale == :identity
