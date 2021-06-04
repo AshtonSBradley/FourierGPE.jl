@@ -4,22 +4,18 @@
 #     global const GLOBAL_RNG = _GLOBAL_RNG.instance
 # end
 
-# function __init__()
-#     TransformLib()
-# end
+
 
 abstract type AbstractLib end
 
-struct TransformLib <: AbstractLib 
+mutable struct TransformLib <: AbstractLib 
     t1::Matrix{Float64}
     t2::Matrix{Float64}
     
     TransformLib(t1,t2) = new(t1,t2)
     TransformLib() = TransformLib(rand([0 1],2,2),rand([0 1],2,2))
-    global const GLOBAL_TRANSFORM_LIB = TransformLib()
+    global const GLOBAL_TLIB = TransformLib()
 end
 
+
 ##
-
-__init__()
-
