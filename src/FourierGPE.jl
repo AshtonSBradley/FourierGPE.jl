@@ -27,7 +27,6 @@ include("types.jl")
 include("arrays.jl")
 include("transforms.jl")
 include("evolution.jl")
-include("analysis.jl")
 
 # simulation
 export Simulation, TransformLibrary, UserParams
@@ -40,13 +39,6 @@ export Sim, @pack_Sim!, @unpack_Sim, testsim
 export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
-export Field, XField, KField, gradient, velocity, current
+export Field, XField, KField
 
-# analysis
-# export energydecomp, helmholtz, kinetic_density
-# export incompressible_spectrum, compressible_spectrum, qpressure_spectrum
-# export incompressible_density, compressible_density, qpressure_density
-# export ic_density, iq_density, cq_density
-# export bessel_reduce, sinc_reduce, gv
-# export log10range, zeropad, autocorrelate, convolve 
 end # module
