@@ -43,10 +43,10 @@ export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
 export Field, XField, KField, gradient, velocity, current
 
 # analysis
-export energydecomp, helmholtz, kinetic_density
-export incompressible_spectrum, compressible_spectrum, qpressure_spectrum
-export incompressible_density, compressible_density, qpressure_density
-export ic_density, iq_density, cq_density
-export bessel_reduce, sinc_reduce, gv
-export log10range, zeropad, autocorrelate, convolve 
+# export energydecomp, helmholtz, kinetic_density
+# export incompressible_spectrum, compressible_spectrum, qpressure_spectrum
+# export incompressible_density, compressible_density, qpressure_density
+# export ic_density, iq_density, cq_density
+# export bessel_reduce, sinc_reduce, gv
+# export log10range, zeropad, autocorrelate, convolve 
 end # module
