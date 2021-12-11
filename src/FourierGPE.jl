@@ -11,6 +11,7 @@ using RecursiveArrayTools
 using PaddedViews
 using FFTW
 import DiffEqCallbacks.FunctionCallingCallback
+import OrdinaryDiffEq: ODEProblem, solve
 
 # using LaTeXStrings
 # using ColorSchemes
