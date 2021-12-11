@@ -14,8 +14,8 @@ function parsevaltest(L,N)
     return n1,n2
 end
 
-L = (88.)
-N = (128)
+L = (88.,)
+N = (128,)
 # X,K,dX,dK = makearrays(L,N)
 # T = makeT(X,K) # TODO: norm problem in makeT for 2,3 dims
 
