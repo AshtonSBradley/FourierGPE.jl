@@ -98,56 +98,56 @@ function internalnorm(u,t)
     return sum((abs2.(u) .> 1e-6*maximum(abs2.(u))).*abs2.(u))
 end
 
-"""
-    showpsi(x...,ψ,scale==:identity)
+# """
+#     showpsi(x...,ψ,scale==:identity)
 
-Simple plotting of wavefunction density and phase. Scales that are useful: :identity, :log10
-"""
-function showpsi(x,ψ;scale=:identity)
-    if scale == :log10
-        p1 = plot(x,log10.(abs2.(ψ) .+ eps.(abs2.(ψ))))
-        xlabel!(L"x");ylabel!(L"|\psi|^2")
-        p2 = plot(x,angle.(ψ))
-        xlabel!(L"x");ylabel!(L"\textrm{phase} (\psi)")
-        p = plot(p1,p2,layout=(2,1),size=(600,400))
-    elseif scale == :identity
-        p1 = plot(x,abs2.(ψ))
-        xlabel!(L"x");ylabel!(L"|\psi|^2")
-        p2 = plot(x,angle.(ψ))
-        xlabel!(L"x");ylabel!(L"\textrm{phase} (\psi)")
-        p = plot(p1,p2,layout=(2,1),size=(600,400))
-    end
-    return p
-end
+# Simple plotting of wavefunction density and phase. Scales that are useful: :identity, :log10
+# """
+# function showpsi(x,ψ;scale=:identity)
+#     if scale == :log10
+#         p1 = plot(x,log10.(abs2.(ψ) .+ eps.(abs2.(ψ))))
+#         xlabel!(L"x");ylabel!(L"|\psi|^2")
+#         p2 = plot(x,angle.(ψ))
+#         xlabel!(L"x");ylabel!(L"\textrm{phase} (\psi)")
+#         p = plot(p1,p2,layout=(2,1),size=(600,400))
+#     elseif scale == :identity
+#         p1 = plot(x,abs2.(ψ))
+#         xlabel!(L"x");ylabel!(L"|\psi|^2")
+#         p2 = plot(x,angle.(ψ))
+#         xlabel!(L"x");ylabel!(L"\textrm{phase} (\psi)")
+#         p = plot(p1,p2,layout=(2,1),size=(600,400))
+#     end
+#     return p
+# end
 
-function showpsi(x,y,ψ;scale=:identity)
-    ψt = transpose(ψ) #plots now handles this differently
-    if scale==:log10
-    p1 = heatmap(x,y,log10.(abs2.(ψt) .+ eps.(abs2.(ψt))),aspectratio=1,c=c1,titlefontsize=12,colorbar=false)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψt),aspectratio=1,c=c2,titlefontsize=12,colorbar=false)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"\textrm{phase} (\psi)")
-    p = plot(p1,p2,size=(600,300))
-elseif scale==:identity
-    p1 = heatmap(x,y,abs2.(ψt),aspectratio=1,c=c1,titlefontsize=12,colorbar=false)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"|\psi|^2")
-    p2 = heatmap(x,y,angle.(ψt),aspectratio=1,c=c2,titlefontsize=12,colorbar=false)
-    xlims!(x[1],x[end]);ylims!(y[1],y[end])
-    xlabel!(L"x");ylabel!(L"y")
-    title!(L"\textrm{phase} (\psi)")
-    p = plot(p1,p2,size=(600,300))
-end
-    return p
-end
+# function showpsi(x,y,ψ;scale=:identity)
+#     ψt = transpose(ψ) #plots now handles this differently
+#     if scale==:log10
+#     p1 = heatmap(x,y,log10.(abs2.(ψt) .+ eps.(abs2.(ψt))),aspectratio=1,c=c1,titlefontsize=12,colorbar=false)
+#     xlims!(x[1],x[end]);ylims!(y[1],y[end])
+#     xlabel!(L"x");ylabel!(L"y")
+#     title!(L"|\psi|^2")
+#     p2 = heatmap(x,y,angle.(ψt),aspectratio=1,c=c2,titlefontsize=12,colorbar=false)
+#     xlims!(x[1],x[end]);ylims!(y[1],y[end])
+#     xlabel!(L"x");ylabel!(L"y")
+#     title!(L"\textrm{phase} (\psi)")
+#     p = plot(p1,p2,size=(600,300))
+# elseif scale==:identity
+#     p1 = heatmap(x,y,abs2.(ψt),aspectratio=1,c=c1,titlefontsize=12,colorbar=false)
+#     xlims!(x[1],x[end]);ylims!(y[1],y[end])
+#     xlabel!(L"x");ylabel!(L"y")
+#     title!(L"|\psi|^2")
+#     p2 = heatmap(x,y,angle.(ψt),aspectratio=1,c=c2,titlefontsize=12,colorbar=false)
+#     xlims!(x[1],x[end]);ylims!(y[1],y[end])
+#     xlabel!(L"x");ylabel!(L"y")
+#     title!(L"\textrm{phase} (\psi)")
+#     p = plot(p1,p2,size=(600,300))
+# end
+#     return p
+# end
 
 #make 3D plot a slice by default, through z=0
-showpsi(x,y,z,ψ) = showpsi(x,y,ψ[:,:,size(ψ)[end]/2 |> Int])
+# showpsi(x,y,z,ψ) = showpsi(x,y,ψ[:,:,size(ψ)[end]/2 |> Int])
 #TODO: implement time plotting. Callback?
 
 """

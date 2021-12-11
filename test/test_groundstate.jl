@@ -1,5 +1,4 @@
 # ground state tests
-# using Test, Revise, FourierGPE
 
 import FourierGPE:V
 V(x,t) = 0.5*x^2
