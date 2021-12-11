@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/AshtonSBradley/FourierGPE.jl/workflows/CI/badge.svg)](https://github.com/AshtonSBradley/FourierGPE.jl/actions)
 [![Coverage](https://codecov.io/gh/AshtonSBradley/FourierGPE.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/AshtonSBradley/FourierGPE.jl)
 
-Simple GPE solver using FFTW. This package is intended to provide a julia implementation of the Gross-Pitaevskii equation based on Fourier spectral methods and [DiferentialEquations.jl]()
+Simple GPE solver using FFTW. This package is intended to provide a julia implementation of the Gross-Pitaevskii equation based on Fourier spectral methods and [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl)
 
 Aims
 - Simple, fast, and flexible modelling of Bose-Einstein condensate experiments.
