@@ -1,12 +1,12 @@
 module FourierGPE
 
 using Reexport
-using SpecialFunctions
+# using SpecialFunctions
+# using LoopVectorization    
+# using Tullio        
 using LazyArrays
 using FillArrays
 using OrdinaryDiffEq
-using LoopVectorization    
-using Tullio               
 using RecursiveArrayTools
 using PaddedViews
 using FFTW
@@ -31,15 +31,16 @@ include("evolution.jl")
 
 # simulation
 export Simulation, TransformLibrary, UserParams
-export xvec, kvec, xvecs, kvecs, dfft, dfftall, crandn_array, crandnpartition 
+export xvec, kvec, xvecs, kvecs, dfft, dfftall
+export crandn_array, crandnpartition 
 export maketransarrays, makearrays, xspace, xspace!, kspace, kspace!
 export nlin, nlin!, Lgp, Lgp!, V, Params
 export initsim!, runsim, internalnorm
 export Transforms, @pack_Transforms!, @unpack_Transforms
 export Sim, @pack_Sim!, @unpack_Sim, testsim
-# export showpsi, c1, c2, c3
 export Params, @pack_Params!, @unpack_Params
 export k2, @pack!, @unpack, makeT, definetransforms #makeTMixed,
 export Field, XField, KField
+# export showpsi, c1, c2, c3
 
 end # module
