@@ -4,6 +4,7 @@ authors = ["Ashton Bradley <ashton.bradley@gmail.com>"]
 version = "0.1.1"
 
 [deps]
+DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
