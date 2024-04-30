@@ -1,7 +1,7 @@
 name = "FourierGPE"
 uuid = "f013a474-557c-11e9-3596-438edcad9d97"
 authors = ["Ashton Bradley <ashton.bradley@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
