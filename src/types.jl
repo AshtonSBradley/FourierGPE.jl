@@ -19,10 +19,10 @@ struct KField{D} <: Field
 end
 
 @with_kw mutable struct Transforms{D,N} <: TransformLibrary
-    Txk::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,false,D,UnitRange{Int64}},Float64} = 0.1*plan_fft(crandn_array(D))
-    Txk!::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},-1,true,D,UnitRange{Int64}},Float64} = 0.1*plan_fft!(crandn_array(D))
-    Tkx::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,false,D,UnitRange{Int64}},Float64} = 0.1*plan_ifft(crandn_array(D))
-    Tkx!::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.cFFTWPlan{Complex{Float64},1,true,D,UnitRange{Int64}},Float64} = 0.1*plan_ifft!(crandn_array(D))
+    Txk = 0.1*plan_fft(crandn_array(D))
+    Txk! = 0.1*plan_fft!(crandn_array(D))
+    Tkx = 0.1*plan_ifft(crandn_array(D))
+    Tkx! = 0.1*plan_ifft!(crandn_array(D))
     psi::ArrayPartition = crandnpartition(D,N)
 end
 
@@ -46,7 +46,7 @@ end
     V0::Array{Float64,D} = zeros(N)
     t::LinRange{Float64} = LinRange(ti,tf,Nt) # time of saves
     ϕi::Array{Complex{Float64},D} = zeros(N) |> complex # initial condition
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Tsit5() # default solver
+    alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Vern6() # default solver
     reltol::Float64 = 1e-6 # default tolerance; may need to use 1e-7 for corner cases
     flags::UInt32 = FFTW.MEASURE # choose a plan. PATIENT, NO_TIMELIMIT, EXHAUSTIVE
     # === saving
