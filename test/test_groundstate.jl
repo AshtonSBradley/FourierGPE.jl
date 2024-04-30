@@ -33,6 +33,6 @@ runsim(sim;info=false)
 sol,err = testsim(sim)
 @test err == false
 
-psitest = xspace(sol[end],sim)
+psitest = xspace(sol.u[end],sim)
 npeak = abs2.(psitest[256])
 @test isapprox(g*npeak,μ,rtol=1e-2)
