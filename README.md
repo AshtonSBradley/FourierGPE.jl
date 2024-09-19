@@ -1,4 +1,5 @@
 # FourierGPE.jl
+__This project is no longer actively maintained__
 
 [![Build Status](https://github.com/AshtonSBradley/FourierGPE.jl/workflows/CI/badge.svg)](https://github.com/AshtonSBradley/FourierGPE.jl/actions)
 [![Coverage](https://codecov.io/gh/AshtonSBradley/FourierGPE.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/AshtonSBradley/FourierGPE.jl)
