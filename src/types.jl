@@ -32,21 +32,21 @@ end
     κ = 0.0 # a placeholder
 end
 
-@with_kw mutable struct Sim{D} <: Simulation{D} @deftype Float64
+@with_kw mutable struct Sim{D} <: Simulation{D}
     # Add more parameters as necessary, or add to params (see examples)
     L::NTuple{D,Float64} # box length scales
     N::NTuple{D,Int64}  # grid points in each dimensions
-    μ = 15.0    # chemical potential
-    g = 0.1     # interaction parameter
-    γ = 0.5; @assert γ >= 0.0 # damping parameter
-    ti = 0.0    # initial time
-    tf = 2/γ    # final time
+    μ::Float64 = 15.0    # chemical potential
+    g::Float64 = 0.1     # interaction parameter
+    γ::Float64 = 0.5; @assert γ >= 0.0 # damping parameter
+    ti::Float64 = 0.0    # initial time
+    tf::Float64 = 2/γ    # final time
     Nt::Int64 = 200     # number of saves over (ti,tf)
     params::UserParams = Params() # optional user parameters
     V0::Array{Float64,D} = zeros(N)
     t::LinRange{Float64} = LinRange(ti,tf,Nt) # time of saves
     ϕi::Array{Complex{Float64},D} = zeros(N) |> complex # initial condition
-    alg::OrdinaryDiffEq.OrdinaryDiffEqAdaptiveAlgorithm = Vern6() # default solver
+    alg  = Vern6() # default solver
     reltol::Float64 = 1e-6 # default tolerance; may need to use 1e-7 for corner cases
     flags::UInt32 = FFTW.MEASURE # choose a plan. PATIENT, NO_TIMELIMIT, EXHAUSTIVE
     # === saving

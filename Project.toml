@@ -1,7 +1,7 @@
 name = "FourierGPE"
 uuid = "f013a474-557c-11e9-3596-438edcad9d97"
 authors = ["Ashton Bradley <ashton.bradley@gmail.com>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
@@ -17,12 +17,12 @@ RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
-FFTW = "1"
+FFTW = "1.9.0"
 FileIO = "1"
 FillArrays = "1"
-JLD2 = "0.4"
-LazyArrays = "1"
-OrdinaryDiffEq = "6"
+JLD2 = "0.6.1"
+LazyArrays = "2.6.2"
+OrdinaryDiffEq = "6.102.0"
 PaddedViews = "0.5"
 Parameters = "0.12"
 RecursiveArrayTools = "3"
